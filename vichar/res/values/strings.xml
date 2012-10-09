@@ -6,5 +6,11 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="enter_game">Go to GameActivity</string>
     <string name="test_activity_game">This is the GameActivity!</string>
-
+    
+    <string name="twitter_username_key">twitter_username_key</string>
+	<string name="vichar_username_key">vichar_username_key</string>
+	<string name="username_prefs">username_prefs</string> 
+	<string name="enter_tw_username">Enter Twitter Username</string>
+	<string name="enter_vichar_username">Enter ViChar Username</string>
+	<string name="button_ok">OK</string>
 </resources>
