@@ -2,10 +2,33 @@
     package="edu.pugetsound.vichar"
     android:versionCode="1"
     android:versionName="1.0" >
-
+    
     <uses-sdk
         android:minSdkVersion="8"
         android:targetSdkVersion="15" />
+    
+    <!-- 
+    	Explicitly use this camera feature so as to support cameras 
+    	without support for other features. (If we request the camera
+    	permission but no features, Android assumes we need all of 
+    	them.)
+    -->
+    <uses-feature android:name="android.hardware.camera" /> 
+    
+    <!-- Permission to access camera  -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    
+    <!-- Allow opening network sockets  -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    
+    <!-- Get permission to check which network access properties (e.g. active type: 3G/WiFi). -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    
+    <!-- Get permission to access WLAN MAC address. -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    
+    <!-- Get permission to access HW ID. -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
     <application
         android:icon="@drawable/ic_launcher"
