@@ -29,6 +29,7 @@ public class MainActivity extends FragmentActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        this.authorizeTwitter();
     }
 
     @Override
@@ -49,16 +50,11 @@ public class MainActivity extends FragmentActivity
         }
     }
     
-    
-
-    
-
-    
     /**
      * Called when either ok button pressed
      * @param view
      */
-    public void sendMessage(View view) 
+    /*public void sendMessage(View view) 
     {
     	Log.d("viCHar","send message commenced");
 
@@ -74,16 +70,42 @@ public class MainActivity extends FragmentActivity
     		String message = editText.getText().toString();
     		saveUsername(message, true);
     	}  	
-    }
+    }*/
+	
+    /**
+     * Authorize user
+     */
+    private void authorizeTwitter()
+	{
+		twitter = new TwitterFactory().getInstance();
+		twitter.setOAuthConsumer(
+				this.getString(R.string.oauth_consumer_key), 
+				this.getString(R.string.oauth_consumer_secret));
+    	
+		try
+		{
+			RequestToken requestToken = twitter.getOAuthRequestToken();
+			showTwPinDialog(requestToken.getAuthorizationURL());
+		}
+		catch (TwitterException te)
+		{
+			if(401 == te.getStatusCode())
+	        {
+	        	System.out.println("Unable to get the request token.");
+	        } else{
+	        	te.printStackTrace();
+	        }
+		}	    
+	}
     
     /**
      * Calls Oauth dialog for logging into Twitter
      */
     public void showTwPinDialog(String url)
     {
-    	DialogFragment dialog = TwitterOauthPinDialog.newInstance(this);
-    	dialog.setUrl(url);
+    	DialogFragment dialog = TwitterOauthPinDialog.newInstance(this, url);
     	dialog.show(getSupportFragmentManager(), "TwitterOauthPinDialog");
+    	//((TwitterOauthPinDialog) dialog).loadUrl();
     }
     
     /**
@@ -91,71 +113,37 @@ public class MainActivity extends FragmentActivity
      */
     public void onDialogPositiveClick(DialogFragment dialog, String pin)
     {
-    	AccessToken accessToken = null;
 	    try
 	    {
-            accessToken = twitter.getOAuthAccessToken(twitter.getOAuthRequestToken(), pin);
+	    	AccessToken accessToken = twitter.getOAuthAccessToken(twitter.getOAuthRequestToken(), pin);
+            //persist the access token
+            storeAccessToken((int)twitter.verifyCredentials().getId(), accessToken);
 	    } 
 	    catch (TwitterException te) 
 	    {
 	        if(401 == te.getStatusCode())
 	        {
 	        	System.out.println("Unable to get the access token.");
-	        }else{
+	        } else{
 	        	te.printStackTrace();
 	        }
 	    }
-    
-	    //persist to the accessToken for future reference.
-	    try
-	    {
-	    	storeAccessToken((int)twitter.verifyCredentials().getId(), accessToken);
-	    }
-	    catch (TwitterException e)
-	    {
-	    	//lol
-	    }
-	    dialog.dismiss();    	
+	    // Remove the pin dialog
+	    dialog.dismiss();  	
     }
     
     /**
-     * 
+     * If the dialog is cancelled, dismiss it
      */
-    public void onNegativeClick(DialogFragment dialog)
+    public void onDialogNegativeClick(DialogFragment dialog)
     {
     	dialog.dismiss();
     }
-	
-    /**
-     * Authorize user
-     */
-    private void authorize()
-	{
-		ConfigurationBuilder cb = new ConfigurationBuilder();
-		cb.setDebugEnabled(true)
-		  .setOAuthConsumerKey(getString(R.string.oauth_consumer_key))
-		  .setOAuthConsumerSecret(getString(R.string.oauth_consumer_secret))
-		  .setOAuthAccessToken("")
-		  .setOAuthAccessTokenSecret("");
-		TwitterFactory tf = new TwitterFactory(cb.build());
-		twitter = tf.getInstance();
-    	
-		try
-		{
-			RequestToken requestToken = twitter.getOAuthRequestToken();
-			showTwPinDialog(requestToken.getAuthorizationURL());
-		}
-		catch (TwitterException e)
-		{
-			
-		}	    
-	}
     
-
-	  private static void storeAccessToken(int useId, AccessToken accessToken)
-	  {
-		  PreferenceUtility prefs = new PreferenceUtility();
-		  prefs.saveString(getString(R.string.oauth_access_token), accessToken.getToken(), this);
-		  prefs.saveString(getString(R.string.oauth_token_secret), accessToken.getTokenSecret(), this);
+    private void storeAccessToken(int useId, AccessToken accessToken)
+    {
+		PreferenceUtility prefs = new PreferenceUtility();
+		prefs.saveString(this.getString(R.string.oauth_access_token), accessToken.getToken(), this);
+		prefs.saveString(this.getString(R.string.oauth_token_secret), accessToken.getTokenSecret(), this);
 	}
 }

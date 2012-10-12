@@ -6,6 +6,8 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.view.LayoutInflater;
+import android.view.View;
+import android.webkit.WebView;
 import android.widget.EditText;
 import android.support.v4.app.DialogFragment;
 
@@ -20,7 +22,10 @@ public class TwitterOauthPinDialog extends DialogFragment {
     //Implementing class (MainActivity for example) becomes this
     static TwitterOauthPinDialogListener topdListener;
     
-    public static TwitterOauthPinDialog newInstance(Activity activity) 
+    private WebView webView;
+    private String webViewUrl;
+    
+    public static TwitterOauthPinDialog newInstance(Activity activity, String url) 
 	{
         // Verify that the host activity implements the callback interface
         try {
@@ -30,9 +35,11 @@ public class TwitterOauthPinDialog extends DialogFragment {
         catch (ClassCastException e) {
             // The activity doesn't implement the interface, throw exception
             throw new ClassCastException(activity.toString()
-                    + " must implement NoticeDialogListener");
+                    + " must implement TwitterOauthPinDialogListener");
         }
         TwitterOauthPinDialog frag = new TwitterOauthPinDialog();
+        System.out.println("Auth URL passed in: " + url);
+        frag.setUrl(url);
         return frag;
 	}
     
@@ -41,7 +48,7 @@ public class TwitterOauthPinDialog extends DialogFragment {
 	    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 	    // Get the layout inflater
 	    LayoutInflater inflater = getActivity().getLayoutInflater();
-
+	    
 	    // Inflate and set the layout for the dialog
 	    // Pass null as the parent view because its going in the dialog layout
 	    builder.setView(inflater.inflate(R.layout.dialog_twitter_oauth_pin, null))
@@ -50,7 +57,7 @@ public class TwitterOauthPinDialog extends DialogFragment {
 	        	   @Override
 	               public void onClick(DialogInterface dialog, int id) 
 	        	   {
-	        		   EditText editText = (EditText) getActivity().findViewById(R.id.twitter_auth_pin);
+	        		   EditText editText = (EditText) TwitterOauthPinDialog.this.getDialog().findViewById(R.id.twitter_auth_pin);
 	        		   String pin = editText.getText().toString();
 	        		   topdListener.onDialogPositiveClick(TwitterOauthPinDialog.this, pin);
 	               }
@@ -59,10 +66,28 @@ public class TwitterOauthPinDialog extends DialogFragment {
 	               public void onClick(DialogInterface dialog, int id) {
 	                   TwitterOauthPinDialog.this.getDialog().cancel();
 	               }
-	           });      
+	           });
 	    return builder.create();
 	}
 	
+	@Override
+	public void onActivityCreated (Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		this.webView = (WebView) this.getView().findViewById(R.id.twitter_auth_webview);
+		this.loadUrl();
+	}
+
+	public void setUrl(String url) {
+		this.webViewUrl = url;
+	}
 	
+	public void loadUrl() {
+		System.out.println("Loading URL: " + this.webViewUrl);
+		//WebView webview = (WebView) this.getDialog().findViewById(R.id.twitter_auth_webview);
+		//System.out.println("Got webview ref");
+		System.out.println(this.webView);
+		this.webView.loadUrl(this.webViewUrl);
+		System.out.println("Loaded URL");
+	}
 
 }
