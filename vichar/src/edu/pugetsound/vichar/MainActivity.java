@@ -1,5 +1,12 @@
 package edu.pugetsound.vichar;
 
+import twitter4j.Status;
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import twitter4j.TwitterFactory;
+import twitter4j.auth.AccessToken;
+import twitter4j.auth.RequestToken;
+import twitter4j.conf.ConfigurationBuilder;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,10 +15,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
-public class MainActivity extends Activity {
 
+public class MainActivity extends FragmentActivity 
+							implements TwitterOauthPinDialog.TwitterOauthPinDialogListener 
+{
+	private Twitter twitter;
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,50 +49,10 @@ public class MainActivity extends Activity {
         }
     }
     
-    /**
-     * saves username to persistent storage
-     * @param user
-     * @param loginType
-     */
-    private void saveUsername(String user, boolean loginType)
-    {
-    	Log.d("viCHar","save username commenced");
-   		SharedPreferences sharedPref = getSharedPreferences(getString(R.string.username_prefs), 0);
-   		SharedPreferences.Editor editor = sharedPref.edit();
-   		
-    	if(loginType==false) //if this is a Twitter username
-    	{    		
-    		editor.putString(getString(R.string.twitter_username_key), user);
-    		editor.commit();
-    	}
-    	else  //if this is a ViChar server username
-    	{
-    		editor.putString(getString(R.string.vichar_username_key), user);
-    		editor.commit();
-    	}
-    	Log.d("viCHar","commited!");
-    	
-    	checkSave(loginType);
-    }
     
-    /*
-     * Test method, return saved values
-     */
-    private String checkSave(boolean loginType)
-    {
-    	String toReturn;
-   		SharedPreferences sharedPref = getSharedPreferences(getString(R.string.username_prefs), 0);
-   		if (loginType==false)
-   		{
-   			toReturn = sharedPref.getString(getString(R.string.twitter_username_key), "Fail");
-   		}
-   		else
-   		{
-   			toReturn = sharedPref.getString(getString(R.string.vichar_username_key), "Fail");
-   		}
-   		Log.d("viCHar", toReturn);
-   		return toReturn;
-    }
+
+    
+
     
     /**
      * Called when either ok button pressed
@@ -103,5 +76,86 @@ public class MainActivity extends Activity {
     	}  	
     }
     
+    /**
+     * Calls Oauth dialog for logging into Twitter
+     */
+    public void showTwPinDialog(String url)
+    {
+    	DialogFragment dialog = TwitterOauthPinDialog.newInstance(this);
+    	dialog.setUrl(url);
+    	dialog.show(getSupportFragmentManager(), "TwitterOauthPinDialog");
+    }
+    
+    /**
+     * 
+     */
+    public void onDialogPositiveClick(DialogFragment dialog, String pin)
+    {
+    	AccessToken accessToken = null;
+	    try
+	    {
+            accessToken = twitter.getOAuthAccessToken(twitter.getOAuthRequestToken(), pin);
+	    } 
+	    catch (TwitterException te) 
+	    {
+	        if(401 == te.getStatusCode())
+	        {
+	        	System.out.println("Unable to get the access token.");
+	        }else{
+	        	te.printStackTrace();
+	        }
+	    }
+    
+	    //persist to the accessToken for future reference.
+	    try
+	    {
+	    	storeAccessToken((int)twitter.verifyCredentials().getId(), accessToken);
+	    }
+	    catch (TwitterException e)
+	    {
+	    	//lol
+	    }
+	    dialog.dismiss();    	
+    }
+    
+    /**
+     * 
+     */
+    public void onNegativeClick(DialogFragment dialog)
+    {
+    	dialog.dismiss();
+    }
+	
+    /**
+     * Authorize user
+     */
+    private void authorize()
+	{
+		ConfigurationBuilder cb = new ConfigurationBuilder();
+		cb.setDebugEnabled(true)
+		  .setOAuthConsumerKey(getString(R.string.oauth_consumer_key))
+		  .setOAuthConsumerSecret(getString(R.string.oauth_consumer_secret))
+		  .setOAuthAccessToken("")
+		  .setOAuthAccessTokenSecret("");
+		TwitterFactory tf = new TwitterFactory(cb.build());
+		twitter = tf.getInstance();
+    	
+		try
+		{
+			RequestToken requestToken = twitter.getOAuthRequestToken();
+			showTwPinDialog(requestToken.getAuthorizationURL());
+		}
+		catch (TwitterException e)
+		{
+			
+		}	    
+	}
+    
 
+	  private static void storeAccessToken(int useId, AccessToken accessToken)
+	  {
+		  PreferenceUtility prefs = new PreferenceUtility();
+		  prefs.saveString(getString(R.string.oauth_access_token), accessToken.getToken(), this);
+		  prefs.saveString(getString(R.string.oauth_token_secret), accessToken.getTokenSecret(), this);
+	}
 }
