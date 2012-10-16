@@ -3,42 +3,23 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <EditText
-        android:id="@+id/enter_twitter_username"
+    <Button
+        android:id="@+id/login_with_twitter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="46dp"
-        android:ems="10"
-        android:hint="@string/enter_tw_username" >
-    </EditText>
+        android:layout_centerVertical="true"
+        android:onClick="authorizeTwitter"
+        android:text="@string/login_with_twitter" />
 
     <Button
-        android:id="@+id/ok_tw_username"
+        android:id="@+id/login_with_vichar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/enter_twitter_username"
-        android:layout_centerHorizontal="true"
-        android:onClick="sendMessage"
-        android:text="@string/button_ok" />
-
-    <EditText
-        android:id="@+id/enter_vichar_username"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/enter_twitter_username"
-        android:layout_below="@+id/ok_tw_username"
-        android:ems="10"
-        android:hint="@string/enter_vichar_username" >
-    </EditText>
-    
-    <Button
-        android:id="@+id/ok_vichar_username"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/enter_vichar_username"
-        android:layout_centerHorizontal="true"
-        android:onClick="sendMessage"
-        android:text="@string/button_ok" />
+        android:layout_above="@+id/login_with_twitter"
+        android:layout_alignLeft="@+id/login_with_twitter"
+        android:layout_marginBottom="63dp"
+        android:onClick="authorizeVichar"
+        android:text="@string/login_with_vichar" />
 
 </RelativeLayout>

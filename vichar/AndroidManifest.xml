@@ -51,11 +51,13 @@
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
         </activity>
         <activity
-            android:name=".TwitterOauthPinDialog"
-            android:label="@string/title_activity_twitter_oauth_pin_dialog" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="DialogFragment" />
+            android:name=".TwitterOAuthActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
     </application>
 

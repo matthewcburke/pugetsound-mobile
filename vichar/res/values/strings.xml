@@ -17,7 +17,9 @@
     <string name="oauth_callback_url">http://www.PLACEHOLDERURL.com</string>
     <string name="oauth_access_token">oauth_access_token</string>
     <string name="oauth_token_secret">oauth_token_secret</string>
-    <string name="title_activity_twitter_oauth_pin_dialog">TwitterOauthPinDialog</string>
-    <string name="button_cancel">Cancel</string>
-
+	<string name="enter_pin">Enter Above Pin</string>
+	<string name="login_with_twitter">Login With Twitter</string>
+	<string name="login_with_vichar">Login With Vichar</string>
+	<string name="access_token_key">access_token_key</string>
+	<string name="access_token_secret_key">access_token_secret_key</string>
 </resources>
