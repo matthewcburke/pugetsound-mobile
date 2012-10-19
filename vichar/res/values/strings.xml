@@ -6,8 +6,6 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="enter_game">Go to GameActivity</string>
     <string name="test_activity_game">This is the GameActivity!</string>
-    <string name="twitter_username_key">twitter_username_key</string>
-    <string name="vichar_username_key">vichar_username_key</string>
     <string name="prefs_key">prefs_key</string>
     <string name="enter_tw_username">Enter Twitter Username</string>
     <string name="enter_vichar_username">Enter ViChar Username</string>
@@ -20,6 +18,11 @@
 	<string name="enter_pin">Enter Above Pin</string>
 	<string name="login_with_twitter">Login With Twitter</string>
 	<string name="login_with_vichar">Login With Vichar</string>
+	
+	
+	<!-- Preference Keys -->
 	<string name="access_token_key">access_token_key</string>
 	<string name="access_token_secret_key">access_token_secret_key</string>
+	<string name="twitter_username_key">twitter_username_key</string>
+    <string name="vichar_username_key">vichar_username_key</string>
 </resources>
