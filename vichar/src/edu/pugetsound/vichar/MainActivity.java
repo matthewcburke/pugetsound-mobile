@@ -6,9 +6,12 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.util.Log;
 
-
+/**
+ * Main activity, this is the first screen users will see
+ * @author Nathan P
+ * @version 10/16/12
+ */
 public class MainActivity extends Activity
 							
 {
@@ -42,101 +45,4 @@ public class MainActivity extends Activity
     	Intent twitterOAuthIntent = new Intent(this, TwitterOAuthActivity.class);
     	startActivity(twitterOAuthIntent);
     }
-    
-//    /**
-//     * Called when either ok button pressed
-//     * @param view
-//     */
-//    public void sendMessage(View view) 
-//    {
-//    	Log.d("viCHar","send message commenced");
-//
-//    	if(view.getId()==R.id.ok_tw_username)
-//    	{
-//    		EditText editText = (EditText) findViewById(R.id.enter_twitter_username);
-//    		String message = editText.getText().toString();
-//    		saveUsername(message, false);    		
-//    	}
-//    	else
-//    	{
-//    		EditText editText = (EditText) findViewById(R.id.enter_vichar_username);
-//    		String message = editText.getText().toString();
-//    		saveUsername(message, true);
-//    	}  	
-//    }
-	
-//    /**
-//     * Authorize user
-//     */
-//    private void authorizeTwitter()
-//	{
-//		twitter = new TwitterFactory().getInstance();
-//		twitter.setOAuthConsumer(
-//				this.getString(R.string.oauth_consumer_key), 
-//				this.getString(R.string.oauth_consumer_secret));
-//    	
-//		try
-//		{
-//			RequestToken requestToken = twitter.getOAuthRequestToken();
-//			showTwPinDialog(requestToken.getAuthorizationURL());
-//		}
-//		catch (TwitterException te)
-//		{
-//			if(401 == te.getStatusCode())
-//	        {
-//	        	System.out.println("Unable to get the request token.");
-//	        } else{
-//	        	te.printStackTrace();
-//	        }
-//		}	    
-//	}
-//    
-//    /**
-//     * Calls Oauth dialog for logging into Twitter
-//     */
-//    public void showTwPinDialog(String url)
-//    {
-//    	DialogFragment dialog = TwitterOauthPinDialog.newInstance(this, url);
-//    	dialog.show(getSupportFragmentManager(), "TwitterOauthPinDialog");
-//    	//((TwitterOauthPinDialog) dialog).loadUrl();
-//    }
-//    
-//    /**
-//     * 
-//     */
-//    public void onDialogPositiveClick(DialogFragment dialog, String pin)
-//    {
-//	    try
-//	    {
-//	    	AccessToken accessToken = twitter.getOAuthAccessToken(twitter.getOAuthRequestToken(), pin);
-//            //persist the access token
-//            storeAccessToken((int)twitter.verifyCredentials().getId(), accessToken);
-//	    } 
-//	    catch (TwitterException te) 
-//	    {
-//	        if(401 == te.getStatusCode())
-//	        {
-//	        	System.out.println("Unable to get the access token.");
-//	        } else{
-//	        	te.printStackTrace();
-//	        }
-//	    }
-//	    // Remove the pin dialog
-//	    dialog.dismiss();  	
-//    }
-//    
-//    /**
-//     * If the dialog is cancelled, dismiss it
-//     */
-//    public void onDialogNegativeClick(DialogFragment dialog)
-//    {
-//    	dialog.dismiss();
-//    }
-//    
-//    private void storeAccessToken(int useId, AccessToken accessToken)
-//    {
-//		PreferenceUtility prefs = new PreferenceUtility();
-//		prefs.saveString(this.getString(R.string.oauth_access_token), accessToken.getToken(), this);
-//		prefs.saveString(this.getString(R.string.oauth_token_secret), accessToken.getTokenSecret(), this);
-//	}
 }
