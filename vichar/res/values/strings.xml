@@ -6,5 +6,18 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="enter_game">Go to GameActivity</string>
     <string name="test_activity_game">This is the GameActivity!</string>
+    <string name="title_activity_test">TestActivity</string>
+
+    <color name="myColor">#F5F5F5</color>
+
+    <string name="enter_test">Go to TestActivity</string>
+    <string name="enter_main">Back to Main</string>
+    <string name="title_activity_leaderboard">LeaderboardActivity</string>
+    <string name="title_activity_main_menu">MainMenuActivity</string>
+    <string name="title_activity_rules">RulesActivity</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="title_activity_about">AboutActivity</string>
+    <string name="title_activity_tweet">TweetActivity</string>
+    <string name="about_info">Nathan, Kirah, Micheal, Robert, Davis</string>
 
 </resources>

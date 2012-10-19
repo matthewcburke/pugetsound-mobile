@@ -1,29 +1,22 @@
 package edu.pugetsound.vichar;
 
-import android.content.Intent;
 import android.os.Bundle;
+import android.app.Activity;
+import android.content.Intent;
 import android.view.Menu;
 import android.view.MenuItem;
-//Import Fragment dependencies
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentActivity;
 
-/**
- * The in-game Activity
- * Extends FragmentActivity to ensure support for Android 2.x
- */
-public class GameActivity extends FragmentActivity {
+public class RulesActivity extends Activity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_game);
+        setContentView(R.layout.activity_rules);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_game, menu);
+        getMenuInflater().inflate(R.menu.activity_rules, menu);
         return true;
     }
     @Override
@@ -32,9 +25,6 @@ public class GameActivity extends FragmentActivity {
     	switch (item.getItemId()) {
             case R.id.enter_main_menu:
             	startActivity(new Intent(this, MainMenuActivity.class));
-                return true;
-            case R.id.enter_tweet:
-            	startActivity(new Intent(this, TweetActivity.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

@@ -5,36 +5,39 @@ import android.app.Activity;
 import android.content.Intent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.support.v4.app.NavUtils;
 
-public class MainActivity extends Activity {
+public class TestActivity extends Activity {
 
+	
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-    }
+        setContentView(R.layout.activity_test);
+        }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_main, menu);
+        getMenuInflater().inflate(R.menu.activity_test, menu);
         return true;
     }
+
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
         switch (item.getItemId()) {
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
             case R.id.enter_game:
             	startActivity(new Intent(this, GameActivity.class));
                 return true;
-            case R.id.button2:
-            	startActivity(new Intent(this, TestActivity.class));
+            case R.id.item1:
+            	startActivity(new Intent(this, MainActivity.class));
                 return true;
-            case R.id.enter_main_menu:
-            	startActivity(new Intent(this, MainMenuActivity.class));
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
         }
+        return super.onOptionsItemSelected(item);
     }
+
 }
