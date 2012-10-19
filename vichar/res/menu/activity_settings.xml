@@ -3,12 +3,12 @@
         android:title="@string/menu_settings"
         android:orderInCategory="100"
         android:showAsAction="never" />
-    <item android:id="@+id/enter_main_menu" 
-        android:title="@string/title_activity_main_menu" 
+    <item android:id="@+id/enter_about" 
+        android:title="@string/title_activity_about" 
         android:orderInCategory="100" 
         android:showAsAction="always"></item>
-    <item android:id="@+id/enter_tweet" 
-        android:title="@string/title_activity_tweet" 
+    <item android:id="@+id/enter_main_menu" 
+        android:title="@string/title_activity_main_menu" 
         android:orderInCategory="100" 
         android:showAsAction="always"></item>
 </menu>

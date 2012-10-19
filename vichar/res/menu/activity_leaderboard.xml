@@ -7,8 +7,4 @@
         android:title="@string/title_activity_main_menu" 
         android:orderInCategory="100" 
         android:showAsAction="always"></item>
-    <item android:id="@+id/enter_tweet" 
-        android:title="@string/title_activity_tweet" 
-        android:orderInCategory="100" 
-        android:showAsAction="always"></item>
 </menu>

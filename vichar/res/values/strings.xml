@@ -25,4 +25,18 @@
 	<string name="access_token_secret_key">access_token_secret_key</string>
 	<string name="twitter_username_key">twitter_username_key</string>
     <string name="vichar_username_key">vichar_username_key</string>
+    <string name="title_activity_test">TestActivity</string>
+
+    <color name="myColor">#F5F5F5</color>
+
+    <string name="enter_test">Go to TestActivity</string>
+    <string name="enter_main">Back to Main</string>
+    <string name="title_activity_leaderboard">LeaderboardActivity</string>
+    <string name="title_activity_main_menu">MainMenuActivity</string>
+    <string name="title_activity_rules">RulesActivity</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="title_activity_about">AboutActivity</string>
+    <string name="title_activity_tweet">TweetActivity</string>
+    <string name="about_info">Nathan, Kirah, Micheal, Robert, Davis</string>
+
 </resources>

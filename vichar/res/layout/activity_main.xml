@@ -1,7 +1,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+     android:layout_height="match_parent"
+    android:background="@drawable/vi_char_robot" >
 
     <Button
         android:id="@+id/login_with_twitter"
@@ -21,5 +22,6 @@
         android:layout_marginBottom="63dp"
         android:onClick="authorizeVichar"
         android:text="@string/login_with_vichar" />
+
 
 </RelativeLayout>
