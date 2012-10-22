@@ -19,7 +19,7 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 
-public class httpService extends Service {
+public class HttpService extends Service {
 
 	
 private final IBinder binder = new LocalBinder();
@@ -66,8 +66,8 @@ private final IBinder binder = new LocalBinder();
 	}
 
 	public class LocalBinder extends Binder {
-        httpService getService() {
-        return httpService.this;
+        HttpService getService() {
+        return HttpService.this;
         }
     }
 
