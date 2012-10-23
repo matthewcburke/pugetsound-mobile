@@ -10,6 +10,7 @@
     <string name="oauth_callback_url">http://www.PLACEHOLDERURL.com</string>
     <string name="oauth_access_token">oauth_access_token</string>
     <string name="oauth_token_secret">oauth_token_secret</string>
+    <string name="prefs_error">retrieve error</string>
 	
 	<!-- Text to Read -->
 	<string name="default_twitter_prompt">No Current Twitter Challenge!</string>
