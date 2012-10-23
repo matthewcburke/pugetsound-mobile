@@ -1,33 +1,37 @@
 package edu.pugetsound.vichar;
 
 import android.os.Bundle;
-import android.app.Activity;
-import android.content.Intent;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+import android.support.v4.app.*;
 
-public class TweetActivity extends Activity {
+public class TweetActivity extends Fragment {
 
+	private String curPrompt;
+	
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_tweet);
+    public View onCreateView(LayoutInflater inflater, 
+    							ViewGroup container, Bundle savedInstanceState) {
+        //get default prompt text
+    	curPrompt = getString(R.string.default_twitter_prompt);
+    	//set default prompt text
+    	TextView twitterPrompt = (TextView) getView().findViewById(R.id.cur_twitter_challenge);
+    	twitterPrompt.setText(curPrompt);
+    	//inflate the fragment's layout
+        return inflater.inflate(R.layout.activity_tweet, container, false);
     }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_tweet, menu);
-        return true;
-    }
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        //handles item selection in menu
-    	switch (item.getItemId()) {
-            case R.id.enter_main_menu:
-            	startActivity(new Intent(this, MainMenuActivity.class));
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-    	}
+    
+    /**
+     * Sets prompt and updates display
+     * @param newPrompt New Twitter prompt to display
+     */
+    public void setPrompt(String newPrompt)
+    {
+    	curPrompt = newPrompt;
+    	//update display
+    	TextView twitterPrompt = (TextView) getView().findViewById(R.id.cur_twitter_challenge);
+    	twitterPrompt.setText(curPrompt);
     }
 }
