@@ -1,19 +1,12 @@
 package edu.pugetsound.vichar;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.EditText;
 import android.util.Log;
 
 /**
  * A utility for saving and retrieving values from persistent storage 
- * on mobile device
+ * on mobile device. Values are stored in a key/value pair.
  * @author Nathan P
  * @version 10/15/12
  */
@@ -43,8 +36,8 @@ public class PreferenceUtility {
     /*
      * Returns saved String value at provided key
      * @param key Key to check saved value at
+     * @param error String to return if retrieved value is NOT a String
      * @param act Current activity
-     * @param error String to return if retrieved value is not a String
      * @return The value currently saved in key location, or error String       
      */
     public String returnSavedString(String key, String error, Activity act)
