@@ -35,7 +35,7 @@ private Object jsonobj = new JSONObject();
 
 	/**
 	 * Takes JSON objects sent by activities and passes them to the server
-	 * @param view The calling view
+	 * @param intent The intent holding the JSON object
 	 */
 	public void send(Intent intent) {
 		final Intent theIntent = intent;
