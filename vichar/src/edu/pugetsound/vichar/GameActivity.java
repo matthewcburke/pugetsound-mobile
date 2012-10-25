@@ -35,6 +35,7 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
     boolean isBoundToSocketService = false;
     boolean isBoundToHttpService = false;
     private float touchX, touchY;
+    private JSONObject gameState;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -58,6 +59,15 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
         /*// Bind this activity to Networking Service
         Intent intent = new Intent(GameActivity.this, HttpService.class);
         bindService(intent, socketServiceConnection, Context.BIND_AUTO_CREATE);*/
+    	
+//    	do {
+//    		//wait for HttpService
+//    	} while(!isBoundToHttpService);
+    	try {
+    		gameState = new JSONObject("{\"turret\":{\"position\":\"100,0,300\",\"ID\":\"1\"}}");
+    	} catch(JSONException e) {
+    		Log.i(this.toString(), "JSONException");
+    	}
     }
 
     @Override
@@ -124,18 +134,27 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
 	    	Log.d(this.toString(),"dY: " + dy);
 	    	
 	    	try {
-		    	JSONObject json = new JSONObject("{\"turret\":{\"position\":\"100,0,300\",\"ID\":\"1\"}}");
-		    	JSONObject turret = json.getJSONObject("turret");
-		    	String position = json.getString("position");
+		    	JSONObject turret = gameState.getJSONObject("turret");
+		    	//JSONObject turret = json.getJSONObject("turret");
+		    	String position = turret.getString("position");
 		    	Log.d(this.toString(),position);
-		    	List<String> coors = Arrays.asList(position.split("\\s*,\\s*"));
-		    	coors.add(0, coors.get(0) + dx);
-		    	coors.add(1, coors.get(1) + dy);
-		    	turret.put("position", "");
+		    	String[] coors = position.split("\\s*,\\s*");
+		    	float turretX = Float.valueOf(coors[0].trim()).floatValue();
+		    	float turretZ = Float.valueOf(coors[2].trim()).floatValue();
+		    	
+		    	coors[0] = Float.toString(turretX + dx);
+		    	coors[2] =  Float.toString(turretZ + dy);
+		    	
+		    	for(int i = 0; i < coors.length; i++) {
+		    		if(i == 0) position = coors[i];
+		    		else position += "," + coors[i];
+		    	}
+		    	
+		    	turret.put("position", position);
 		    	Log.d(this.toString(),turret.toString());
-		    	json.put("turret", turret);
-		    	Log.d(this.toString(),json.toString());
-		    	//httpService.send(json);
+		    	gameState.put("turret", turret);
+		    	Log.d(this.toString(),gameState.toString());
+		    	httpService.send(gameState);
 	    	} catch (JSONException e) {
 	    		//something
 	    		Log.i(this.toString(),"JSONException");
