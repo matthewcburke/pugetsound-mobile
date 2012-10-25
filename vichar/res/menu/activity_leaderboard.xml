@@ -4,7 +4,7 @@
         android:orderInCategory="100"
         android:showAsAction="never" />
     <item android:id="@+id/enter_main_menu" 
-        android:title="@string/title_activity_main_menu" 
+        android:title="@string/enter_main_menu" 
         android:orderInCategory="100" 
         android:showAsAction="always"></item>
 </menu>

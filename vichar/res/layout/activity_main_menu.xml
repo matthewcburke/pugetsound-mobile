@@ -28,7 +28,7 @@
         android:layout_below="@+id/main_button"
         android:layout_marginTop="25dp"
         android:layout_centerHorizontal="true"
-        android:text="Leaderboard" />
+        android:text="@string/enter_leaderboard" />
 
     <Button
         android:id="@+id/rules_button"
@@ -37,7 +37,7 @@
         android:layout_centerHorizontal="true"
         android:layout_below="@+id/leaderboard_button"
         android:layout_marginTop="25dp"
-        android:text="Rules" />
+        android:text="@string/enter_rules" />
 
     <Button
         android:id="@+id/settings_button"
@@ -46,6 +46,6 @@
         android:layout_centerHorizontal="true"
         android:layout_below="@+id/rules_button"
         android:layout_marginTop="25dp"
-        android:text="Settings" />
+        android:text="@string/enter_settings" />
 
 </RelativeLayout>

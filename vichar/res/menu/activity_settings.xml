@@ -4,11 +4,11 @@
         android:orderInCategory="100"
         android:showAsAction="never" />
     <item android:id="@+id/enter_about" 
-        android:title="@string/title_activity_about" 
+        android:title="@string/enter_about" 
         android:orderInCategory="100" 
-        android:showAsAction="always"></item>
+        android:showAsAction="ifRoom"></item>
     <item android:id="@+id/enter_main_menu" 
-        android:title="@string/title_activity_main_menu" 
+        android:title="@string/enter_main_menu" 
         android:orderInCategory="100" 
         android:showAsAction="always"></item>
 </menu>

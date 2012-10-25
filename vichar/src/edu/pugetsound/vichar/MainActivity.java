@@ -35,9 +35,6 @@ public class MainActivity extends Activity
             case R.id.enter_game:
             	startActivity(new Intent(this, GameActivity.class));
                 return true;
-            case R.id.button2:
-            	startActivity(new Intent(this, TestActivity.class));
-                return true;
             case R.id.enter_main_menu:
             	startActivity(new Intent(this, MainMenuActivity.class));
                 return true;
