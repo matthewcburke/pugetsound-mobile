@@ -5,13 +5,14 @@ import android.app.Activity;
 import android.content.Intent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 public class AboutActivity extends Activity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_about);
+        setContentView(R.layout.activity_about);  
     }
 
     @Override
@@ -19,6 +20,7 @@ public class AboutActivity extends Activity {
         getMenuInflater().inflate(R.menu.activity_about, menu);
         return true;
     }
+    
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         //handles item selection in menu
@@ -29,5 +31,10 @@ public class AboutActivity extends Activity {
             default:
                 return super.onOptionsItemSelected(item);
     	}
+    }
+    
+    public void goToTestGameAct(View view)  {
+    	Intent testGameActIntent = new Intent(this, TESTGameActivity.class);
+    	startActivity(testGameActIntent);
     }
 }

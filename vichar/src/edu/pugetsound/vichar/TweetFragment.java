@@ -6,6 +6,7 @@ import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +14,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.support.v4.app.*;
 
-public class TweetActivity extends Fragment {
+public class TweetFragment extends Fragment {
 
 	//current Twitter challenge prompt
 	private String curPrompt;
@@ -22,17 +23,25 @@ public class TweetActivity extends Fragment {
 	//max post attempts
 	private final int POST_ATTEMPT_LIMIT = 3;
 	
+	@Override
+	public void onCreate(Bundle savedInstanceState)
+	{
+		super.onCreate(savedInstanceState);
+	}
+	
     @Override
     public View onCreateView(LayoutInflater inflater, 
     							ViewGroup container, Bundle savedInstanceState) {
-        //get default prompt text
-    	curPrompt = getString(R.string.default_twitter_prompt);
     	postAttempt = 0;
-    	//set default prompt text
-    	TextView twitterPrompt = (TextView) getView().findViewById(R.id.cur_twitter_challenge);
-    	twitterPrompt.setText(curPrompt);
+    	
+//        //get default prompt text
+//    	curPrompt = getString(R.string.default_twitter_prompt);    	
+//    	//set default prompt text
+//    	TextView twitterPrompt = (TextView) getView().findViewById(R.id.cur_twitter_challenge);
+//    	twitterPrompt.setText(curPrompt);
     	//inflate the fragment's layout
-        return inflater.inflate(R.layout.activity_tweet, container, false);
+    	Log.d("TF", "commencing inflation");
+        return inflater.inflate(R.layout.fragment_tweet, container, false);
     }
     
     /**

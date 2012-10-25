@@ -30,10 +30,7 @@ public class GameActivity extends FragmentActivity {
     	switch (item.getItemId()) {
             case R.id.enter_main_menu:
             	startActivity(new Intent(this, MainMenuActivity.class));
-                return true;
-            case R.id.enter_tweet:
-            	startActivity(new Intent(this, TweetActivity.class));
-                return true;
+                return true;            
             default:
                 return super.onOptionsItemSelected(item);
     	}

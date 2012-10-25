@@ -2,34 +2,33 @@
     package="edu.pugetsound.vichar"
     android:versionCode="1"
     android:versionName="1.0" >
-    
+
     <uses-sdk
         android:minSdkVersion="8"
         android:targetSdkVersion="15" />
-    
-    <!-- 
+
+    <!--
     	Explicitly use this camera feature so as to support cameras 
     	without support for other features. (If we request the camera
     	permission but no features, Android assumes we need all of 
-    	them.)
+    	them.)
     -->
-    <uses-feature android:name="android.hardware.camera" /> 
-    
-    <!-- Permission to access camera  -->
+    <uses-feature android:name="android.hardware.camera" />
+
+    <!-- Permission to access camera -->
     <uses-permission android:name="android.permission.CAMERA" />
-    
-    <!-- Allow opening network sockets  -->
-    <uses-permission android:name="android.permission.INTERNET"/>
-    
+
+    <!-- Allow opening network sockets -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <!-- Get permission to check which network access properties (e.g. active type: 3G/WiFi). -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    
+
     <!-- Get permission to access WLAN MAC address. -->
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    
-    <!-- Get permission to access HW ID. -->
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
+    <!-- Get permission to access HW ID. -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -51,17 +50,14 @@
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
         </activity>
         <activity
-
             android:name=".TwitterOAuthActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>    
+            </intent-filter>
         </activity>
-
-
         <activity
             android:name=".TestActivity"
             android:label="@string/title_activity_test" >
@@ -70,12 +66,15 @@
                 android:value="edu.pugetsound.vichar.MainActivity" />
         </activity>
         <activity
+            android:name=".TESTGameActivity"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
+        </activity>
+        <activity
             android:name=".LeaderboardActivity"
             android:label="@string/title_activity_leaderboard" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
-               
             </intent-filter>
         </activity>
         <activity
@@ -83,8 +82,6 @@
             android:label="@string/title_activity_main_menu" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
-              
             </intent-filter>
         </activity>
         <activity
@@ -92,8 +89,6 @@
             android:label="@string/title_activity_rules" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
-              
             </intent-filter>
         </activity>
         <activity
@@ -101,8 +96,6 @@
             android:label="@string/title_activity_settings" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
-                
             </intent-filter>
         </activity>
         <activity
@@ -110,16 +103,16 @@
             android:label="@string/title_activity_about" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
-                
             </intent-filter>
         </activity>
+
         <activity
-            android:name=".TweetActivity"
-            android:label="@string/title_activity_tweet" >
+            android:name=".TestGameActivity"
+            android:label="@string/title_activity_test_game" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                
+
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
     </application>
