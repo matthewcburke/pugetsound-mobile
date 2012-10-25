@@ -127,6 +127,7 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
     			dy = 0f;
     			Log.d(this.toString(),"Touch up");
     		}
+
     		// Touch propagated to gameView.
             float x = ev.getX();
             float y = ev.getY();
@@ -279,7 +280,6 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
         bindService(new Intent(GameActivity.this, HttpService.class), 
         		httpServiceConnection, Context.BIND_AUTO_CREATE);
     }
-
 
     private void doUnbindHttpService() {
         // Detach our existing connection.
