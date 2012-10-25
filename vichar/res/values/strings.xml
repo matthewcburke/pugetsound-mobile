@@ -3,42 +3,41 @@
     <string name="app_name">viChar</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
-    <string name="title_activity_main">MainActivity</string>    
-    <string name="test_activity_game">This is the GameActivity!</string>   
+    <string name="title_activity_main">MainActivity</string>
+    <string name="test_activity_game">This is the GameActivity!</string>
     <string name="oauth_consumer_key">iLFFFcFcRnZ4y9NkYwqWg</string>
     <string name="oauth_consumer_secret">yD64YyfSF7AsIG0qkziTVImMdzcgbnihloCDtw3ER0</string>
     <string name="oauth_callback_url">http://www.PLACEHOLDERURL.com</string>
     <string name="oauth_access_token">oauth_access_token</string>
     <string name="oauth_token_secret">oauth_token_secret</string>
     <string name="prefs_error">retrieve error</string>
-	
-	<!-- Text to Read -->
-	<string name="default_twitter_prompt">No Current Twitter Challenge!</string>
-	
-	<!-- Buttons -->
-	<string name="button_ok">OK</string>
-	<string name="enter_game">Go to GameActivity</string>
-	<string name="login_with_twitter">Login With Twitter</string>
-	<string name="login_with_vichar">Login With Vichar</string>
-	<string name="enter_test">Go to TestActivity</string>
+
+    <!-- Text to Read -->
+    <string name="default_twitter_prompt">No Current Twitter Challenge!</string>
+
+    <!-- Buttons -->
+    <string name="button_ok">OK</string>
+    <string name="enter_game">Go to GameActivity</string>
+    <string name="login_with_twitter">Login With Twitter</string>
+    <string name="login_with_vichar">Login With Vichar</string>
+    <string name="enter_test">Go to TestActivity</string>
     <string name="enter_main">Back to Main</string>
-	
-	<!-- EditText Hints -->
-	<string name="enter_pin">Enter Above Pin</string>
-	<string name="enter_tw_username">Enter Twitter Username</string>
+
+    <!-- EditText Hints -->
+    <string name="enter_pin">Enter Above Pin</string>
+    <string name="enter_tw_username">Enter Twitter Username</string>
     <string name="enter_vichar_username">Enter ViChar Username</string>
     <string name="enter_tweet">Compose Tweet</string>
-	
-	<!-- Preference Keys -->
-	<string name="prefs_key">prefs_key</string>
-	<string name="access_token_key">access_token_key</string>
-	<string name="access_token_secret_key">access_token_secret_key</string>
-	<string name="twitter_username_key">twitter_username_key</string>
+
+    <!-- Preference Keys -->
+    <string name="prefs_key">prefs_key</string>
+    <string name="access_token_key">access_token_key</string>
+    <string name="access_token_secret_key">access_token_secret_key</string>
+    <string name="twitter_username_key">twitter_username_key</string>
     <string name="vichar_username_key">vichar_username_key</string>
     <string name="title_activity_test">TestActivity</string>
 
     <color name="myColor">#F5F5F5</color>
-
 
     <string name="title_activity_leaderboard">LeaderboardActivity</string>
     <string name="title_activity_main_menu">MainMenuActivity</string>
@@ -47,6 +46,7 @@
     <string name="title_activity_about">AboutActivity</string>
     <string name="title_activity_tweet">TweetActivity</string>
     <string name="about_info">Nathan, Kirah, Micheal, Robert, Davis</string>
+
     <string name="enter_main_menu">Main Menu</string>
     <string name="name1">blank</string>
     <string name="name2">blank</string>
@@ -57,5 +57,8 @@
     <string name="enter_leaderboard">Top Scores</string>
     <string name="enter_settings">Settings</string>
     <string name="enter_rules">Rules</string>
+
+    <string name="title_activity_test_game">TestGameActivity</string>
+
 
 </resources>

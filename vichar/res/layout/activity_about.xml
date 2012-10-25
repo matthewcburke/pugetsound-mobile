@@ -10,6 +10,13 @@
         android:layout_centerVertical="true"
         android:text="@string/about_info"
         tools:context=".AboutActivity" />
+    
+    <Button
+    	android:id="@+id/to_test_game_act"
+    	android:layout_width="fill_parent"
+    	android:layout_height="wrap_content"
+    	android:onClick="goToTestGameAct"
+    	android:text="@string/enter_game" /> 
 
     <Button
         android:id="@+id/main_menu_button"

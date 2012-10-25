@@ -8,6 +8,7 @@ import twitter4j.auth.RequestToken;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.Intent;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -89,6 +90,20 @@ public class TwitterOAuthActivity extends Activity {
     	PreferenceUtility prefs = new PreferenceUtility();
     	prefs.saveString(getString(R.string.access_token_key), accessToken.getToken(), this);
     	prefs.saveString(getString(R.string.access_token_secret_key), (String)accessToken.getTokenSecret(), this);
+    }
+    
+    /**
+     * Finishes login by advancing to next activity or prompting retry
+     * @param loginResult Result of login attempt
+     */
+    public void finishLogin(boolean loginResult)    {
+    	if(loginResult==true) 	{
+    		//if login succeeds, move on to main menu
+    		Intent mainActIntent = new Intent(this, MainMenuActivity.class);
+        	startActivity(mainActIntent);
+    	} else	{
+    		//TODO: decide what will happen when login fails
+    	}
     }
     
     /**
@@ -189,9 +204,8 @@ public class TwitterOAuthActivity extends Activity {
          * No UI to update here
          */
         @Override
-        protected void onPostExecute(Boolean result) 
-        {
-        	return;
+        protected void onPostExecute(Boolean result)         {
+        	finishLogin(result);
         }
     }
 }
