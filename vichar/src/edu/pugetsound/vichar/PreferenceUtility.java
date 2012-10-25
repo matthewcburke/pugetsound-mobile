@@ -38,6 +38,7 @@ public class PreferenceUtility {
     	editor.commit();
 
     }
+    
 	
     /*
      * Returns saved String value at provided key
@@ -54,5 +55,31 @@ public class PreferenceUtility {
    		
    		Log.d("viCHar", toReturn);
    		return toReturn;
+    }
+    
+    /**
+     * Saves boolean to persistent storage in a key-value format
+     * @param key The key, which will be the reference for the value
+     * @param loggenIn, boolean detailing if one is logged in (true) or not (false)
+     * @param act The current caller activity. Passed for context purposes
+     */
+    public void saveLoginState(String key, Boolean loggedIn, Activity act) {
+    	Log.d("viCHar","save" + loggedIn + " commenced");
+    	SharedPreferences sharedPref = act.getSharedPreferences(act.getString(R.string.prefs_key), 0);
+    	SharedPreferences.Editor editor = sharedPref.edit();
+    	editor.putBoolean(key, loggedIn);
+    	editor.commit();
+    }
+    
+    /**
+     * Returns boolean from persistent storage to the caller at provided key
+     * @param key The key to find the matching value for 
+     * @param loggenIn, boolean detailing if one is logged in (true) or not (false)
+     * @param act The current caller activity. Passed for context purposes
+     */
+    public boolean returnLoginState(String key, Boolean loggedIn, Activity act) {
+    	SharedPreferences sharedPref = act.getSharedPreferences(act.getString(R.string.prefs_key), 0);
+    	boolean toReturn = sharedPref.getBoolean(key, loggedIn);
+    	return toReturn;
     }
 }
