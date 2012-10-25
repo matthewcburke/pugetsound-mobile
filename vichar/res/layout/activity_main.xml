@@ -20,7 +20,7 @@
         android:layout_above="@+id/login_with_twitter"
         android:layout_alignLeft="@+id/login_with_twitter"
         android:layout_marginBottom="63dp"
-        android:onClick="authorizeVichar"
+        android:onClick="authorizeLoginwithVichar"
         android:text="@string/login_with_vichar" />
 
 

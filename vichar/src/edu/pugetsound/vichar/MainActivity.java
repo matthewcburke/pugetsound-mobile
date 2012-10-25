@@ -43,6 +43,12 @@ public class MainActivity extends Activity
         }
     }
     
+    public void authorizeLoginwithVichar(View view)
+    {
+    	Intent login = new Intent(this, LoginActivity.class);
+    	startActivity(login);
+    }
+    
     public void authorizeTwitter(View view)
     {
     	Intent twitterOAuthIntent = new Intent(this, TwitterOAuthActivity.class);
