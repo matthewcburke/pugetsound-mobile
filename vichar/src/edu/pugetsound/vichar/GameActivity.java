@@ -51,7 +51,6 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
         this.gameView.setOnTouchListener(this);
         gameContainer.setOnTouchListener(this);
         
-        
         this.textView = (TextView) findViewById(R.id.game_view_text);
 //    	doBindSocketService();
 //    	Intent intent = new Intent(GameActivity.this, SocketService.class);
@@ -128,7 +127,6 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
     			dy = 0f;
     			Log.d(this.toString(),"Touch up");
     		}
-    		
     		// Touch propagated to gameView.
             float x = ev.getX();
             float y = ev.getY();
