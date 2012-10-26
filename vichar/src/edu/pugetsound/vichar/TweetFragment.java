@@ -14,6 +14,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.support.v4.app.*;
 
+/**
+ * Fragment for posting tweets and displaying current Twitter prompt/challenge.
+ * @author Nathan Pastor
+ * @version 10/25/12
+ */
 public class TweetFragment extends Fragment {
 
 	//current Twitter challenge prompt
@@ -23,12 +28,10 @@ public class TweetFragment extends Fragment {
 	//max post attempts
 	private final int POST_ATTEMPT_LIMIT = 3;
 	
-	@Override
-	public void onCreate(Bundle savedInstanceState)
-	{
-		super.onCreate(savedInstanceState);
-	}
-	
+	/**
+	 * Initializes display
+	 * @return View The fragment UI encapsulated in a View
+	 */
     @Override
     public View onCreateView(LayoutInflater inflater, 
     							ViewGroup container, Bundle savedInstanceState) {
@@ -57,8 +60,8 @@ public class TweetFragment extends Fragment {
     }
     
     /**
-     * Sends tweet
-     * @param view
+     * Sends tweet. Called when user presses OK button after entering tweet.
+     * @param view The OK button
      */
     public void sendTweet(View view)
     {
@@ -82,14 +85,16 @@ public class TweetFragment extends Fragment {
     	
    
     /**
-     * Posts tweets
+     * Posts tweets via worker thread
      * @author Nathan P
      * @version 10/23/12
      */
     private class PostTweet extends AsyncTask<Twitter, Boolean, Boolean>   {
     	
     	/**
-    	 * Posts tweet via worker thread
+    	 * Posts tweet in background thread
+    	 * @param Twitter[] Array of Twitter objects, which contain necessary
+    	 *                  OAuth identification tokens.
     	 */
      	@Override
         protected Boolean doInBackground(Twitter...twitters)   {

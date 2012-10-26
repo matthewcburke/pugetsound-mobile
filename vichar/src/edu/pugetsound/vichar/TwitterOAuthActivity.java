@@ -108,7 +108,7 @@ public class TwitterOAuthActivity extends Activity {
     }
     
     /**
-     * Retrieves OAuth request token in seperate thread (dummy paramters)
+     * Retrieves OAuth request token in separate thread
      * @author Nathan P
      * @version 10/18/12
      */
@@ -146,7 +146,8 @@ public class TwitterOAuthActivity extends Activity {
         }
     	
         /**
-         * Displays results by setting URL in webview
+         * Displays results of authorization by setting URL in webview
+         * @param result Result of request token retrieval attempt
          */
         @Override
         protected void onPostExecute(Boolean result) 
@@ -203,6 +204,7 @@ public class TwitterOAuthActivity extends Activity {
     	
         /**
          * No UI to update here
+         * @param Result of access token retrieval attempt
          */
         @Override
         protected void onPostExecute(Boolean result)         {

@@ -12,7 +12,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 
 /**
- * The in-game Activity
+ * TEST ACTIVITY. THIS WILL BE GONE SOON.
  * Extends FragmentActivity to ensure support for Android 2.x
  */
 public class TESTGameActivity extends FragmentActivity {
