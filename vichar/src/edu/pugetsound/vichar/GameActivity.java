@@ -20,6 +20,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
+import android.widget.TextView;
 //Import Fragment dependencies
 import android.support.v4.app.FragmentActivity;
 
@@ -30,7 +31,8 @@ import android.support.v4.app.FragmentActivity;
 public class GameActivity extends FragmentActivity implements OnTouchListener {
 
 	private View gameView;
-	private SocketService socketService;
+	private TextView textView;
+	//private SocketService socketService;
 	private HttpService httpService;
     boolean isBoundToSocketService = false;
     boolean isBoundToHttpService = false;
@@ -49,13 +51,15 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
         this.gameView.setOnTouchListener(this);
         gameContainer.setOnTouchListener(this);
         
-    	doBindSocketService();
-    	Intent intent = new Intent(GameActivity.this, SocketService.class);
-    	startService(intent);
+        
+        this.textView = (TextView) findViewById(R.id.game_view_text);
+//    	doBindSocketService();
+//    	Intent intent = new Intent(GameActivity.this, SocketService.class);
+//    	startService(intent);
     	
     	doBindHttpService();
-    	intent = new Intent(GameActivity.this, HttpService.class);
-    	startService(intent);
+    	//Intent intent = new Intent(GameActivity.this, HttpService.class);
+    	//startService(intent);
         /*// Bind this activity to Networking Service
         Intent intent = new Intent(GameActivity.this, HttpService.class);
         bindService(intent, socketServiceConnection, Context.BIND_AUTO_CREATE);*/
@@ -68,6 +72,7 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
     	} catch(JSONException e) {
     		Log.i(this.toString(), "JSONException");
     	}
+    	//updateLocalGameState();
     }
 
     @Override
@@ -134,6 +139,7 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
 	    	Log.d(this.toString(),"dY: " + dy);
 	    	
 	    	try {
+	    		updateLocalGameState();
 		    	JSONObject turret = gameState.getJSONObject("turret");
 		    	//JSONObject turret = json.getJSONObject("turret");
 		    	String position = turret.getString("position");
@@ -154,19 +160,43 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
 		    	Log.d(this.toString(),turret.toString());
 		    	gameState.put("turret", turret);
 		    	Log.d(this.toString(),gameState.toString());
-		    	httpService.send(gameState);
+		    	updateRemoteGameState();
+		    	this.textView.setText(gameState.getJSONObject("turret").get("position").toString());
+		    	//updateLocalGameState();
 	    	} catch (JSONException e) {
 	    		//something
 	    		Log.i(this.toString(),"JSONException");
 	    	}
-	    	
-	    	// Update server
-	    	//socketService.readJSON();
-	    	//socketService.postTest();
     	}
-        return true; //false indicates the event is not consumed
+        return true; //Must return true to get move events
     }
     
+    
+    private boolean updateRemoteGameState() {
+    	boolean isSuccessful = false;
+    	if(isBoundToHttpService) {
+    		httpService.send(gameState);
+    		Log.d(this.toString(), httpService.getJSON().toString());
+    		isSuccessful = true;
+    	} else {
+    		Log.i(this.toString(),"Not Bound to HttpService");
+    	}
+    	// TODO retries
+    	return isSuccessful;
+    }
+    
+    private boolean updateLocalGameState() {
+    	boolean isSuccessful = false;
+    	if(isBoundToHttpService) {
+    		gameState = httpService.getJSON();
+    		Log.d(this.toString(), httpService.getJSON().toString());
+    		isSuccessful = true;
+    	} else {
+    		Log.i(this.toString(),"Not Bound to HttpService");
+    	}
+    	// TODO retries
+    	return isSuccessful;
+    }
     
     /**
      * Is x and y inside view? I don't know... Try this function.
@@ -191,40 +221,40 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
         return true;
     }
     
-    private ServiceConnection socketServiceConnection = new ServiceConnection() 
-    { //need this to create the connection to the service
-        public void onServiceConnected(
-        				ComponentName className, 
-        				IBinder service)
-        {
-        	Log.d(this.toString(),"Start onServiceConnected");
-        	SocketService.LocalBinder binder = (SocketService.LocalBinder) service;
-	        socketService = binder.getService();
-	        isBoundToSocketService = true;
-	        Log.d(this.toString(),"Bound to SocketSevice");
-        }
-
-        public void onServiceDisconnected(ComponentName className) 
-        {
-        	isBoundToSocketService = false;
-        }
-    };
-    
-    private void doBindSocketService() {
-    	Log.d(this.toString(),"Binding SocketSevice");
-        bindService(new Intent(GameActivity.this, SocketService.class), 
-        		socketServiceConnection, Context.BIND_AUTO_CREATE);
-        isBoundToSocketService = true;
-    }
-
-
-    private void doUnbindSocketService() {
-        if (isBoundToSocketService) {
-            // Detach our existing connection.
-            unbindService(socketServiceConnection);
-            isBoundToSocketService = false;
-        }
-    }
+//    private ServiceConnection socketServiceConnection = new ServiceConnection() 
+//    { //need this to create the connection to the service
+//        public void onServiceConnected(
+//        				ComponentName className, 
+//        				IBinder service)
+//        {
+//        	Log.d(this.toString(),"Start onServiceConnected");
+//        	SocketService.LocalBinder binder = (SocketService.LocalBinder) service;
+//	        socketService = binder.getService();
+//	        isBoundToSocketService = true;
+//	        Log.d(this.toString(),"Bound to SocketSevice");
+//        }
+//
+//        public void onServiceDisconnected(ComponentName className) 
+//        {
+//        	isBoundToSocketService = false;
+//        }
+//    };
+//    
+//    private void doBindSocketService() {
+//    	Log.d(this.toString(),"Binding SocketSevice");
+//        bindService(new Intent(GameActivity.this, SocketService.class), 
+//        		socketServiceConnection, Context.BIND_AUTO_CREATE);
+//        isBoundToSocketService = true;
+//    }
+//
+//
+//    private void doUnbindSocketService() {
+//        if (isBoundToSocketService) {
+//            // Detach our existing connection.
+//            unbindService(socketServiceConnection);
+//            isBoundToSocketService = false;
+//        }
+//    }
     
     private ServiceConnection httpServiceConnection = new ServiceConnection() 
     { //need this to create the connection to the service
@@ -235,6 +265,7 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
         	Log.d(this.toString(),"Start onServiceConnected");
         	HttpService.LocalBinder binder = (HttpService.LocalBinder) service;
 	        httpService = binder.getService();
+	        Log.d(this.toString(),httpService.toString());
 	        isBoundToHttpService = true;
 	        Log.d(this.toString(),"Bound to HttpSevice");
         }
@@ -249,21 +280,18 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
     	Log.d(this.toString(),"Binding HttpSevice");
         bindService(new Intent(GameActivity.this, HttpService.class), 
         		httpServiceConnection, Context.BIND_AUTO_CREATE);
-        isBoundToHttpService = true;
     }
 
 
     private void doUnbindHttpService() {
-        if (isBoundToSocketService) {
-            // Detach our existing connection.
-            unbindService(httpServiceConnection);
-            isBoundToHttpService = false;
-        }
+        // Detach our existing connection.
+        unbindService(httpServiceConnection);
     }
     
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        doUnbindSocketService();
+        doUnbindHttpService();
+        //doUnbindSocketService();
     }
 }

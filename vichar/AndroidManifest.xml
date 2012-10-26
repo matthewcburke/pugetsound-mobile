@@ -116,5 +116,6 @@
             </intent-filter>
         </activity>
         <service android:name="SocketService" />
+        <service android:name="HttpService" />
     </application>
 </manifest>
