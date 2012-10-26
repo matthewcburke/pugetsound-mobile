@@ -53,26 +53,26 @@ public class PreferenceUtility {
     /**
      * Saves boolean to persistent storage in a key-value format
      * @param key The key, which will be the reference for the value
-     * @param loggenIn, boolean detailing if one is logged in (true) or not (false)
+     * @param bool The boolean being saved
      * @param act The current caller activity. Passed for context purposes
      */
-    public void saveLoginState(String key, Boolean loggedIn, Activity act) {
-    	Log.d("viCHar","save" + loggedIn + " commenced");
+    public void saveBoolean(String key, Boolean bool, Activity act) {
+    	Log.d("viCHar","save" + bool + " commenced");
     	SharedPreferences sharedPref = act.getSharedPreferences(act.getString(R.string.prefs_key), 0);
     	SharedPreferences.Editor editor = sharedPref.edit();
-    	editor.putBoolean(key, loggedIn);
+    	editor.putBoolean(key, bool);
     	editor.commit();
     }
     
     /**
      * Returns boolean from persistent storage to the caller at provided key
      * @param key The key to find the matching value for 
-     * @param loggenIn, boolean detailing if one is logged in (true) or not (false)
+     * @param bool The true or false boolean to be returned
      * @param act The current caller activity. Passed for context purposes
      */
-    public boolean returnLoginState(String key, Boolean loggedIn, Activity act) {
+    public boolean returnBoolean(String key, Boolean bool, Activity act) {
     	SharedPreferences sharedPref = act.getSharedPreferences(act.getString(R.string.prefs_key), 0);
-    	boolean toReturn = sharedPref.getBoolean(key, loggedIn);
+    	boolean toReturn = sharedPref.getBoolean(key, bool);
     	return toReturn;
     }
 }

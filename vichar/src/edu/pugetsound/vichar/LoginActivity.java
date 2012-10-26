@@ -77,6 +77,10 @@ public class LoginActivity extends Activity {
             }
         };
 	
+  /**
+    * Stores the entered string to persistent storage
+    * @param String username The string being saved
+    */ 
     private void storeUsername(String username)
     {
     	PreferenceUtility prefs = new PreferenceUtility();

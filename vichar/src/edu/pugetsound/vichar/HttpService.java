@@ -23,12 +23,21 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+
+/**
+ * A bound service that provides a simple, non-continuous interface with the server.
+ * @author Kirah Taylor & Robert Shapiro
+ * @version 10/24/12
+ */
 public class HttpService extends Service {
 
 	
 private final IBinder binder = new LocalBinder();
 
-
+   /**
+ 	* Takes JSON objects sent by activities and passes them to the server
+ 	* @param jsonobj The JSONObject to be sent to the server
+ 	*/
 	public void send(JSONObject jsonobj) {
 		final JSONObject thejsonobj = jsonobj;
 		new Thread(new Runnable() {
@@ -79,12 +88,16 @@ private final IBinder binder = new LocalBinder();
 		return json;
 	}
 
+	/**
+	 * Describes the interface for the IBiner object passed to activities upon binding
+	 * @author Kirah Taylor
+	 * @version 10/24/12
+	 */
 	public class LocalBinder extends Binder {
         HttpService getService() {
         return HttpService.this;
         }
     }
-
 
 	@Override
 	public IBinder onBind(Intent intent) {
