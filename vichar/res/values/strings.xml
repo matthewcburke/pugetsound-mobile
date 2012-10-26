@@ -62,5 +62,7 @@
 
     <string name="title_activity_test_game">TestGameActivity</string>
 
+    <string name="login">Login</string>
+
 
 </resources>
