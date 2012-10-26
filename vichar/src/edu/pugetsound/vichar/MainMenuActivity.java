@@ -66,7 +66,7 @@ public class MainMenuActivity extends Activity {
     private OnClickListener gameListener = new OnClickListener() { //sets what happens when the button is pushed
     	public void onClick(View v) { 
         	
-    		startActivity(new Intent(context, TESTGameActivity.class));
+    		startActivity(new Intent(context, GameActivity.class));
         }
        };
        
@@ -101,7 +101,7 @@ public class MainMenuActivity extends Activity {
                 return true;
             case R.id.enter_game:
             	//startActivity(new Intent(this, GameActivity.class));
-            	startActivity(new Intent(this, TESTGameActivity.class));
+            	startActivity(new Intent(this, GameActivity.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
