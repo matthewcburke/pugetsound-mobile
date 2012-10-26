@@ -14,11 +14,19 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.content.Context;
 
-//Screen to set settings, 
+/**
+ * Activity for the "Settings" screen
+ * @author Davis Shurbert
+ * @version 10/13/12 
+ */
 public class SettingsActivity extends Activity {
 
     final Context context = this;
 
+    /*
+     * (non-Javadoc)
+     * @see android.app.Activity#onCreate(android.os.Bundle)
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,7 +34,9 @@ public class SettingsActivity extends Activity {
         createButtons();
     }
     
-    //creates buttons
+    /*
+     * creates buttons
+     */
     public void createButtons()   {
         
         Button mainmenub = (Button)findViewById(R.id.main_menu_button); //declaring the button
@@ -49,11 +59,19 @@ public class SettingsActivity extends Activity {
           }
          };           
 
+    /*
+     * (non-Javadoc)
+     * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_settings, menu);
         return true;
     }
+    /*
+     * (non-Javadoc)
+     * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         //handles item selection in menu

@@ -1,11 +1,14 @@
 package edu.pugetsound.vichar;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 
 /**
  * Main activity, this is the first screen users will see
@@ -15,11 +18,13 @@ import android.view.View;
 public class MainActivity extends Activity
 							
 {
+    final Context context = this;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        createButtons();
     }
 
     @Override
@@ -28,6 +33,19 @@ public class MainActivity extends Activity
         return true;
     }
     
+    public void createButtons() {
+        Button menub = (Button)findViewById(R.id.main_menu_button); //declaring the button
+        menub.setOnClickListener(menuListener); //making the thing that checks if the button's been pushed
+        
+    }
+    
+    private OnClickListener menuListener = new OnClickListener() { //sets what happens when the button is pushed
+        public void onClick(View v) { 
+            
+            startActivity(new Intent(context, MainMenuActivity.class));
+        }
+       };
+       
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection

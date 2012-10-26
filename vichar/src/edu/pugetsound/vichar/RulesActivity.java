@@ -14,11 +14,19 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.content.Context;
 
+/**
+ * Activity for the "Rules" screen, blank screen with button to main menu at this point.  
+ * @author Davis Shurbert 
+ * @version 10/16/12
+ */
 public class RulesActivity extends Activity {
     
     final Context context = this;
 
-
+/*
+ * (non-Javadoc)
+ * @see android.app.Activity#onCreate(android.os.Bundle)
+ */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,7 +34,7 @@ public class RulesActivity extends Activity {
         createButtons();
     }
 
-    public void createButtons()   {
+    private void createButtons()   {
         
         Button mainmenub = (Button)findViewById(R.id.main_menu_button); //declaring the button
           mainmenub.setOnClickListener(mainMenuListener); //making the thing that checks if the button's been pushed
@@ -39,11 +47,19 @@ public class RulesActivity extends Activity {
           }
          };
          
+    /*
+     * (non-Javadoc)
+     * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_rules, menu);
         return true;
     }
+    /*
+     * (non-Javadoc)
+     * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         //handles item selection in menu

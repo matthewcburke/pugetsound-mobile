@@ -12,6 +12,15 @@ import android.view.MenuItem;
 import android.content.Context;
 
 
+
+
+/**
+ * Activity for the "about" screen, contains authors names 
+ * and a button to main menu.
+ * @author Davis Shurbert
+ * @version 10/13/12
+ */
+
 public class AboutActivity extends Activity {
     
     final Context context = this;

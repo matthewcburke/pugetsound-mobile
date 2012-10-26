@@ -10,6 +10,12 @@ import android.widget.Button;
 import android.view.MenuItem;
 import android.content.Context;
 
+/**
+ * Activity for the main menu screen, contains buttons to navigate to other 
+ * important screens.
+ * @author Davis Shurbert
+ *
+ */
 public class MainMenuActivity extends Activity {
 	final Context context = this;
     @Override

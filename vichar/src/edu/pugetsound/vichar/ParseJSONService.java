@@ -1,6 +1,4 @@
-/**
- * 
- */
+
 package edu.pugetsound.vichar;
 
 import android.app.Service;
@@ -10,6 +8,7 @@ import android.os.IBinder;
 
 
 /**
+ * Service to turn JSONObjects into Java Objects, not implemented.
  * @author Davis Shurbert
  * @version 10/24/12
  */
