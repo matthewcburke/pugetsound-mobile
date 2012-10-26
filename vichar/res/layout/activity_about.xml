@@ -1,15 +1,8 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:text="@string/about_info"
-        tools:context=".AboutActivity" />
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
     
     <Button
     	android:id="@+id/to_test_game_act"
@@ -20,11 +13,14 @@
 
     <Button
         android:id="@+id/main_menu_button"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/enter_main_menu" />
+    
+    
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginRight="25dp"
-        android:layout_marginTop="25dp"
-        android:text="@string/enter_main_menu" />
-</RelativeLayout>
+        android:text="@string/about_info"
+        tools:context=".AboutActivity" />
+</LinearLayout>

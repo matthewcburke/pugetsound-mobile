@@ -43,6 +43,7 @@ public class TwitterOAuthActivity extends Activity {
 	        		return false;
 	        	}        	
 	        });
+        this.webView.requestFocus();
         Log.d("ViChar", "Activity created, calling authorizeTwitter");
         authorizeTwitter();
     }

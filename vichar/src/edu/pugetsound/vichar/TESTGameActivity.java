@@ -1,6 +1,7 @@
 package edu.pugetsound.vichar;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -21,6 +22,7 @@ public class TESTGameActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         Log.d("GameAct", "About to set content view");
         setContentView(R.layout.activity_game_test);
+        //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         //set default twitter prompt string on Tweet fragment
         TweetFragment tweetFrag = (TweetFragment) getSupportFragmentManager().findFragmentById(R.id.tweet_fragment);
         tweetFrag.setPrompt(getString(R.string.default_twitter_prompt));

@@ -32,6 +32,7 @@
 	    	android:id="@+id/oauth_webview"
 	    	android:layout_width="fill_parent"
 	    	android:layout_height="fill_parent"
-	    	android:layout_above="@+id/pin_inputs" 	  />
+	    	android:layout_above="@+id/pin_inputs"
+	    	android:focusable="true" 	  />
 	    
 </RelativeLayout>
