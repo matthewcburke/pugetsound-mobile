@@ -35,6 +35,11 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
+/**
+ * Implements Socket connection and I/O between this Android client
+ * and a socket on the game server.
+ * @author Michael DuBois
+ */
 public class SocketService extends Service {
 
 	public static String serverIp = "10.150.2.55";
@@ -75,6 +80,9 @@ public class SocketService extends Service {
         s = null;
     }
 	
+	/**
+	 * A test JSON post.
+	 */
 	public void postTest() {
 		JSONObject jsonobj = new JSONObject();
 		
@@ -118,8 +126,8 @@ public class SocketService extends Service {
 //		}
 //	}
 	
-	public JSONObject readJSON() {
-		JSONObject json = null;
+//	public JSONObject readJSON() {
+//		JSONObject json = null;
 //		if (s.isConnected()) {
 //			try {				
 //				//String str 
@@ -138,10 +146,10 @@ public class SocketService extends Service {
 //				//Log.e("readJSON()", e.getMessage());
 //			//}
 //		}
-		return json;
-	}
+//		return json;
+//	}
 	
-	public void writeToStream(double lat, double lon) {
+//	public void writeToStream(double lat, double lon) {
 //	    try {
 //	        if (s.isConnected()){
 //	            Log.i("AsynkTask", "writeToStream : Writing lat, lon");
@@ -152,7 +160,7 @@ public class SocketService extends Service {
 //	    } catch (Exception e) {
 //	        Log.i("AsynkTask", "writeToStream : Writing failed");
 //	    }
-	}
+//	}
 
 //	public int readFromStream() {
 //	    try {
@@ -174,12 +182,20 @@ public class SocketService extends Service {
 		return binder;
 	}
 	
+	/**
+	 * A Local Binder. See Android Service Binder Pattern.
+	 */
 	public class LocalBinder extends Binder {
 		SocketService getService() {
 			return SocketService.this;
         }
     }
 	
+	/**
+	 * A Runnable class to connect the SocketService socket
+	 * @implements Runnable
+	 * @author DuBious
+	 */
 	private class ConnectSocket implements Runnable {
         String  socketAddr;
         int socketPort;

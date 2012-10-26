@@ -27,6 +27,7 @@ import android.support.v4.app.FragmentActivity;
 /**
  * The in-game Activity
  * Extends FragmentActivity to ensure support for Android 2.x
+ * @author Michael DuBois
  */
 public class GameActivity extends FragmentActivity implements OnTouchListener {
 
@@ -79,6 +80,7 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
         getMenuInflater().inflate(R.menu.activity_game, menu);
         return true;
     }
+    
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         //handles item selection in menu
@@ -138,17 +140,27 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
 	    	Log.d(this.toString(),"dY: " + dy);
 	    	
 	    	try {
+	    		// TODO fix likely concurrency problems. 
+	    		// TODO local gameState should be polled on a timer.
 	    		updateLocalGameState();
 		    	JSONObject turret = gameState.getJSONObject("turret");
 		    	//JSONObject turret = json.getJSONObject("turret");
 		    	String position = turret.getString("position");
 		    	Log.d(this.toString(),position);
 		    	String[] coors = position.split("\\s*,\\s*");
-		    	float turretX = Float.valueOf(coors[0].trim()).floatValue();
-		    	float turretZ = Float.valueOf(coors[2].trim()).floatValue();
 		    	
-		    	coors[0] = Float.toString(turretX + dx);
-		    	coors[2] =  Float.toString(turretZ + dy);
+		    	// Calc change with floats
+//		    	float turretX = Float.valueOf(coors[0].trim()).floatValue();
+//		    	float turretZ = Float.valueOf(coors[2].trim()).floatValue();
+//		    	coors[0] = Float.toString(turretX + dx);
+//		    	coors[2] =  Float.toString(turretZ + dy);
+		    	
+		    	// Calc change with ints
+		    	int turretX = Math.round(Float.valueOf(coors[0].trim()).floatValue());
+		    	int turretZ = Math.round(Float.valueOf(coors[2].trim()).floatValue());
+		    	coors[0] = Integer.toString(turretX + Math.round(dx));
+		    	coors[1] = Integer.toString(Math.round(Float.valueOf(coors[1].trim()).floatValue())); // for good measure
+		    	coors[2] = Integer.toString(turretZ + Math.round(dy));
 		    	
 		    	for(int i = 0; i < coors.length; i++) {
 		    		if(i == 0) position = coors[i];
@@ -170,7 +182,11 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
         return true; //Must return true to get move events
     }
     
-    
+    /**
+     * Updates the remote game state with the contents
+     * of the local gameState variable.
+     * @return
+     */
     private boolean updateRemoteGameState() {
     	boolean isSuccessful = false;
     	if(isBoundToHttpService) {
@@ -184,6 +200,11 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
     	return isSuccessful;
     }
     
+    /**
+     * Updates the local (client) gameState variable with
+     * the contents of the server's game state.
+     * @return
+     */
     private boolean updateLocalGameState() {
     	boolean isSuccessful = false;
     	if(isBoundToHttpService) {
@@ -255,9 +276,17 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
 //        }
 //    }
     
+    /**
+     * Forms the connection between this Activity and the HttpService
+     */
     private ServiceConnection httpServiceConnection = new ServiceConnection() 
     { //need this to create the connection to the service
-        public void onServiceConnected(
+        /**
+         * Called when the service is started and bound to this Service Connection
+         * @param className The classname of the activity
+         * @param service the service's binder object
+         */
+    	public void onServiceConnected(
         				ComponentName className, 
         				IBinder service)
         {
@@ -267,20 +296,31 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
 	        Log.d(this.toString(),httpService.toString());
 	        isBoundToHttpService = true;
 	        Log.d(this.toString(),"Bound to HttpSevice");
+	        updateLocalGameState();
         }
 
+    	/**
+    	 * Called when the service stops or unbinds itself
+    	 * @param className The Classname of the activity
+    	 */
         public void onServiceDisconnected(ComponentName className) 
         {
         	isBoundToHttpService = false;
         }
     };
     
+    /**
+     * Binds this activity to the HttpService
+     */
     private void doBindHttpService() {
     	Log.d(this.toString(),"Binding HttpSevice");
         bindService(new Intent(GameActivity.this, HttpService.class), 
         		httpServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
+    /**
+     * Unbinds this activity from the HttpService
+     */
     private void doUnbindHttpService() {
         // Detach our existing connection.
         unbindService(httpServiceConnection);
