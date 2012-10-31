@@ -8,11 +8,11 @@
         android:targetSdkVersion="15" />
 
     <!--
-    	Explicitly use this camera feature so as to support cameras 
-    	without support for other features. (If we request the camera
-    	permission but no features, Android assumes we need all of 
-    	them.)
-    -->
+    	Explicitly use this camera feature so as to support cameras
+	without support for other features. (If we request the camera
+	permission but no features, Android assumes we need all of
+	them.)
+	-->
     <uses-feature android:name="android.hardware.camera" />
 
     <!-- Permission to access camera -->
@@ -32,36 +32,38 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:icon="@drawable/ic_launcher"
+        android:icon="@drawable/vi_char_robot"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".MainActivity"
-            android:label="@string/title_activity_main" >
+            android:name=".SplashScreen"
+            android:label="MainVichar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
+		    <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity 
-            android:name="edu.pugetsound.vichar.ar.ImageTargets"
-            android:label="@string/ar_name"
-            android:configChanges="orientation|keyboardHidden"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
-            <!--
-            <intent-filter>
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/title_activity_main" >
+             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            -->
+
+<!--                 <category android:name="android.intent.category.LAUNCHER" />
+ -->            </intent-filter>
         </activity>
         <activity
             android:name=".GameActivity"
             android:label="@string/app_name"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
         </activity>
-        <activity
+                <activity 
+            android:name="edu.pugetsound.vichar.ar.ImageTargets"
+            android:label="@string/ar_name"
+            android:configChanges="orientation|keyboardHidden"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+        </activity>
+	<activity
             android:name=".TwitterOAuthActivity"
             android:label="@string/app_name" >
             <intent-filter>
@@ -117,19 +119,22 @@
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".TestGameActivity"
+            android:configChanges="orientation|keyboardHidden"
             android:label="@string/title_activity_test_game"
-            android:screenOrientation="portrait" 
-            android:configChanges="orientation|keyboardHidden" >
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <service android:name="SocketService" />
         <service android:name="HttpService" />
+
+        
     </application>
+
 </manifest>
