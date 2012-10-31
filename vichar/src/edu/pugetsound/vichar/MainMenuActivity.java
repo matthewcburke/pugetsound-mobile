@@ -1,6 +1,6 @@
 package edu.pugetsound.vichar;
 
-import com.qualcomm.QCARSamples.ImageTargets.ImageTargets; // MB: so we can start the ImageTargets Activity
+import edu.pugetsound.vichar.ar.ImageTargets; // MB: so we can start the ImageTargets Activity
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;

@@ -4,7 +4,7 @@
             Qualcomm Confidential and Proprietary
 ==============================================================================*/
 
-package com.qualcomm.QCARSamples.ImageTargets;
+package edu.pugetsound.vichar.ar;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;

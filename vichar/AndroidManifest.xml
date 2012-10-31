@@ -45,7 +45,7 @@
             </intent-filter>
         </activity>
         <activity 
-            android:name="com.qualcomm.QCARSamples.ImageTargets.ImageTargets"
+            android:name="edu.pugetsound.vichar.ar.ImageTargets"
             android:label="@string/ar_name"
             android:configChanges="orientation|keyboardHidden"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen">

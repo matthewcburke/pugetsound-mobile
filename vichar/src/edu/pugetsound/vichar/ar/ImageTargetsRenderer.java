@@ -12,7 +12,7 @@
 ==============================================================================*/
 
 
-package com.qualcomm.QCARSamples.ImageTargets;
+package edu.pugetsound.vichar.ar;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;

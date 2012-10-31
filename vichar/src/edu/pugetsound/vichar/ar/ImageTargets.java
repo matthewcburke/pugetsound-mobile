@@ -21,7 +21,7 @@
  *
  * */
 
-package com.qualcomm.QCARSamples.ImageTargets;
+package edu.pugetsound.vichar.ar;
 
 import java.util.Vector;
 

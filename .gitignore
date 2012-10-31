@@ -12,6 +12,8 @@
 bin/
 gen/
 obj/
+vichar/libs/armeabi/
+vichar/libs/armeabi-v7a/
 
 # Local configuration file (sdk path, etc)
 local.properties
