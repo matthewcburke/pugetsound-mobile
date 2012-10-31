@@ -1,5 +1,6 @@
 package edu.pugetsound.vichar;
 
+import com.qualcomm.QCARSamples.ImageTargets.ImageTargets; // MB: so we can start the ImageTargets Activity
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
@@ -66,7 +67,7 @@ public class MainMenuActivity extends Activity {
     private OnClickListener gameListener = new OnClickListener() { //sets what happens when the button is pushed
     	public void onClick(View v) { 
         	
-    		startActivity(new Intent(context, GameActivity.class));
+    		startActivity(new Intent(context, ImageTargets.class)); // MB: Start Image Targets
         }
        };
        
@@ -101,7 +102,7 @@ public class MainMenuActivity extends Activity {
                 return true;
             case R.id.enter_game:
             	//startActivity(new Intent(this, GameActivity.class));
-            	startActivity(new Intent(this, GameActivity.class));
+            	startActivity(new Intent(this, ImageTargets.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

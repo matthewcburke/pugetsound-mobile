@@ -1,6 +1,7 @@
 <resources>
 
     <string name="app_name">viChar</string>
+    <string name="app_description">viChar Game</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
     <string name="title_activity_main">MainActivity</string>
@@ -11,6 +12,7 @@
     <string name="oauth_access_token">oauth_access_token</string>
     <string name="oauth_token_secret">oauth_token_secret</string>
     <string name="prefs_error">retrieve error</string>
+    <string name="ar_name">viChar AR</string>
 
     <!-- Text to Read -->
     <string name="default_twitter_prompt">No Current Twitter Challenge!</string>
