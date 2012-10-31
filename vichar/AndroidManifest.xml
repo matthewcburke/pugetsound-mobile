@@ -12,7 +12,7 @@
 	without support for other features. (If we request the camera
 	permission but no features, Android assumes we need all of
 	them.)
-	-->
+    -->
     <uses-feature android:name="android.hardware.camera" />
 
     <!-- Permission to access camera -->
@@ -52,6 +52,12 @@
 <!--                 <category android:name="android.intent.category.LAUNCHER" />
  -->            </intent-filter>
         </activity>
+        <activity
+	    android:name="edu.pugetsound.vichar.ar.ImageTargets"
+	    android:label="@string/ar_name"
+	    android:configChanges="orientation|keyboardHidden"
+	    android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+	</activity>
         <activity
             android:name=".GameActivity"
             android:label="@string/app_name"
