@@ -158,7 +158,8 @@ public class LeaderboardActivity extends Activity {
         //creates title row
         TextView title = new TextView(this);  
         title.setText("Scores");  
-        title.setTextSize(16, 18);  
+        title.setTextSize(16, 18);
+        title.setTextColor(getResources().getColor(R.color.game_blue));
         title.setGravity(Gravity.CENTER); //centers text in parent View
         title.setTypeface(Typeface.SERIF, Typeface.BOLD);  //sets font
         row0.addView(title); //adds the TextView to the title (first) row
@@ -167,7 +168,9 @@ public class LeaderboardActivity extends Activity {
           //creates row #1
             TextView name1 = new TextView(this);  
             name1.setText(names.get(0)[0]); //sets name to corresponding key from ArrayList  
+            name1.setTextColor(getResources().getColor(R.color.game_blue));
             TextView score1 = new TextView(this);  
+            score1.setTextColor(getResources().getColor(R.color.game_blue));
             score1.setText(names.get(0)[1]); //sets score to corresponding value
                 //Each TextView can only have one parent, so we need to
                 //create a new instance of a blank TextView every time we want
@@ -182,8 +185,10 @@ public class LeaderboardActivity extends Activity {
           //creates row #2
             TextView name2 = new TextView(this);  
             name2.setText(names.get(1)[0]);   
+            name2.setTextColor(getResources().getColor(R.color.game_blue));
             TextView score2 = new TextView(this);  
             score2.setText(names.get(1)[1]); 
+            score2.setTextColor(getResources().getColor(R.color.game_blue));
             row2.addView(new TextView(this));
             row2.addView(name2);
             row2.addView(new TextView(this));
@@ -194,8 +199,10 @@ public class LeaderboardActivity extends Activity {
           //creates row #3
             TextView name3 = new TextView(this);  
             name3.setText(names.get(2)[0]);   
+            name3.setTextColor(getResources().getColor(R.color.game_blue));
             TextView score3 = new TextView(this);  
             score3.setText(names.get(2)[1]); 
+            score3.setTextColor(getResources().getColor(R.color.game_blue));
             row3.addView(new TextView(this));
             row3.addView(name3);
             row3.addView(new TextView(this));
@@ -205,8 +212,10 @@ public class LeaderboardActivity extends Activity {
           //creates row #4
             TextView name4 = new TextView(this);  
             name4.setText(names.get(3)[0]);   
+            name4.setTextColor(getResources().getColor(R.color.game_blue));
             TextView score4 = new TextView(this);  
-            score4.setText(names.get(3)[1]); 
+            score4.setText(names.get(3)[1]);
+            score4.setTextColor(getResources().getColor(R.color.game_blue));
             row4.addView(new TextView(this));
             row4.addView(name4);
             row4.addView(new TextView(this));
@@ -216,8 +225,10 @@ public class LeaderboardActivity extends Activity {
           //creates row #5
             TextView name5 = new TextView(this);  
             name5.setText(names.get(4)[0]);   
+            name5.setTextColor(getResources().getColor(R.color.game_blue));
             TextView score5 = new TextView(this);  
             score5.setText(names.get(4)[1]); 
+            score5.setTextColor(getResources().getColor(R.color.game_blue));
             row5.addView(new TextView(this));
             row5.addView(name5);
             row5.addView(new TextView(this));
@@ -231,5 +242,5 @@ public class LeaderboardActivity extends Activity {
         table.addView(row4);
         table.addView(row5);
         setContentView(table); //puts the table on the screen
-    }
+        }
 }
