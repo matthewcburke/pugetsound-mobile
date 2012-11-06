@@ -50,8 +50,47 @@ public class NetworkingService extends Service {
 	private Timer timer = new Timer();
 	private TimerTask pollingTask = new TimerTask(){ 
 		public void run() {
+			//Notify the host Service of timer tick
 			Message msg = Message.obtain(null, MSG_TIMER_TICK);
 			try {
+				mMessenger.send(msg);
+			} catch(RemoteException e) {
+				//This should never happen... right?
+				Log.i(this.toString(), "RemoteException from timer thread.");
+			}
+			
+			// Initialize return object
+	 		JSONObject json = null;
+	 		
+	 		try {
+	 			URL url = new URL("http://10.150.2.55:4242/");
+				//URL url = new URL("http://puppetmaster.pugetsound.edu:4242/gameState.json");
+				URLConnection connection = url.openConnection();
+		
+				String line;
+				StringBuilder builder = new StringBuilder();
+				BufferedReader reader = new BufferedReader(
+						new InputStreamReader(connection.getInputStream()));
+				while((line = reader.readLine()) != null) {
+					builder.append(line);
+				}
+		
+				json = new JSONObject(builder.toString());
+			} catch(JSONException e){
+				Log.i(this.toString(), "getJSON(): JSONException");
+			} catch(IOException e) {
+				Log.i(this.toString(), "getJSON(): IOException");
+			}
+	 		
+	 		//TODO check for failure
+	 		
+	 		// return the resulting JSONObject via Messenger
+	 		//Bundle JSONObject as a string
+	    	Bundle b = new Bundle();
+	    	b.putString("" + MSG_SET_JSON_STRING_VALUE, json.toString());
+	    	msg = Message.obtain(null, MSG_RET_JSON_STRING_FROM_SERVER);
+	    	msg.setData(b);
+	    	try {
 				mMessenger.send(msg);
 			} catch(RemoteException e) {
 				//This should never happen... right?
@@ -60,7 +99,6 @@ public class NetworkingService extends Service {
 		}
 	};
 	private boolean polling = false;
-	private long nanoTimeLastPolled;
 	
 	// Keeps track of all current registered clients.
 	ArrayList<Messenger> mClients = new ArrayList<Messenger>();
@@ -72,6 +110,7 @@ public class NetworkingService extends Service {
     static final int MSG_SET_STRING_VALUE = 4;
     static final int MSG_SET_JSON_STRING_VALUE = 5;
     static final int MSG_TIMER_TICK = 6;
+    static final int MSG_RET_JSON_STRING_FROM_SERVER = 7;
     
 	// Messenger to handle inbound messages
     final Messenger mMessenger = new Messenger(new IncomingHandler());
@@ -89,10 +128,29 @@ public class NetworkingService extends Service {
                 mClients.remove(msg.replyTo);
                 break;
             case MSG_TIMER_TICK:
-            	onTimerTick();
+            	break;
+            case MSG_RET_JSON_STRING_FROM_SERVER:
+            	passTheBuck(msg.getData());
             	break;
             default:
                 super.handleMessage(msg);
+            }
+        }
+    }
+    
+    private void passTheBuck(Bundle b) {
+    	Message msg = Message.obtain(null, MSG_SET_JSON_STRING_VALUE);
+    	msg.setData(b);
+    	
+    	//Send msg to subscribers
+        for (int i=mClients.size()-1; i>=0; i--) {
+            try {
+                mClients.get(i).send(msg);
+
+            } catch (RemoteException e) {
+                // The client is dead. Remove it from the list\
+            	Log.i(this.toString(), "Activity client is dead.");
+                mClients.remove(i);
             }
         }
     }
@@ -148,14 +206,14 @@ public class NetworkingService extends Service {
 	/**
 	 * Run every 100ms when the Service is polling
 	 */
-	private void onTimerTick() {
-		try {
-			URL url = new URL("http://10.150.2.55:4242/");
-			fetchJSONObject(url);
-		} catch (MalformedURLException e) {
-			Log.i(this.toString(), "onTimerTick: Malformed URL Exception!");
-		}
-	}
+//	private void onTimerTick() {
+//		try {
+//			URL url = new URL("http://10.150.2.55:4242/");
+//			fetchJSONObject(url);
+//		} catch (MalformedURLException e) {
+//			Log.i(this.toString(), "onTimerTick: Malformed URL Exception!");
+//		}
+//	}
 	
 	/**
  	* Takes JSON objects sent by activities and passes them to the server
@@ -260,20 +318,6 @@ public class NetworkingService extends Service {
 	private class GetJSONObject extends AsyncTask<URL, Void, JSONObject> {
 	 	@Override
 	    protected JSONObject doInBackground(URL... urls) {
-	 		// If we've polled before, and the POLL_INTERVAL hasn't yet elapsed
-	 		if(nanoTimeLastPolled > 0 
-	 		  && nanoTimeLastPolled < System.nanoTime() //to be safe
-	 		  && System.nanoTime() - nanoTimeLastPolled < POLL_INTERVAL
-	 		  ) {
-				// Wait for the time remaining in the POLL_INTERVAL
- 				try {
-	 				Thread.sleep((long) POLL_INTERVAL 
-	 						- (System.nanoTime() - nanoTimeLastPolled));
- 				} catch(InterruptedException e) {
- 					Log.i(this.toString(), "Thread.sleep() Interrupted Exception");
- 				}
- 			}
-	 		
 	 		// Initialize return object
 	 		JSONObject json = null;
 	 		
