@@ -67,7 +67,7 @@ public class PreferenceUtility {
     /**
      * Returns boolean from persistent storage to the caller at provided key
      * @param key The key to find the matching value for 
-     * @param bool The true or false boolean to be returned
+     * @param bool The boolean to be returned
      * @param act The current caller activity. Passed for context purposes
      */
     public boolean returnBoolean(String key, Boolean bool, Activity act) {

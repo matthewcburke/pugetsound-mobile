@@ -99,7 +99,10 @@ public class TwitterOAuthActivity extends Activity {
      */
     public void finishLogin(boolean loginResult)    {
     	if(loginResult==true) 	{
-    		//if login succeeds, move on to main menu
+    		//if login succeeds, set Twitter logged in flag to true
+    		PreferenceUtility prefs = new PreferenceUtility();
+    		prefs.saveBoolean(getString(R.string.twitter_username_key), loginResult, this);    		
+    		//and proceed on to main menu
     		Intent mainActIntent = new Intent(this, MainMenuActivity.class);
         	startActivity(mainActIntent);
     	} else	{

@@ -13,6 +13,8 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.support.v4.app.*;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Fragment for posting tweets and displaying current Twitter prompt/challenge.
@@ -49,14 +51,26 @@ public class TweetFragment extends Fragment {
     
     /**
      * Sets prompt and updates display
-     * @param newPrompt New Twitter prompt to display
+     * @param gamestate The gamestate JSON, which contains the 
+     *        current Twitter prompt
      */
-    public void setPrompt(String newPrompt)
+    public void setPrompt(JSONObject gamestate)
     {
-    	curPrompt = newPrompt;
-    	//update display
-    	TextView twitterPrompt = (TextView) getView().findViewById(R.id.cur_twitter_challenge);
+    	curPrompt = gamestate.toString();
+		//update display
+		TextView twitterPrompt = (TextView) getView().findViewById(R.id.cur_twitter_challenge);
     	twitterPrompt.setText(curPrompt);
+//    	try {
+//    		//curPrompt = gamestate.getString("TwitterPrompt");
+//    		curPrompt = gamestate.toString();
+//    		//update display
+//    		TextView twitterPrompt = (TextView) getView().findViewById(R.id.cur_twitter_challenge);
+//        	twitterPrompt.setText(curPrompt);
+//    	}
+//    	catch (JSONException ex)  {
+//    		//TODO:decide what will happen when this fails
+//    		Log.d("Vichar", ex.getMessage());
+//    	}    	
     }
     
     /**
@@ -81,8 +95,7 @@ public class TweetFragment extends Fragment {
     	Twitter twitter = tf.getInstance();
     	//pass twitter object to worker thread
     	new PostTweet().execute(twitter);
-    }
-    	
+    }    	
    
     /**
      * Posts tweets via worker thread
@@ -115,7 +128,8 @@ public class TweetFragment extends Fragment {
     				postAttempt++;
     				new PostTweet().execute(twitter);
     			} else {
-    				postAttempt=0;
+    				//TODO: determine what happens when Tweet post fails
+    				postAttempt=0;    				
     			}
     		}
             return result;

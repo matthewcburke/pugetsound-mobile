@@ -35,6 +35,8 @@
     <string name="access_token_secret_key">access_token_secret_key</string>
     <string name="twitter_username_key">twitter_username_key</string>
     <string name="vichar_username_key">vichar_username_key</string>
+    <string name="twitter_is_logged_in">tw_is_logged_in</string>
+    <string name="vichar_is_logged_in">vichar_is_logged_in</string>
     
     
     <string name="title_activity_test">TestActivity</string>
