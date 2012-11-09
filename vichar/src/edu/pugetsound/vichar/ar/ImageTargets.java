@@ -285,7 +285,7 @@ public class ImageTargets extends Activity
         super.onCreate(savedInstanceState);
         
         // Set the splash screen image to display during initialization:
-        mSplashScreenImageResource = R.drawable.splash_screen_image_targets;
+        mSplashScreenImageResource = R.drawable.splash;
         
         // Load any sample specific textures:  
         mTextures = new Vector<Texture>();
