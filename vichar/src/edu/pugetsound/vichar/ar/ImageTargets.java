@@ -706,7 +706,7 @@ public class ImageTargets extends Activity
     {
         super.onCreateOptionsMenu(menu);
                         
-        mDataSetMenuItem = menu.add("Switch to Tarmac dataset");
+        mDataSetMenuItem = menu.add("Switch to Vichar dataset");
         menu.add("Toggle flash");
         menu.add("Trigger autofocus");
         
@@ -733,7 +733,7 @@ public class ImageTargets extends Activity
            mIsStonesAndChipsDataSetActive = !mIsStonesAndChipsDataSetActive;
            if (mIsStonesAndChipsDataSetActive)
            {
-               item.setTitle("Switch to Tarmac dataset");
+               item.setTitle("Switch to Vichar dataset");
            }
            else
            {
