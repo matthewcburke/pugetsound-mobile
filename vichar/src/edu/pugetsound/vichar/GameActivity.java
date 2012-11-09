@@ -185,7 +185,8 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
     	boolean isSuccessful = false;
     	if(isBoundToNetworkingService) {
     		//TODO re-enable posting
-    		networkingService.postJSONObject(gameState, null);
+    		//networkingService.postJSONObject(gameState, null);
+    		networkingService.queueOutboundJson(gameState);
     		isSuccessful = true;
     	} else {
     		Log.i(this.toString(),"Not Bound to NetworkingService");
@@ -231,6 +232,7 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
 	            		//gameState = json;
 	            	} catch(JSONException e) {
 	            		// do something
+	            		Log.d(this.toString(), "Couldn't Make JSON from string.");
 	            	}
 	            default:
 	                super.handleMessage(msg);

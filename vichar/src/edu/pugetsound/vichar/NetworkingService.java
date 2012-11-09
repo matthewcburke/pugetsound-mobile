@@ -2,8 +2,12 @@ package edu.pugetsound.vichar;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -11,6 +15,9 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -45,61 +52,10 @@ public class NetworkingService extends Service {
 
 	public static final String DEFAULT_DOMAIN_IP = "10.150.2.55";
 	public static final String DEFAULT_DOMAIN = "http://" + DEFAULT_DOMAIN_IP;
-	public static final double POLL_INTERVAL = .1 * 1000000000; //in nanoseconds
+	public static final long POLL_INTERVAL = 100L; //in milliseconds
 	private final IBinder binder = new LocalBinder();
 	private Timer timer = new Timer();
-	private TimerTask pollingTask = new TimerTask(){ 
-		public void run() {
-			//Notify the host Service of timer tick
-			Message msg = Message.obtain(null, MSG_TIMER_TICK);
-			try {
-				mMessenger.send(msg);
-			} catch(RemoteException e) {
-				//This should never happen... right?
-				Log.i(this.toString(), "RemoteException from timer thread.");
-			}
-			
-			// Initialize return object
-	 		JSONObject json = null;
-	 		
-	 		try {
-	 			URL url = new URL("http://10.150.2.55:4242/");
-				//URL url = new URL("http://puppetmaster.pugetsound.edu:4242/gameState.json");
-				URLConnection connection = url.openConnection();
-		
-				String line;
-				StringBuilder builder = new StringBuilder();
-				BufferedReader reader = new BufferedReader(
-						new InputStreamReader(connection.getInputStream()));
-				while((line = reader.readLine()) != null) {
-					builder.append(line);
-				}
-		
-				json = new JSONObject(builder.toString());
-			} catch(JSONException e){
-				Log.i(this.toString(), "getJSON(): JSONException");
-			} catch(IOException e) {
-				Log.i(this.toString(), "getJSON(): IOException");
-			}
-	 		
-	 		//TODO check for failure
-	 		
-	 		// return the resulting JSONObject via Messenger
-	 		//Bundle JSONObject as a string
-	    	Bundle b = new Bundle();
-	    	b.putString("" + MSG_SET_JSON_STRING_VALUE, json.toString());
-	    	msg = Message.obtain(null, MSG_RET_JSON_STRING_FROM_SERVER);
-	    	msg.setData(b);
-	    	try {
-				mMessenger.send(msg);
-			} catch(RemoteException e) {
-				//This should never happen... right?
-				Log.i(this.toString(), "RemoteException from timer thread.");
-			}
-		}
-	};
 	private boolean polling = false;
-	
 	// Keeps track of all current registered clients.
 	ArrayList<Messenger> mClients = new ArrayList<Messenger>();
 	int mValue = 0; // Holds last value set by a client.
@@ -122,7 +78,6 @@ public class NetworkingService extends Service {
             case MSG_REGISTER_CLIENT:
             	Log.d(this.toString(), "handleMessage: registering client: " + msg.replyTo.toString());
                 mClients.add(msg.replyTo);
-                sendTestMsg();
                 break;
             case MSG_UNREGISTER_CLIENT:
                 mClients.remove(msg.replyTo);
@@ -155,15 +110,6 @@ public class NetworkingService extends Service {
         }
     }
     
-    private void sendTestMsg() {
-    	try {
-    		JSONObject json = new JSONObject("{\"test\":{\"position\":\"100,0,300\",\"ID\":\"1\"}}");
-    		serveJSONObject(json);
-    	} catch(JSONException e) {
-    		Log.i(this.toString(), "JSONException");
-    	}
-    }
-    
    private void serveJSONObject(JSONObject json) {
     	//Bundle JSONObject as a string
     	Bundle b = new Bundle();
@@ -190,7 +136,7 @@ public class NetworkingService extends Service {
 	public void startPolling() {
 		if(!polling) {
 			// run pollingTask every 100ms
-			timer.scheduleAtFixedRate(pollingTask, 0, 100L);
+			timer.scheduleAtFixedRate(pollingTask, 0, POLL_INTERVAL);
 			polling = true;
 		}
 	}
@@ -203,17 +149,111 @@ public class NetworkingService extends Service {
 		polling = false;
 	}
 	
-	/**
-	 * Run every 100ms when the Service is polling
-	 */
-//	private void onTimerTick() {
-//		try {
-//			URL url = new URL("http://10.150.2.55:4242/");
-//			fetchJSONObject(url);
-//		} catch (MalformedURLException e) {
-//			Log.i(this.toString(), "onTimerTick: Malformed URL Exception!");
-//		}
-//	}
+	private abstract class PollingTask extends TimerTask {
+		protected JSONObject outboundJson = null;
+		public void setOutboundJson(JSONObject json) {
+			outboundJson = json;
+		}
+	}
+	
+	private PollingTask pollingTask = new PollingTask(){
+		
+		public void run() {
+			//Notify the host Service of timer tick
+			Message msg = Message.obtain(null, MSG_TIMER_TICK);
+			try {
+				mMessenger.send(msg);
+			} catch(RemoteException e) {
+				//This should never happen... right?
+				Log.i(this.toString(), "RemoteException from timer thread.");
+			}
+			
+	 		String returnStr = "";
+	 		
+	 		// POST the latest state
+	 		//HttpClient httpClient = new DefaultHttpClient();
+			//HttpPost httpPost = new HttpPost(url);
+			try {
+				String urlString = "http://10.150.2.55:4242/";
+				URL url = new URL(urlString);
+				HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+				if(outboundJson != null) {
+					Log.d(this.toString(), "SENDING JSON: " + outboundJson.toString());
+					conn.setDoOutput(true);	
+					//conn.setDoInput(true);
+					conn.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+					conn.setRequestProperty("Accept", "application/json");
+					conn.setRequestMethod("POST");
+					conn.connect();
+					OutputStream out = conn.getOutputStream();
+					StringEntity se = new StringEntity(outboundJson.toString());
+					se.setContentEncoding(
+							new BasicHeader(HTTP.CONTENT_TYPE, 
+									"application/json;charset=UTF-8"));
+					se.writeTo(out);
+					out.flush();
+					out.close();
+					outboundJson = null;
+					
+					int status = conn.getResponseCode();
+					System.out.println("ResponseCode: " + status);
+					
+					conn.disconnect();
+				}
+
+				//TODO right now server check for POST/GET, should return something on POST too
+				// In the meantime, we do two separate requests.
+				URL url2 = new URL(urlString);
+				HttpURLConnection conn2 = (HttpURLConnection) url2.openConnection();
+				
+				// Parse the response into a JSONObject
+				InputStream in = conn2.getInputStream();
+				// Use the encoding listed in the HTTP header
+				String encoding = conn2.getContentEncoding();
+				// Or, if missing, default to UTF-8 instead of system default
+				encoding = encoding == null ? "UTF-8" : encoding;
+				String body = IOUtils.toString(in, encoding);
+				in.close();
+				Log.d(this.toString(),"body: " + body.toString());
+				returnStr = body;
+
+				int status = conn2.getResponseCode();
+				System.out.println("ResponseCode: " + status);
+				conn2.disconnect();
+			}
+			catch (ClientProtocolException e) {
+				//do nothing
+				Log.i(this.toString(), "ClientProtocolException");
+			}
+			catch (UnsupportedEncodingException e) {
+				//do nothing
+				Log.i(this.toString(), "UnsupportedEncodingException");
+			} 
+			catch (IOException e) {
+				// do nothing
+				Log.i(this.toString(), "IOException");
+			}
+	 		
+	 		//TODO check for failure
+	 		
+	 		// return the resulting String via Messenger
+	 		// first, Bundle JSON string as a string
+	    	Bundle b = new Bundle();
+	    	b.putString("" + MSG_SET_JSON_STRING_VALUE, returnStr);
+	    	msg = Message.obtain(null, MSG_RET_JSON_STRING_FROM_SERVER);
+	    	msg.setData(b);
+	    	try {
+				mMessenger.send(msg);
+			} catch(RemoteException e) {
+				//This should never happen... right?
+				Log.i(this.toString(), "RemoteException from timer thread.");
+			}
+		}
+	};
+	
+	public void queueOutboundJson(JSONObject json) {
+		pollingTask.setOutboundJson(json);
+	}
 	
 	/**
  	* Takes JSON objects sent by activities and passes them to the server
@@ -228,40 +268,13 @@ public class NetworkingService extends Service {
 		
 		PostJSONObject task = new PostJSONObject();
 		task.setUrl(url);
-		
-		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB) {
-			//TODO implement our own Executor
-			
-			// In API > 11, by default, all AsyncTasks run in a single thread.
-			// We don't want ours to get stopped up by other AsyncTasks that
-			// it doesn't depend upon. As such, we run the GetJSONObject task 
-			// in parallel via the THREAD_POOL_EXECUTOR (avail in API 11+).
-			// NOTE: This could cause parallel process bugs if it does depend on 
-			// another task that runs in parallel.
-			//task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, json);
-			task.execute(json);
-		}
-		else {
-			task.execute(json);
-		}
+		task.execute(json);
 	}
 	
 	@SuppressLint("NewApi") // Suppress lint warnings b/c we check API level
 	public void fetchJSONObject(URL url) {
 		GetJSONObject task = new GetJSONObject();
-		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB) {
-			// In API > 11, by default, all AsyncTasks run in a single thread.
-			// We don't want ours to get stopped up by other AsyncTasks that
-			// it doesn't depend upon. As such, we run the GetJSONObject task 
-			// in parallel via the THREAD_POOL_EXECUTOR (avail in API 11+).
-			// NOTE: This could cause parallel process bugs if it does depend on 
-			// another task that runs in parallel.
-			//task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url);
-			task.execute(url);
-		}
-		else {
-			task.execute(url);
-		}
+		task.execute(url);
 	}
 	
 	private class PostJSONObject extends AsyncTask<JSONObject, Void, String> {
