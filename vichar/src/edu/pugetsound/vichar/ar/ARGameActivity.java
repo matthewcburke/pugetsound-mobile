@@ -31,7 +31,7 @@ import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
+// import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -178,6 +178,7 @@ public class ARGameActivity extends Activity
                 // Create dialog box for display error:
                 AlertDialog dialogError = new AlertDialog.Builder(ARGameActivity.this).create();
                 dialogError.setButton(
+                	DialogInterface.BUTTON_POSITIVE,
                     "Close",
                     new DialogInterface.OnClickListener()
                     {
@@ -247,6 +248,7 @@ public class ARGameActivity extends Activity
                 // Create dialog box for display error:
                 AlertDialog dialogError = new AlertDialog.Builder(ARGameActivity.this).create();
                 dialogError.setButton(
+                	DialogInterface.BUTTON_POSITIVE,
                     "Close",
                     new DialogInterface.OnClickListener()
                     {
@@ -588,8 +590,8 @@ public class ARGameActivity extends Activity
                             // BEFORE the camera is started and video
                             // background is configured.
                             addContentView(mGlView, new LayoutParams(
-                                            LayoutParams.FILL_PARENT,
-                                            LayoutParams.FILL_PARENT));
+                                            LayoutParams.MATCH_PARENT,
+                                            LayoutParams.MATCH_PARENT));
                             
                             // Start the camera:
                             updateApplicationStatus(APPSTATUS_CAMERA_RUNNING);
@@ -667,7 +669,7 @@ public class ARGameActivity extends Activity
         mSplashScreenView = new ImageView(this);
         mSplashScreenView.setImageResource(mSplashScreenImageResource);
         addContentView(mSplashScreenView, new LayoutParams(
-                        LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+                        LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         
         mSplashScreenStartTime = System.currentTimeMillis();
 
