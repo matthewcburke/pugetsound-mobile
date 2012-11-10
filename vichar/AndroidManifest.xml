@@ -52,7 +52,7 @@
 <!--                 <category android:name="android.intent.category.LAUNCHER" />
  -->            </intent-filter>
         </activity>
-        <activity
+    <activity
 	    android:name="edu.pugetsound.vichar.ar.ImageTargets"
 	    android:label="@string/ar_name"
 	    android:configChanges="orientation|keyboardHidden"

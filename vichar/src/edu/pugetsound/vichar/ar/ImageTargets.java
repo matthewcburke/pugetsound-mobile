@@ -33,6 +33,7 @@ import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -62,7 +63,7 @@ public class ImageTargets extends Activity
     private static final int APPSTATUS_CAMERA_RUNNING   = 7;
     
     // Name of the native dynamic libraries to load:
-    private static final String NATIVE_LIB_SAMPLE = "ImageTargets";    
+    private static final String NATIVE_LIB_AR = "VicharAR";    
     private static final String NATIVE_LIB_QCAR = "QCAR"; 
 
     // Our OpenGL view:
@@ -116,9 +117,8 @@ public class ImageTargets extends Activity
     static
     {
         loadLibrary(NATIVE_LIB_QCAR);
-        loadLibrary(NATIVE_LIB_SAMPLE);
+        loadLibrary(NATIVE_LIB_AR);
     }
-    
     
     /** An async task to initialize QCAR asynchronously. */
     private class InitQCARTask extends AsyncTask<Void, Integer, Boolean>
