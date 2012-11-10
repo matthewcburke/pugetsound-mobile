@@ -139,7 +139,7 @@ class ImageTargets_UpdateCallback : public QCAR::UpdateCallback
 ImageTargets_UpdateCallback updateCallback;
 
 JNIEXPORT int JNICALL
-Java_edu_pugetsound_vichar_ar_ImageTargets_getOpenGlEsVersionNative(JNIEnv *, jobject)
+Java_edu_pugetsound_vichar_ar_ARGameActivity_getOpenGlEsVersionNative(JNIEnv *, jobject)
 {
 #ifdef USE_OPENGL_ES_1_1        
     return 1;
@@ -150,7 +150,7 @@ Java_edu_pugetsound_vichar_ar_ImageTargets_getOpenGlEsVersionNative(JNIEnv *, jo
 
 
 JNIEXPORT void JNICALL
-Java_edu_pugetsound_vichar_ar_ImageTargets_setActivityPortraitMode(JNIEnv *, jobject, jboolean isPortrait)
+Java_edu_pugetsound_vichar_ar_ARGameActivity_setActivityPortraitMode(JNIEnv *, jobject, jboolean isPortrait)
 {
     isActivityInPortraitMode = isPortrait;
 }
@@ -158,16 +158,16 @@ Java_edu_pugetsound_vichar_ar_ImageTargets_setActivityPortraitMode(JNIEnv *, job
 
 
 JNIEXPORT void JNICALL
-Java_edu_pugetsound_vichar_ar_ImageTargets_switchDatasetAsap(JNIEnv *, jobject)
+Java_edu_pugetsound_vichar_ar_ARGameActivity_switchDatasetAsap(JNIEnv *, jobject)
 {
     switchDataSetAsap = true;
 }
 
 
 JNIEXPORT int JNICALL
-Java_edu_pugetsound_vichar_ar_ImageTargets_initTracker(JNIEnv *, jobject)
+Java_edu_pugetsound_vichar_ar_ARGameActivity_initTracker(JNIEnv *, jobject)
 {
-    LOG("Java_edu_pugetsound_vichar_ar_ImageTargets_initTracker");
+    LOG("Java_edu_pugetsound_vichar_ar_ARGameActivity_initTracker");
     
     // Initialize the image tracker:
     QCAR::TrackerManager& trackerManager = QCAR::TrackerManager::getInstance();
@@ -184,9 +184,9 @@ Java_edu_pugetsound_vichar_ar_ImageTargets_initTracker(JNIEnv *, jobject)
 
 
 JNIEXPORT void JNICALL
-Java_edu_pugetsound_vichar_ar_ImageTargets_deinitTracker(JNIEnv *, jobject)
+Java_edu_pugetsound_vichar_ar_ARGameActivity_deinitTracker(JNIEnv *, jobject)
 {
-    LOG("Java_edu_pugetsound_vichar_ar_ImageTargets_deinitTracker");
+    LOG("Java_edu_pugetsound_vichar_ar_ARGameActivity_deinitTracker");
 
     // Deinit the image tracker:
     QCAR::TrackerManager& trackerManager = QCAR::TrackerManager::getInstance();
@@ -195,9 +195,9 @@ Java_edu_pugetsound_vichar_ar_ImageTargets_deinitTracker(JNIEnv *, jobject)
 
 
 JNIEXPORT int JNICALL
-Java_edu_pugetsound_vichar_ar_ImageTargets_loadTrackerData(JNIEnv *, jobject)
+Java_edu_pugetsound_vichar_ar_ARGameActivity_loadTrackerData(JNIEnv *, jobject)
 {
-    LOG("Java_edu_pugetsound_vichar_ar_ImageTargets_loadTrackerData");
+    LOG("Java_edu_pugetsound_vichar_ar_ARGameActivity_loadTrackerData");
     
     // Get the image tracker:
     QCAR::TrackerManager& trackerManager = QCAR::TrackerManager::getInstance();
@@ -251,9 +251,9 @@ Java_edu_pugetsound_vichar_ar_ImageTargets_loadTrackerData(JNIEnv *, jobject)
 
 
 JNIEXPORT int JNICALL
-Java_edu_pugetsound_vichar_ar_ImageTargets_destroyTrackerData(JNIEnv *, jobject)
+Java_edu_pugetsound_vichar_ar_ARGameActivity_destroyTrackerData(JNIEnv *, jobject)
 {
-    LOG("Java_edu_pugetsound_vichar_ar_ImageTargets_destroyTrackerData");
+    LOG("Java_edu_pugetsound_vichar_ar_ARGameActivity_destroyTrackerData");
 
     // Get the image tracker:
     QCAR::TrackerManager& trackerManager = QCAR::TrackerManager::getInstance();
@@ -311,7 +311,7 @@ Java_edu_pugetsound_vichar_ar_ImageTargets_destroyTrackerData(JNIEnv *, jobject)
 
 
 JNIEXPORT void JNICALL
-Java_edu_pugetsound_vichar_ar_ImageTargets_onQCARInitializedNative(JNIEnv *, jobject)
+Java_edu_pugetsound_vichar_ar_ARGameActivity_onQCARInitializedNative(JNIEnv *, jobject)
 {
     // Register the update callback where we handle the data set swap:
     QCAR::registerCallback(&updateCallback);
@@ -324,7 +324,7 @@ Java_edu_pugetsound_vichar_ar_ImageTargets_onQCARInitializedNative(JNIEnv *, job
 
 
 JNIEXPORT void JNICALL
-Java_edu_pugetsound_vichar_ar_ImageTargetsRenderer_renderFrame(JNIEnv *, jobject)
+Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
 {
     //LOG("Java_edu_pugetsound_vichar_ar_GLRenderer_renderFrame");
 
@@ -381,7 +381,7 @@ Java_edu_pugetsound_vichar_ar_ImageTargetsRenderer_renderFrame(JNIEnv *, jobject
 
         // UPDATE:: This is just a quick patch to display two textures on one target for the demo.
         // 			The following assignment prevents an index out of bounds error as long as three textures
-        //			are loaded into textures[] in ImageTargets.java.
+        //			are loaded into textures[] in ARGameActivity.java.
         textureIndex2 = (textureIndex + 1) % 3;
 
         const Texture* const thisTexture = textures[textureIndex];
@@ -563,10 +563,10 @@ configureVideoBackground()
 
 
 JNIEXPORT void JNICALL
-Java_edu_pugetsound_vichar_ar_ImageTargets_initApplicationNative(
+Java_edu_pugetsound_vichar_ar_ARGameActivity_initApplicationNative(
                             JNIEnv* env, jobject obj, jint width, jint height)
 {
-    LOG("Java_edu_pugetsound_vichar_ar_ImageTargets_initApplicationNative");
+    LOG("Java_edu_pugetsound_vichar_ar_ARGameActivity_initApplicationNative");
     
     // Store screen dimensions
     screenWidth = width;
@@ -614,15 +614,15 @@ Java_edu_pugetsound_vichar_ar_ImageTargets_initApplicationNative(
 
         textures[i] = Texture::create(env, textureObject);
     }
-    LOG("Java_edu_pugetsound_vichar_ar_ImageTargets_initApplicationNative finished");
+    LOG("Java_edu_pugetsound_vichar_ar_ARGameActivity_initApplicationNative finished");
 }
 
 
 JNIEXPORT void JNICALL
-Java_edu_pugetsound_vichar_ar_ImageTargets_deinitApplicationNative(
+Java_edu_pugetsound_vichar_ar_ARGameActivity_deinitApplicationNative(
                                                         JNIEnv* env, jobject obj)
 {
-    LOG("Java_edu_pugetsound_vichar_ar_ImageTargets_deinitApplicationNative");
+    LOG("Java_edu_pugetsound_vichar_ar_ARGameActivity_deinitApplicationNative");
 
     // Release texture resources
     if (textures != 0)
@@ -642,10 +642,10 @@ Java_edu_pugetsound_vichar_ar_ImageTargets_deinitApplicationNative(
 
 
 JNIEXPORT void JNICALL
-Java_edu_pugetsound_vichar_ar_ImageTargets_startCamera(JNIEnv *,
+Java_edu_pugetsound_vichar_ar_ARGameActivity_startCamera(JNIEnv *,
                                                                          jobject)
 {
-    LOG("Java_edu_pugetsound_vichar_ar_ImageTargets_startCamera");
+    LOG("Java_edu_pugetsound_vichar_ar_ARGameActivity_startCamera");
 
     // Initialize the camera:
     if (!QCAR::CameraDevice::getInstance().init())
@@ -681,9 +681,9 @@ Java_edu_pugetsound_vichar_ar_ImageTargets_startCamera(JNIEnv *,
 
 
 JNIEXPORT void JNICALL
-Java_edu_pugetsound_vichar_ar_ImageTargets_stopCamera(JNIEnv *, jobject)
+Java_edu_pugetsound_vichar_ar_ARGameActivity_stopCamera(JNIEnv *, jobject)
 {
-    LOG("Java_edu_pugetsound_vichar_ar_ImageTargets_stopCamera");
+    LOG("Java_edu_pugetsound_vichar_ar_ARGameActivity_stopCamera");
 
     // Stop the tracker:
     QCAR::TrackerManager& trackerManager = QCAR::TrackerManager::getInstance();
@@ -697,9 +697,9 @@ Java_edu_pugetsound_vichar_ar_ImageTargets_stopCamera(JNIEnv *, jobject)
 
 
 JNIEXPORT void JNICALL
-Java_edu_pugetsound_vichar_ar_ImageTargets_setProjectionMatrix(JNIEnv *, jobject)
+Java_edu_pugetsound_vichar_ar_ARGameActivity_setProjectionMatrix(JNIEnv *, jobject)
 {
-    LOG("Java_edu_pugetsound_vichar_ar_ImageTargets_setProjectionMatrix");
+    LOG("Java_edu_pugetsound_vichar_ar_ARGameActivity_setProjectionMatrix");
 
     // Cache the projection matrix:
     const QCAR::CameraCalibration& cameraCalibration =
@@ -710,21 +710,21 @@ Java_edu_pugetsound_vichar_ar_ImageTargets_setProjectionMatrix(JNIEnv *, jobject
 
 
 JNIEXPORT jboolean JNICALL
-Java_edu_pugetsound_vichar_ar_ImageTargets_activateFlash(JNIEnv*, jobject, jboolean flash)
+Java_edu_pugetsound_vichar_ar_ARGameActivity_activateFlash(JNIEnv*, jobject, jboolean flash)
 {
     return QCAR::CameraDevice::getInstance().setFlashTorchMode((flash==JNI_TRUE)) ? JNI_TRUE : JNI_FALSE;
 }
 
 
 JNIEXPORT jboolean JNICALL
-Java_edu_pugetsound_vichar_ar_ImageTargets_autofocus(JNIEnv*, jobject)
+Java_edu_pugetsound_vichar_ar_ARGameActivity_autofocus(JNIEnv*, jobject)
 {
     return QCAR::CameraDevice::getInstance().setFocusMode(QCAR::CameraDevice::FOCUS_MODE_TRIGGERAUTO) ? JNI_TRUE : JNI_FALSE;
 }
 
 
 JNIEXPORT jboolean JNICALL
-Java_edu_pugetsound_vichar_ar_ImageTargets_setFocusMode(JNIEnv*, jobject, jint mode)
+Java_edu_pugetsound_vichar_ar_ARGameActivity_setFocusMode(JNIEnv*, jobject, jint mode)
 {
     int qcarFocusMode;
 
@@ -755,10 +755,10 @@ Java_edu_pugetsound_vichar_ar_ImageTargets_setFocusMode(JNIEnv*, jobject, jint m
 
 
 JNIEXPORT void JNICALL
-Java_edu_pugetsound_vichar_ar_ImageTargetsRenderer_initRendering(
+Java_edu_pugetsound_vichar_ar_ARGameRenderer_initRendering(
                                                     JNIEnv* env, jobject obj)
 {
-    LOG("Java_edu_pugetsound_vichar_ar_ImageTargetsRenderer_initRendering");
+    LOG("Java_edu_pugetsound_vichar_ar_ARGameRenderer_initRendering");
 
     // Define clear color
     glClearColor(0.0f, 0.0f, 0.0f, QCAR::requiresAlpha() ? 0.0f : 1.0f);
@@ -794,10 +794,10 @@ Java_edu_pugetsound_vichar_ar_ImageTargetsRenderer_initRendering(
 
 
 JNIEXPORT void JNICALL
-Java_edu_pugetsound_vichar_ar_ImageTargetsRenderer_updateRendering(
+Java_edu_pugetsound_vichar_ar_ARGameRenderer_updateRendering(
                         JNIEnv* env, jobject obj, jint width, jint height)
 {
-    LOG("Java_edu_pugetsound_vichar_ar_ImageTargetsRenderer_updateRendering");
+    LOG("Java_edu_pugetsound_vichar_ar_ARGameRenderer_updateRendering");
 
     // Update screen dimensions
     screenWidth = width;

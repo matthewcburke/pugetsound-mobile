@@ -4,22 +4,20 @@
             Qualcomm Confidential and Proprietary
             
 @file 
-    ImageTargets.java
+    Formerly ImageTargets.java
 
 @brief
-    Sample for ImageTargets
+    Based off of the Sample for ImageTargets
 
 ==============================================================================*/
 /*
  * Modified by the augmented reality team of CSCI 240, University of Puget Sound
  *
- * @version 2012.10.25
+ * @version 2012.11.10
  *
- * @authors Matt Burke, Thomas Freeman, Erin Jamroz, David Greene, Selah-Mae Ross
- *
- * Most modifications are accompanied by a comment including the text: 'UPDATE::'
- *
- * */
+ * @author Matt Burke
+ * 
+ */
 
 package edu.pugetsound.vichar.ar;
 
@@ -48,8 +46,8 @@ import com.qualcomm.QCAR.QCAR;
 import edu.pugetsound.vichar.R;
 
 
-/** The main activity for the ImageTargets sample. */
-public class ImageTargets extends Activity
+/** The main activity for the ARGameActivity. */
+public class ARGameActivity extends Activity
 {
     // Application status constants:
     private static final int APPSTATUS_UNINITED         = -1;
@@ -83,7 +81,7 @@ public class ImageTargets extends Activity
     long mSplashScreenStartTime = 0;
     
     // Our renderer:
-    private ImageTargetsRenderer mRenderer;
+    private ARGameRenderer mRenderer;
     
     // Display size of the device
     private int mScreenWidth = 0;
@@ -131,7 +129,7 @@ public class ImageTargets extends Activity
             // Prevent the onDestroy() method to overlap with initialization:
             synchronized (mShutdownLock)
             {
-                QCAR.setInitParameters(ImageTargets.this, mQCARFlags);
+                QCAR.setInitParameters(ARGameActivity.this, mQCARFlags);
                 
                 do
                 {
@@ -178,7 +176,7 @@ public class ImageTargets extends Activity
             else
             {
                 // Create dialog box for display error:
-                AlertDialog dialogError = new AlertDialog.Builder(ImageTargets.this).create();
+                AlertDialog dialogError = new AlertDialog.Builder(ARGameActivity.this).create();
                 dialogError.setButton(
                     "Close",
                     new DialogInterface.OnClickListener()
@@ -247,7 +245,7 @@ public class ImageTargets extends Activity
             else
             {
                 // Create dialog box for display error:
-                AlertDialog dialogError = new AlertDialog.Builder(ImageTargets.this).create();
+                AlertDialog dialogError = new AlertDialog.Builder(ARGameActivity.this).create();
                 dialogError.setButton(
                     "Close",
                     new DialogInterface.OnClickListener()
@@ -281,7 +279,7 @@ public class ImageTargets extends Activity
      * to an activity. */
     protected void onCreate(Bundle savedInstanceState)
     {
-        DebugLog.LOGD("ImageTargets::onCreate");
+        DebugLog.LOGD("ARGameActivity::onCreate");
         super.onCreate(savedInstanceState);
         
         // Set the splash screen image to display during initialization:
@@ -355,7 +353,7 @@ public class ImageTargets extends Activity
    /** Called when the activity will start interacting with the user.*/
     protected void onResume()
     {
-        DebugLog.LOGD("ImageTargets::onResume");
+        DebugLog.LOGD("ARGameActivity::onResume");
         super.onResume();
         
         // QCAR-specific resume operation
@@ -386,7 +384,7 @@ public class ImageTargets extends Activity
     
     public void onConfigurationChanged(Configuration config)
     {
-        DebugLog.LOGD("ImageTargets::onConfigurationChanged");
+        DebugLog.LOGD("ARGameActivity::onConfigurationChanged");
         super.onConfigurationChanged(config);
         
         storeScreenDimensions();
@@ -400,7 +398,7 @@ public class ImageTargets extends Activity
     /** Called when the system is about to start resuming a previous activity.*/
     protected void onPause()
     {
-        DebugLog.LOGD("ImageTargets::onPause");
+        DebugLog.LOGD("ARGameActivity::onPause");
         super.onPause();
         
         if (mGlView != null)
@@ -426,7 +424,7 @@ public class ImageTargets extends Activity
     /** The final call you receive before your activity is destroyed.*/
     protected void onDestroy()
     {
-        DebugLog.LOGD("ImageTargets::onDestroy");
+        DebugLog.LOGD("ARGameActivity::onDestroy");
         super.onDestroy();
         
         // Dismiss the splash screen time out handler:
@@ -478,7 +476,7 @@ public class ImageTargets extends Activity
 
     
     /** NOTE: this method is synchronized because of a potential concurrent
-     * access by ImageTargets::onResume() and InitQCARTask::onPostExecute(). */
+     * access by ARGameActivity::onResume() and InitQCARTask::onPostExecute(). */
     private synchronized void updateApplicationStatus(int appStatus)
     {
         // Exit if there is no change in status
@@ -695,7 +693,7 @@ public class ImageTargets extends Activity
         mGlView = new QCARSampleGLView(this);
         mGlView.init(mQCARFlags, translucent, depthSize, stencilSize);
         
-        mRenderer = new ImageTargetsRenderer();
+        mRenderer = new ARGameRenderer();
         mGlView.setRenderer(mRenderer);
  
     }

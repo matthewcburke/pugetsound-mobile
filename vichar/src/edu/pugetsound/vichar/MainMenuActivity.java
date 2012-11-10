@@ -1,6 +1,6 @@
 package edu.pugetsound.vichar;
 
-import edu.pugetsound.vichar.ar.ImageTargets; // MB: so we can start the ImageTargets Activity
+import edu.pugetsound.vichar.ar.ARGameActivity; // MB: so we can start the ARGameActivity
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -68,7 +68,7 @@ public class MainMenuActivity extends Activity {
     private OnClickListener gameListener = new OnClickListener() { //sets what happens when the button is pushed
     	public void onClick(View v) { 
         	
-    		startActivity(new Intent(context, ImageTargets.class)); // MB: Start Image Targets
+    		startActivity(new Intent(context, ARGameActivity.class)); // MB: Start ARGameActivity
         }
        };
        
@@ -103,7 +103,7 @@ public class MainMenuActivity extends Activity {
                 return true;
             case R.id.enter_game:
             	//startActivity(new Intent(this, GameActivity.class));
-            	startActivity(new Intent(this, ImageTargets.class));
+            	startActivity(new Intent(this, ARGameActivity.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

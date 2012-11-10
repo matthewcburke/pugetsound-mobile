@@ -20,7 +20,7 @@ Installation
 
 Note that the AR activity will not run on the emulator, only on a phone with a camera. It has only been tested on the school's Dell Venue running Android 2.2. Since integrating the AR activity into this app, some additional steps are required to get the app to build and run from Eclipse.
 
-1. You will need to install the [Android NDK](http://developer.android.com/tools/sdk/ndk/index.html). It is required to build the application. More on that later.
+1. You will need to install the [Android NDK](http://developer.android.com/tools/sdk/ndk/index.html). It is required to build the application. More on building in step 7.
 
 2. For now, you'll need to install the [Vuforia SDK](https://ar.qualcomm.at/qdevnet/). Another potential solution would be to include the relevant parts of the SDK in the git repo. This is how the augmented-reality repo is currently set up.
 
@@ -30,9 +30,9 @@ Note that the AR activity will not run on the emulator, only on a phone with a c
 
 5. You need to add a new class path variable to the Java build path. Open the Eclipse Preferences pane. Go to Java->Build Path->Classpath Variables. Create a new classpath variable named 'QCAR_SDK_ROOT' and point its path at the root of the Vuforia SDK. This should be two directories up from the project directory.
 
-6. Modify the Project->Properties, Select 'Java Build Path' from the left menu. Select the 'Libraries' pane. Click 'Add External JAR …' find QCAR.jar at `.../vuforia-sdk-android-1-5-9/build/java/QCAR/QCAR.jar`, and click open to add the library. Now click on the 'Order and Export' pane and ensure that QCAR.jar is there and checked. 
+6. Modify the Project->Properties, Select 'Java Build Path' from the left menu. Select the 'Libraries' pane. Click 'Add External JAR …' find QCAR.jar at `.../vuforia-sdk-android-1-5-9/build/java/QCAR/QCAR.jar`, and click open to add the library. Now click on the 'Order and Export' pane and ensure that QCAR.jar is there and checked. The order also seems to matter. I'm not sure of the details, but if you put the QCAR.jar above the project `src/` and `gen/` folders in this list, it seems to work. 
 
-7. Go to the command line and navigate to the project directory (it should be something like `.../vuforia-sdk-android-1-5-9/mobile/vichar/`. Run `ndk-build` (note: you need to have added the android-ndk directory to you environment PATH variable). You can also set up eclipse to run ndk-build. 
+7. Go to the command line and navigate to the project directory (it should be something like `.../vuforia-sdk-android-1-5-9/mobile/vichar/`. Run `ndk-build` (note: you need to have added the android-ndk directory to you environment PATH variable). You can also set up eclipse to run ndk-build. Note, you only need to run `ndk-build` if you have made changes to the native resouces in the `jni/` folder. Otherwise, I belive that you can modify java code and still run the program.
 
 8. Back in Eclipse, Clean the project. 
 

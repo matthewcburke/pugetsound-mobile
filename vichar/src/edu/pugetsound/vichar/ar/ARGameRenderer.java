@@ -23,7 +23,7 @@ import com.qualcomm.QCAR.QCAR;
 
 
 /** The renderer class for the ImageTargets sample. */
-public class ImageTargetsRenderer implements GLSurfaceView.Renderer
+public class ARGameRenderer implements GLSurfaceView.Renderer
 {
     public boolean mIsActive = false;
     

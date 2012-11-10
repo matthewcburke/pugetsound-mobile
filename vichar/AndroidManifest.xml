@@ -52,18 +52,18 @@
 <!--                 <category android:name="android.intent.category.LAUNCHER" />
  -->            </intent-filter>
         </activity>
-    <activity
-	    android:name="edu.pugetsound.vichar.ar.ImageTargets"
-	    android:label="@string/ar_name"
-	    android:configChanges="orientation|keyboardHidden"
-	    android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
-	</activity>
-    <activity
-        android:name=".GameActivity"
-        android:label="@string/app_name"
-        android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
-    </activity>
-	<activity
+    	<activity
+	        android:name="edu.pugetsound.vichar.ar.ARGameActivity"
+	        android:label="@string/ar_name"
+	        android:configChanges="orientation|keyboardHidden"
+	        android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+		</activity>
+        <activity
+            android:name=".GameActivity"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
+        </activity>
+	    <activity
             android:name=".TwitterOAuthActivity"
             android:label="@string/app_name" >
             <intent-filter>
