@@ -737,7 +737,7 @@ public class ARGameActivity extends Activity
            }
            else
            {
-               item.setTitle("Switch to StonesAndChips dataset");
+               item.setTitle("Switch to FlakesBox dataset");
            }
             
         }
