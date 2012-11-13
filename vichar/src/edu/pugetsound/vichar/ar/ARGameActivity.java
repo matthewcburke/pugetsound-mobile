@@ -733,11 +733,11 @@ public class ARGameActivity extends Activity
            mIsStonesAndChipsDataSetActive = !mIsStonesAndChipsDataSetActive;
            if (mIsStonesAndChipsDataSetActive)
            {
-               item.setTitle("Switch to Vichar dataset");
+               item.setTitle("Switch to FlakesBox dataset");
            }
            else
            {
-               item.setTitle("Switch to StonesAndChips dataset");
+               item.setTitle("Switch to Vichar dataset");
            }
             
         }

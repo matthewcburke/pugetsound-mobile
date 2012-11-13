@@ -67,9 +67,9 @@ extern "C"
 
 // Textures:
 int textureCount                = 0;
-int turretIndex					= 0;
-int placeholderGridIndex		= 1;
-int banana180Index				= 2;
+static const int turretIndex			= 0;
+static const int placeholderGridIndex	= 1;
+static const int banana180Index			= 2;
 Texture** textures              = 0;
 
 // OpenGL ES 2.0 specific:
@@ -100,8 +100,8 @@ QCAR::Matrix44F projectionMatrix2;
 // Constants:
 static const float kObjectScale = 120.f; // UPDATE:: increased the scale to properly display our models. It was 3 for the teapots.
 
-QCAR::DataSet* dataSetStonesAndChips    = 0;
-QCAR::DataSet* dataSetVichar            = 0;
+QCAR::DataSet* dataSetVichar    = 0;
+QCAR::DataSet* dataSetFlakesBox            = 0;
 
 bool switchDataSetAsap          = false;
 
@@ -118,22 +118,22 @@ class ImageTargets_UpdateCallback : public QCAR::UpdateCallback
             QCAR::TrackerManager& trackerManager = QCAR::TrackerManager::getInstance();
             QCAR::ImageTracker* imageTracker = static_cast<QCAR::ImageTracker*>(
                 trackerManager.getTracker(QCAR::Tracker::IMAGE_TRACKER));
-            if (imageTracker == 0 || dataSetStonesAndChips == 0 || dataSetVichar == 0 ||
+            if (imageTracker == 0 || dataSetVichar == 0 || dataSetFlakesBox == 0 ||
                 imageTracker->getActiveDataSet() == 0)
             {
                 LOG("Failed to switch data set.");
                 return;
             }
             
-            if (imageTracker->getActiveDataSet() == dataSetStonesAndChips)
+            if (imageTracker->getActiveDataSet() == dataSetVichar)
             {
-                imageTracker->deactivateDataSet(dataSetStonesAndChips);
-                imageTracker->activateDataSet(dataSetVichar);
+                imageTracker->deactivateDataSet(dataSetVichar);
+                imageTracker->activateDataSet(dataSetFlakesBox);
             }
             else
             {
-                imageTracker->deactivateDataSet(dataSetVichar);
-                imageTracker->activateDataSet(dataSetStonesAndChips);
+                imageTracker->deactivateDataSet(dataSetFlakesBox);
+                imageTracker->activateDataSet(dataSetVichar);
             }
         }
     }
@@ -214,13 +214,6 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_loadTrackerData(JNIEnv *, jobject)
     }
 
     // Create the data sets:
-    dataSetStonesAndChips = imageTracker->createDataSet();
-    if (dataSetStonesAndChips == 0)
-    {
-        LOG("Failed to create a new tracking data.");
-        return 0;
-    }
-
     dataSetVichar = imageTracker->createDataSet();
     if (dataSetVichar == 0)
     {
@@ -228,21 +221,28 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_loadTrackerData(JNIEnv *, jobject)
         return 0;
     }
 
-    // Load the data sets:
-    if (!dataSetStonesAndChips->load("StonesAndChips.xml", QCAR::DataSet::STORAGE_APPRESOURCE))
+    dataSetFlakesBox = imageTracker->createDataSet();
+    if (dataSetFlakesBox == 0)
     {
-        LOG("Failed to load data set.");
+        LOG("Failed to create a new tracking data.");
         return 0;
     }
 
+    // Load the data sets:
     if (!dataSetVichar->load("vichar.xml", QCAR::DataSet::STORAGE_APPRESOURCE))
     {
         LOG("Failed to load data set.");
         return 0;
     }
 
+    if (!dataSetFlakesBox->load("FlakesBox.xml", QCAR::DataSet::STORAGE_APPRESOURCE))
+    {
+        LOG("Failed to load data set.");
+        return 0;
+    }
+
     // Activate the data set:
-    if (!imageTracker->activateDataSet(dataSetStonesAndChips))
+    if (!imageTracker->activateDataSet(dataSetVichar))
     {
         LOG("Failed to activate data set.");
         return 0;
@@ -269,26 +269,6 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_destroyTrackerData(JNIEnv *, jobjec
         return 0;
     }
     
-    if (dataSetStonesAndChips != 0)
-    {
-        if (imageTracker->getActiveDataSet() == dataSetStonesAndChips &&
-            !imageTracker->deactivateDataSet(dataSetStonesAndChips))
-        {
-            LOG("Failed to destroy the tracking data set StonesAndChips because the data set "
-                "could not be deactivated.");
-            return 0;
-        }
-
-        if (!imageTracker->destroyDataSet(dataSetStonesAndChips))
-        {
-            LOG("Failed to destroy the tracking data set StonesAndChips.");
-            return 0;
-        }
-
-        LOG("Successfully destroyed the data set StonesAndChips.");
-        dataSetStonesAndChips = 0;
-    }
-
     if (dataSetVichar != 0)
     {
         if (imageTracker->getActiveDataSet() == dataSetVichar &&
@@ -307,6 +287,26 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_destroyTrackerData(JNIEnv *, jobjec
 
         LOG("Successfully destroyed the data set vichar.");
         dataSetVichar = 0;
+    }
+
+    if (dataSetFlakesBox != 0)
+    {
+        if (imageTracker->getActiveDataSet() == dataSetFlakesBox &&
+            !imageTracker->deactivateDataSet(dataSetFlakesBox))
+        {
+            LOG("Failed to destroy the tracking data set FlakesBox because the data set "
+                "could not be deactivated.");
+            return 0;
+        }
+
+        if (!imageTracker->destroyDataSet(dataSetFlakesBox))
+        {
+            LOG("Failed to destroy the tracking data set FlakesBox.");
+            return 0;
+        }
+
+        LOG("Successfully destroyed the data set FlakesBox.");
+        dataSetFlakesBox = 0;
     }
 
     return 1;
