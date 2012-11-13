@@ -304,8 +304,8 @@ public class ARGameActivity extends Activity
     private void loadTextures()
     {
     	// UPDATE:: We added these textures for the demo.
-    	mTextures.add(Texture.loadTextureFromApk("turret.png", getAssets()));
-    	mTextures.add(Texture.loadTextureFromApk("placeholderGrid.png", getAssets()));
+    	mTextures.add(Texture.loadTextureFromApk("tower_shell.png", getAssets()));
+    	mTextures.add(Texture.loadTextureFromApk("tower_top.png", getAssets()));
     	mTextures.add(Texture.loadTextureFromApk("banana180.jpg", getAssets())); 
     }
     
