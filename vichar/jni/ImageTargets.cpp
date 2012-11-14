@@ -56,9 +56,10 @@
 #include "Teapot.h"
 
 // UPDATE:: Our models to be displayed
+// TODO: Should we put all of these .h files into one gameObjects.h file?
 #include "banana.h"
 #include "tower_top.h"
-#include "turret.h"
+#include "tower_shell.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -67,8 +68,8 @@ extern "C"
 
 // Textures:
 int textureCount                = 0;
-static const int turretIndex			= 0;
-static const int placeholderGridIndex	= 1;
+static const int tower_shellIndex		= 0;
+static const int tower_topIndex	= 1;
 static const int banana180Index			= 2;
 Texture** textures              = 0;
 
@@ -94,14 +95,11 @@ bool isActivityInPortraitMode   = false;
 // The projection matrix used for rendering virtual objects:
 QCAR::Matrix44F projectionMatrix;
 
-// UPDATE:: A second projection matrix. Do we really need it to render two objects?
-QCAR::Matrix44F projectionMatrix2;
-
 // Constants:
 static const float kObjectScale = 120.f; // UPDATE:: increased the scale to properly display our models. It was 3 for the teapots.
 
 QCAR::DataSet* dataSetVichar    = 0;
-QCAR::DataSet* dataSetFlakesBox            = 0;
+QCAR::DataSet* dataSetFlakesBox = 0;
 
 bool switchDataSetAsap          = false;
 
@@ -321,7 +319,7 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_onQCARInitializedNative(JNIEnv *, j
 
     // Comment in to enable tracking of up to 2 targets simultaneously and
     // split the work over multiple frames:
-    QCAR::setHint(QCAR::HINT_MAX_SIMULTANEOUS_IMAGE_TARGETS, 2);
+    QCAR::setHint(QCAR::HINT_MAX_SIMULTANEOUS_IMAGE_TARGETS, 5);
     QCAR::setHint(QCAR::HINT_IMAGE_TARGET_MULTI_FRAME_ENABLED, 1);
 }
 
@@ -365,10 +363,13 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
         // UPDATE:: Load the trackable position into a second modelViewMatrix to display second item.
         QCAR::Matrix44F modelViewMatrix2 =
                     QCAR::Tool::convertPose2GLMatrix(trackable->getPose());
+        QCAR::Matrix44F modelViewMatrix3 =
+                            QCAR::Tool::convertPose2GLMatrix(trackable->getPose());
 
         // Assign Textures according in the texture indices defined at the beginning of the file, and based
         // on the loadTextures() method in ARGameActivity.java.
-        const Texture* const turretTexture = textures[placeholderGridIndex];
+        const Texture* const tower_shellTexture = textures[tower_shellIndex];
+        const Texture* const tower_topTexture = textures[tower_topIndex];
         const Texture* const bananaTexture = textures[banana180Index];
 
 #ifdef USE_OPENGL_ES_1_1
@@ -391,22 +392,22 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
                        (const GLvoid*) &teapotIndices[0]);
 #else
 
-        //Draw the turret.
+        //Draw the tower_top.
         QCAR::Matrix44F modelViewProjection;
 
-        // Quick and dirty demonstration of animation. The turret turns to face the banana.
+        // Quick and dirty demonstration of animation. The tower_top turns to face the banana.
         if( turAng < 180.0)
         {
         	turAng = turAng + 1.0;
         }
 
-        // UPDATE:: translate, rotate and scale the turret.
+        // UPDATE:: translate, rotate and scale the tower_top.
         SampleUtils::translatePoseMatrix(100.0f, 0.0f, kObjectScale,
                                     &modelViewMatrix.data[0]);
-        // Animate the turret spinning 180 deg.
+        // Animate the tower_top spinning 180 deg.
         SampleUtils::rotatePoseMatrix(turAng, 0.0f, 0.0f, 1.0f,
                         			    	&modelViewMatrix.data[0]);
-        // So the turret appears upright
+        // So the tower_top appears upright
         SampleUtils::rotatePoseMatrix(90.0f, 1.0f, 0.0f, 0.0f,
                         			&modelViewMatrix.data[0]);
         SampleUtils::scalePoseMatrix(kObjectScale, kObjectScale, kObjectScale,
@@ -418,21 +419,21 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
         glUseProgram(shaderProgramID);
          
         glVertexAttribPointer(vertexHandle, 3, GL_FLOAT, GL_FALSE, 0,
-                              (const GLvoid*) &turretVerts[0]);
+                              (const GLvoid*) &tower_topVerts[0]);
         glVertexAttribPointer(normalHandle, 3, GL_FLOAT, GL_FALSE, 0,
-                              (const GLvoid*) &turretNormals[0]);
+                              (const GLvoid*) &tower_topNormals[0]);
         glVertexAttribPointer(textureCoordHandle, 2, GL_FLOAT, GL_FALSE, 0,
-                              (const GLvoid*) &turretTexCoords[0]);
+                              (const GLvoid*) &tower_topTexCoords[0]);
         
         glEnableVertexAttribArray(vertexHandle);
         glEnableVertexAttribArray(normalHandle);
         glEnableVertexAttribArray(textureCoordHandle);
         
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, turretTexture->mTextureID);
+        glBindTexture(GL_TEXTURE_2D, tower_topTexture->mTextureID);
         glUniformMatrix4fv(mvpMatrixHandle, 1, GL_FALSE,
                            (GLfloat*)&modelViewProjection.data[0] );
-        glDrawArrays(GL_TRIANGLES, 0, turretNumVerts);
+        glDrawArrays(GL_TRIANGLES, 0, tower_topNumVerts);
 
         SampleUtils::checkGlError("ImageTargets renderFrame");
 
@@ -468,6 +469,42 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
         glUniformMatrix4fv(mvpMatrixHandle, 1, GL_FALSE,
         		(GLfloat*)&modelViewProjection2.data[0] );
         glDrawArrays(GL_TRIANGLES, 0, bananaNumVerts);
+
+        SampleUtils::checkGlError("ImageTargets renderFrame");
+
+        // draw third object
+        QCAR::Matrix44F modelViewProjection3;
+        float shellScale;
+        shellScale = kObjectScale/4;
+
+        SampleUtils::translatePoseMatrix(0.0f, 0.0f, kObjectScale,
+        		&modelViewMatrix3.data[0]);
+        SampleUtils::rotatePoseMatrix( 0.0f, 0.0f, 0.0f, 0.0f,
+        		&modelViewMatrix3.data[0]);
+        SampleUtils::scalePoseMatrix(shellScale, shellScale, shellScale,
+        		&modelViewMatrix3.data[0]);
+        SampleUtils::multiplyMatrix(&projectionMatrix.data[0],
+        		&modelViewMatrix3.data[0] ,
+        		&modelViewProjection3.data[0]);
+
+        glUseProgram(shaderProgramID);
+
+        glVertexAttribPointer(vertexHandle, 3, GL_FLOAT, GL_FALSE, 0,
+        		(const GLvoid*) &tower_shellVerts[0]);
+        glVertexAttribPointer(normalHandle, 3, GL_FLOAT, GL_FALSE, 0,
+        		(const GLvoid*) &tower_shellNormals[0]);
+        glVertexAttribPointer(textureCoordHandle, 2, GL_FLOAT, GL_FALSE, 0,
+        		(const GLvoid*) &tower_shellTexCoords[0]);
+
+        glEnableVertexAttribArray(vertexHandle);
+        glEnableVertexAttribArray(normalHandle);
+        glEnableVertexAttribArray(textureCoordHandle);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, tower_shellTexture->mTextureID); // UPDATE:: apply a different texture.
+        glUniformMatrix4fv(mvpMatrixHandle, 1, GL_FALSE,
+        		(GLfloat*)&modelViewProjection3.data[0] );
+        glDrawArrays(GL_TRIANGLES, 0, tower_shellNumVerts);
 
         SampleUtils::checkGlError("ImageTargets renderFrame");
 
@@ -646,13 +683,15 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_startCamera(JNIEnv *, jobject)
         return;
 
     // Uncomment to enable flash
-    //if(QCAR::CameraDevice::getInstance().setFlashTorchMode(true))
-    //	LOG("IMAGE TARGETS : enabled torch");
+//    if(QCAR::CameraDevice::getInstance().setFlashTorchMode(true))
+//    LOG("IMAGE TARGETS : enabled torch");
 
     // Uncomment to enable infinity focus mode, or any other supported focus mode
     // See CameraDevice.h for supported focus modes
-    //if(QCAR::CameraDevice::getInstance().setFocusMode(QCAR::CameraDevice::FOCUS_MODE_INFINITY))
-    //	LOG("IMAGE TARGETS : enabled infinity focus");
+    if(QCAR::CameraDevice::getInstance().setFocusMode(QCAR::CameraDevice::FOCUS_MODE_INFINITY))
+    	LOG("IMAGE TARGETS : enabled infinity focus");
+    if(QCAR::CameraDevice::getInstance().setFocusMode(QCAR::CameraDevice::FOCUS_MODE_CONTINUOUSAUTO))
+    	LOG("IMAGE TARGETS : enabled continuous focus");
 
     // Start the tracker:
     QCAR::TrackerManager& trackerManager = QCAR::TrackerManager::getInstance();
