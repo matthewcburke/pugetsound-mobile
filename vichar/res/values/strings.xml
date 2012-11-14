@@ -60,6 +60,6 @@
     <string name="login">Login</string>
     <string name="title_activity_splash">SplashActivity</string>
     <string name="title_activity_splash_screen">SplashScreen</string>
-    <color name="game_blue">#F119</color>
+    <color name="game_blue">#483d8b</color>
 
 </resources>
