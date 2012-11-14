@@ -14,6 +14,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
@@ -50,50 +51,113 @@ import android.util.Log;
  */
 public class NetworkingService extends Service {
 
-	public static final String DEFAULT_DOMAIN_IP = "10.150.2.55";
-	public static final String DEFAULT_DOMAIN = "http://" + DEFAULT_DOMAIN_IP;
-	public static final long POLL_INTERVAL = 100L; //in milliseconds
-	private final IBinder binder = new LocalBinder();
+	public static final String DEFAULT_SERVER_IP = "10.150.2.55";
+	public static final String DEFAULT_PORT = "4242";
+	public static final String DEFAULT_DOMAIN 
+		= "http://" + DEFAULT_SERVER_IP + ":" + DEFAULT_PORT;
+	
 	private Timer timer = new Timer();
 	private boolean polling = false;
-	// Keeps track of all current registered clients.
-	ArrayList<Messenger> mClients = new ArrayList<Messenger>();
-	int mValue = 0; // Holds last value set by a client.
+	public static final long POLL_INTERVAL = 100L; //in milliseconds
+	
+	private final IBinder binder = new LocalBinder();
+	
+	// Messenger to handle inbound messages
+    final Messenger mMessenger = new Messenger(new IncomingHandler());
+    // Roster of all registered clients.
+ 	ArrayList<Messenger> mClients = new ArrayList<Messenger>();
+ 	int mValue = 0; // Holds last value set by a client.
 	
 	static final int MSG_REGISTER_CLIENT = 1;
     static final int MSG_UNREGISTER_CLIENT = 2;
-    static final int MSG_SET_INT_VALUE = 3;
-    static final int MSG_SET_STRING_VALUE = 4;
-    static final int MSG_SET_JSON_STRING_VALUE = 5;
-    static final int MSG_TIMER_TICK = 6;
-    static final int MSG_RET_JSON_STRING_FROM_SERVER = 7;
+    static final int MSG_SET_JSON_STRING_VALUE = 3;
+    static final int MSG_RET_JSON_STRING_FROM_SERVER = 4;
+    static final int MSG_QUEUE_OUTBOUND_J_STRING = 5;
     
-	// Messenger to handle inbound messages
-    final Messenger mMessenger = new Messenger(new IncomingHandler());
-
+    /**
+     * IncomingHandler performs internal functions in response to the received 
+     * messages of each predefined type denoted by NetworkingServices MSG_ 
+     * constants.
+     * @author Michael DuBois
+     */
     class IncomingHandler extends Handler { // Handler of incoming messages from clients.
         @Override
         public void handleMessage(Message msg) {
-            switch (msg.what) {
-            case MSG_REGISTER_CLIENT:
-            	Log.d(this.toString(), "handleMessage: registering client: " + msg.replyTo.toString());
-                mClients.add(msg.replyTo);
-                break;
-            case MSG_UNREGISTER_CLIENT:
-                mClients.remove(msg.replyTo);
-                break;
-            case MSG_TIMER_TICK:
-            	break;
-            case MSG_RET_JSON_STRING_FROM_SERVER:
-            	passTheBuck(msg.getData());
-            	break;
-            default:
-                super.handleMessage(msg);
-            }
+        	mValue = msg.what; // Remember this msg type
+        	switch (mValue) {
+	            
+        		case MSG_RET_JSON_STRING_FROM_SERVER: {
+	            	serveBundle(msg.getData());
+	            	break;
+	            }
+	            
+	            case MSG_QUEUE_OUTBOUND_J_STRING: {
+	            	String jStr = msg.getData()
+	            			.getString("" + MSG_QUEUE_OUTBOUND_J_STRING);
+	            	queueOutboundJString(jStr);
+	            	break;
+	            }
+	            
+	            case MSG_REGISTER_CLIENT: {
+	                addClient(msg.replyTo);
+	                break;
+	            }
+	            
+	            case MSG_UNREGISTER_CLIENT: {
+	            	removeClient(msg.replyTo);
+	                break;
+	            }
+	            
+	            default: {
+	                super.handleMessage(msg);
+	            }
+	        }
         }
     }
     
-    private void passTheBuck(Bundle b) {
+    /**
+     * Add a client to the client array
+     * @param m
+     */
+    private void addClient(Messenger m) {
+    	mClients.add(m);
+    }
+    
+    /**
+     * Remove a client from the client array and check the validity of service's 
+     * existence
+     * @param m reference to the client to be removed
+     */
+	private void removeClient(Messenger m) {
+		mClients.remove(m);
+		checkVitals();
+	}
+	
+	/**
+	 * Remove a client from the client array by index and check the validity of 
+	 * service's existence
+	 * @param i the index (in the client array) for the client to be removed
+	 */
+	private void removeClient(int i) {
+		mClients.remove(i);
+		checkVitals();
+	}
+	
+	/**
+	 * Checks if we have clients, kills self if we don't.
+	 */
+	private void checkVitals() {
+		if(mClients.size() <= 0) {
+			// We have no clients, time to die.
+			this.stopSelf();
+		}
+	}
+    
+    /**
+     * Serves a Bundle to all mClients
+     * @param b an Android Bundle containing a JSON_STRING
+     */
+    private void serveBundle(Bundle b) {
     	Message msg = Message.obtain(null, MSG_SET_JSON_STRING_VALUE);
     	msg.setData(b);
     	
@@ -105,31 +169,34 @@ public class NetworkingService extends Service {
             } catch (RemoteException e) {
                 // The client is dead. Remove it from the list\
             	Log.i(this.toString(), "Activity client is dead.");
-                mClients.remove(i);
+                removeClient(i);
             }
         }
     }
     
-   private void serveJSONObject(JSONObject json) {
-    	//Bundle JSONObject as a string
-    	Bundle b = new Bundle();
-    	b.putString("" + MSG_SET_JSON_STRING_VALUE, json.toString());
-    	Message msg = Message.obtain(null, MSG_SET_JSON_STRING_VALUE);
-    	msg.setData(b);
-    	
-    	//Send msg to subscribers
-        for (int i=mClients.size()-1; i>=0; i--) {
-            try {
-                mClients.get(i).send(msg);
+    public Messenger getMessenger() {
+		return mMessenger;
+	}
+	
+	/**
+	 * Describes the interface for the IBinder object passed to activities 
+	 * upon binding
+	 */
+	public class LocalBinder extends Binder {
+		NetworkingService getService() {
+			return NetworkingService.this;
+	    }
+	}
+	
+	@Override
+	public IBinder onBind(Intent intent) {
+		return binder;
+	}
+	
+//------------------------------------------------------------------------------
+// POLLING
+//------------------------------------------------------------------------------
 
-            } catch (RemoteException e) {
-                // The client is dead. Remove it from the list\
-            	Log.i(this.toString(), "Activity client is dead.");
-                mClients.remove(i);
-            }
-        }
-    }
-    
    /**
     * Starts the polling clock. Subsequent calls have no effect.
     */
@@ -149,36 +216,45 @@ public class NetworkingService extends Service {
 		polling = false;
 	}
 	
-	private abstract class PollingTask extends TimerTask {
-		protected JSONObject outboundJson = null;
-		public void setOutboundJson(JSONObject json) {
-			outboundJson = json;
-		}
+	public void queueOutboundJString(String jStr) {
+		pollingTask.outboundQueue.offer(jStr);
 	}
 	
+	/**
+     * An extension of TimerTask that allows us to queue some things.
+     * @author DuBious
+     */
+    private abstract class PollingTask extends TimerTask {
+		public ConcurrentLinkedQueue<String> outboundQueue 
+			= new ConcurrentLinkedQueue<String>();
+		// Track consecutive failures
+		protected int consecutiveFailures = 0;
+	}
+	
+	/**
+	 * A runnable task that is run every time the polling clock ticks.
+	 * This task pulls JSON from the server and passes it back to the
+	 * caller as a JSON string. When an outboundJSON object is queued
+	 * for processing, the task POST's it first, then performs the
+	 * GET request.
+	 * @author Michael DuBois
+	 */
 	private PollingTask pollingTask = new PollingTask(){
 		
 		public void run() {
-			//Notify the host Service of timer tick
-			Message msg = Message.obtain(null, MSG_TIMER_TICK);
-			try {
-				mMessenger.send(msg);
-			} catch(RemoteException e) {
-				//This should never happen... right?
-				Log.i(this.toString(), "RemoteException from timer thread.");
-			}
-			
-	 		String returnStr = "";
-	 		
-	 		// POST the latest state
-	 		//HttpClient httpClient = new DefaultHttpClient();
-			//HttpPost httpPost = new HttpPost(url);
-			try {
-				String urlString = "http://10.150.2.55:4242/";
+			Message msg = null;
+			String returnStr = "{}"; // empty JSON string by default
+			String urlString = DEFAULT_DOMAIN;
+
+			try { // POST/GET the latest states
 				URL url = new URL(urlString);
 				HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-				if(outboundJson != null) {
-					Log.d(this.toString(), "SENDING JSON: " + outboundJson.toString());
+				
+				// Get the next object in the outbound queue
+				String outboundJStr = outboundQueue.poll(); // returns null if empty
+				// If we have something to send
+				if(outboundJStr != null) {
+					Log.d(this.toString(), "SENDING JSON: " + outboundJStr);
 					conn.setDoOutput(true);	
 					//conn.setDoInput(true);
 					conn.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
@@ -186,51 +262,73 @@ public class NetworkingService extends Service {
 					conn.setRequestMethod("POST");
 					conn.connect();
 					OutputStream out = conn.getOutputStream();
-					StringEntity se = new StringEntity(outboundJson.toString());
+					StringEntity se = new StringEntity(outboundJStr);
 					se.setContentEncoding(
 							new BasicHeader(HTTP.CONTENT_TYPE, 
 									"application/json;charset=UTF-8"));
 					se.writeTo(out);
 					out.flush();
 					out.close();
-					outboundJson = null;
+					outboundJStr = null;
 					
+					// It seems like getting the response code ensures that the 
+					// data is transferred. It's also just a good idea to check 
+					// it.
 					int status = conn.getResponseCode();
+					if(status == 200) {
+						consecutiveFailures = 0;
+					} else {
+						consecutiveFailures++;
+					}
 					System.out.println("ResponseCode: " + status);
 					
+					// Close connection - so it doesn't mess with the next one
 					conn.disconnect();
 				}
 
-				//TODO right now server check for POST/GET, should return something on POST too
-				// In the meantime, we do two separate requests.
+				//TODO right now server check for POST/GET, should return 
+				//something on POST too In the meantime, we do two requests.
 				URL url2 = new URL(urlString);
 				HttpURLConnection conn2 = (HttpURLConnection) url2.openConnection();
 				
-				// Parse the response into a JSONObject
+				// Parse the response into a JSON string:
+				// First, get input stream
 				InputStream in = conn2.getInputStream();
+				
 				// Use the encoding listed in the HTTP header
 				String encoding = conn2.getContentEncoding();
 				// Or, if missing, default to UTF-8 instead of system default
 				encoding = encoding == null ? "UTF-8" : encoding;
+				
+				// Read out the body as a string
 				String body = IOUtils.toString(in, encoding);
-				in.close();
-				Log.d(this.toString(),"body: " + body.toString());
+				in.close(); // close the stream
+				//Log.d(this.toString(),"body: " + body.toString());
 				returnStr = body;
 
+				// It seems like getting the response code ensures that the 
+				// data is transferred. It's also just a good idea to check it.
 				int status = conn2.getResponseCode();
-				System.out.println("ResponseCode: " + status);
+				if(status == 200) {
+					consecutiveFailures = 0;
+				} else {
+					consecutiveFailures++;
+				}
+				//System.out.println("ResponseCode: " + status);
+				
+				// Close connection
 				conn2.disconnect();
 			}
 			catch (ClientProtocolException e) {
-				//do nothing
+				//TODO: connection problem exception
 				Log.i(this.toString(), "ClientProtocolException");
 			}
 			catch (UnsupportedEncodingException e) {
-				//do nothing
+				//TODO: connection problem exception
 				Log.i(this.toString(), "UnsupportedEncodingException");
 			} 
 			catch (IOException e) {
-				// do nothing
+				//TODO: connection problem exception
 				Log.i(this.toString(), "IOException");
 			}
 	 		
@@ -251,31 +349,9 @@ public class NetworkingService extends Service {
 		}
 	};
 	
-	public void queueOutboundJson(JSONObject json) {
-		pollingTask.setOutboundJson(json);
-	}
-	
-	/**
- 	* Takes JSON objects sent by activities and passes them to the server
- 	* @param jsonobj The JSONObject to be sent to the server
- 	*/
-	@SuppressLint("NewApi") // Suppress lint warnings b/c we check API level
-	public void postJSONObject(JSONObject json, String url) {
-		if(url == null){
-			// default to
-			url = DEFAULT_DOMAIN + ":4242";
-		}
-		
-		PostJSONObject task = new PostJSONObject();
-		task.setUrl(url);
-		task.execute(json);
-	}
-	
-	@SuppressLint("NewApi") // Suppress lint warnings b/c we check API level
-	public void fetchJSONObject(URL url) {
-		GetJSONObject task = new GetJSONObject();
-		task.execute(url);
-	}
+//------------------------------------------------------------------------------
+// ASYNC TASKS TODO: revise and move them elsewhere
+//------------------------------------------------------------------------------
 	
 	private class PostJSONObject extends AsyncTask<JSONObject, Void, String> {
 		
@@ -365,28 +441,7 @@ public class NetworkingService extends Service {
 	    @Override
 	    protected void onPostExecute(JSONObject result) {
 	    	// Call function to update gameState
-	    	serveJSONObject(result);
 	    }
 	}
-	
-	//TODO this is stupid
-	public IBinder getMessengerBinder() {
-		return mMessenger.getBinder();
-	}
-	
-	/**
-	 * Describes the interface for the IBinder object passed to activities upon binding
-	 */
-	public class LocalBinder extends Binder {
-		NetworkingService getService() {
-			return NetworkingService.this;
-	    }
-	}
-	
-	@Override
-	public IBinder onBind(Intent intent) {
-		return binder;
-	}
-
 }
 

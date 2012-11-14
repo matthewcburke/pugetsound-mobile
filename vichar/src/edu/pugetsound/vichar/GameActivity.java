@@ -42,7 +42,11 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
 	private Messenger networkingServiceMessenger = null;
     boolean isBoundToNetworkingService = false;
     private float touchX, touchY;
+    private final String JSON_GAME_ENGINE_NAMESPACE = "engine";
+    private String deviceUUID;
     private JSONObject gameState;
+    private JSONObject deviceState;
+      
     final Messenger mMessenger = new Messenger(new IncomingHandler());
 	
     @Override
@@ -52,6 +56,9 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
     	this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
     	setContentView(R.layout.activity_game);
         
+    	// Get the UUID we generated when this app was installed
+    	deviceUUID = Installation.id(this);
+    	
         //the whole screen becomes sensitive to touch
         View gameContainer = (View) findViewById(R.id.game_container);
         this.gameView = (View) findViewById(R.id.augmented_reality_fragment);
@@ -182,11 +189,35 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
      * @return
      */
     private boolean updateRemoteGameState() {
+    	// TODO: remove this when we're properly using namespaces
+    	JSONObject sendState = gameState;
+    	
+    	// Insert the device state into the proper namespace
+    	// TODO: uncomment this when we're properly using namespaces
+//    	JSONObject sendState = null;
+//    	try {
+//    		sendState = new JSONObject().put(deviceUUID, deviceState);
+//    	} catch (JSONException e) {
+//    		Log.i(this.toString(), "updateRemoteGameState: JSONException");
+//    	}
+    	
     	boolean isSuccessful = false;
     	if(isBoundToNetworkingService) {
     		//TODO re-enable posting
     		//networkingService.postJSONObject(gameState, null);
-    		networkingService.queueOutboundJson(gameState);
+    		//networkingService.queueOutboundJson(gameState);
+    		Bundle b = new Bundle();
+    		b.putString("" + NetworkingService.MSG_QUEUE_OUTBOUND_J_STRING, 
+    				sendState.toString());
+    		Message msg = Message.obtain(null, 
+    				NetworkingService.MSG_QUEUE_OUTBOUND_J_STRING);
+    		msg.setData(b);
+    		try {
+    			networkingServiceMessenger.send(msg);
+    		} catch (RemoteException e) {
+                //TODO handle RemoteException
+    			Log.i(this.toString(), "updateRemoteGameState: RemoteException");
+            }
     		isSuccessful = true;
     	} else {
     		Log.i(this.toString(),"Not Bound to NetworkingService");
@@ -199,19 +230,19 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
      * Updates the local (client) gameState variable with
      * the contents of the server's game state.
      * @return
-     */
-//    private boolean updateLocalGameState() {
-//    	boolean isSuccessful = false;
-//    	if(isBoundToNetworkingService) {
-//    		gameState = networkingService.getJSON();
-//    		Log.d(this.toString(), networkingService.getJSON().toString());
-//    		isSuccessful = true;
-//    	} else {
-//    		Log.i(this.toString(),"Not Bound to NetworkingService");
-//    	}
-//    	// TODO retries
-//    	return isSuccessful;
-//    }
+     */    
+    private void updateLocalGameState(String str) {
+    	try {
+    		JSONObject json = new JSONObject(str);
+    		Log.d(this.toString(), "New State: " + json.toString());
+    		// Just pull out the official game state namespace
+    		//gameState = json.get(JSON_GAME_ENGINE_NAMESPACE);
+    		//onGameStateChange();
+    	} catch(JSONException e) {
+    		// do something
+    		Log.d(this.toString(), "Couldn't Make JSON from string.");
+    	}
+    }
     
     /**
      * Handles incoming messages from NetworkingService
@@ -223,17 +254,11 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
         public void handleMessage(Message msg) {
             switch (msg.what) {
 	            case NetworkingService.MSG_SET_JSON_STRING_VALUE:
-	            	try {
-	            		String str = msg
-	            				.getData()
-	            				.getString("" + NetworkingService.MSG_SET_JSON_STRING_VALUE);
-	            		JSONObject json = new JSONObject(str);
-	            		Log.d(this.toString(), "Msg: " + json.toString());
-	            		//gameState = json;
-	            	} catch(JSONException e) {
-	            		// do something
-	            		Log.d(this.toString(), "Couldn't Make JSON from string.");
-	            	}
+	            	String str = msg
+    				.getData()
+    				.getString("" + NetworkingService.MSG_SET_JSON_STRING_VALUE);
+	            	updateLocalGameState(str);
+	            	break;
 	            default:
 	                super.handleMessage(msg);
             }
@@ -266,7 +291,7 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
         	Log.d(this.toString(),"networkingService: " + networkingService.toString());
         	
         	// Create a Messenger that references the service
-        	networkingServiceMessenger = new Messenger(networkingService.getMessengerBinder());
+        	networkingServiceMessenger = networkingService.getMessenger();
         	Log.d(this.toString(),"networkingServiceMessenger: " + networkingServiceMessenger.toString());
         	
         	isBoundToNetworkingService = true;
