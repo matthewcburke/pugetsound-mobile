@@ -56,9 +56,9 @@
 #include "Teapot.h"
 
 // UPDATE:: Our models to be displayed
+// TODO: Should we put all of these .h files into one gameObjects.h file?
 #include "banana.h"
 #include "tower_top.h"
-#include "turret.h"
 #include "tower_shell.h"
 
 #ifdef __cplusplus
@@ -95,14 +95,11 @@ bool isActivityInPortraitMode   = false;
 // The projection matrix used for rendering virtual objects:
 QCAR::Matrix44F projectionMatrix;
 
-// UPDATE:: A second projection matrix. Do we really need it to render two objects?
-QCAR::Matrix44F projectionMatrix2;
-
 // Constants:
 static const float kObjectScale = 120.f; // UPDATE:: increased the scale to properly display our models. It was 3 for the teapots.
 
 QCAR::DataSet* dataSetVichar    = 0;
-QCAR::DataSet* dataSetFlakesBox            = 0;
+QCAR::DataSet* dataSetFlakesBox = 0;
 
 bool switchDataSetAsap          = false;
 
@@ -322,7 +319,7 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_onQCARInitializedNative(JNIEnv *, j
 
     // Comment in to enable tracking of up to 2 targets simultaneously and
     // split the work over multiple frames:
-    QCAR::setHint(QCAR::HINT_MAX_SIMULTANEOUS_IMAGE_TARGETS, 2);
+    QCAR::setHint(QCAR::HINT_MAX_SIMULTANEOUS_IMAGE_TARGETS, 5);
     QCAR::setHint(QCAR::HINT_IMAGE_TARGET_MULTI_FRAME_ENABLED, 1);
 }
 
@@ -477,12 +474,14 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
 
         // draw third object
         QCAR::Matrix44F modelViewProjection3;
+        float shellScale;
+        shellScale = kObjectScale/4;
 
         SampleUtils::translatePoseMatrix(0.0f, 0.0f, kObjectScale,
         		&modelViewMatrix3.data[0]);
-        SampleUtils::rotatePoseMatrix( 90.0f, 1.0f, 0.0f, 0.0f,
+        SampleUtils::rotatePoseMatrix( 0.0f, 0.0f, 0.0f, 0.0f,
         		&modelViewMatrix3.data[0]);
-        SampleUtils::scalePoseMatrix(kObjectScale, kObjectScale, kObjectScale,
+        SampleUtils::scalePoseMatrix(shellScale, shellScale, shellScale,
         		&modelViewMatrix3.data[0]);
         SampleUtils::multiplyMatrix(&projectionMatrix.data[0],
         		&modelViewMatrix3.data[0] ,
@@ -684,13 +683,15 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_startCamera(JNIEnv *, jobject)
         return;
 
     // Uncomment to enable flash
-    //if(QCAR::CameraDevice::getInstance().setFlashTorchMode(true))
-    //	LOG("IMAGE TARGETS : enabled torch");
+//    if(QCAR::CameraDevice::getInstance().setFlashTorchMode(true))
+//    LOG("IMAGE TARGETS : enabled torch");
 
     // Uncomment to enable infinity focus mode, or any other supported focus mode
     // See CameraDevice.h for supported focus modes
-    //if(QCAR::CameraDevice::getInstance().setFocusMode(QCAR::CameraDevice::FOCUS_MODE_INFINITY))
-    //	LOG("IMAGE TARGETS : enabled infinity focus");
+    if(QCAR::CameraDevice::getInstance().setFocusMode(QCAR::CameraDevice::FOCUS_MODE_INFINITY))
+    	LOG("IMAGE TARGETS : enabled infinity focus");
+    if(QCAR::CameraDevice::getInstance().setFocusMode(QCAR::CameraDevice::FOCUS_MODE_CONTINUOUSAUTO))
+    	LOG("IMAGE TARGETS : enabled continuous focus");
 
     // Start the tracker:
     QCAR::TrackerManager& trackerManager = QCAR::TrackerManager::getInstance();
