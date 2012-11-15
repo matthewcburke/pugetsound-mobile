@@ -1,61 +1,98 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+    android:layout_width="fill_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/epic_portrait" >
+    android:background="@drawable/epic_portrait"
+    android:orientation="vertical"
+    android:weightSum="5" >
 
+    <!--Uses selectors which allows the buttons to change colors when 
+    you press them. To use selectors we make two separate drawable .xml files
+    and point android:textColor and android:background to these.
+     -->
     <Button
         android:id="@+id/game_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
+        android:layout_height="0dp"
+        android:layout_width="fill_parent"
+        android:layout_weight="1"
         android:layout_marginTop="25dp"
-        android:background="@color/game_blue"
-        android:textColor="@color/myColor"
-        android:text="@string/enter_game" />
+        android:text="@string/enter_game"
+        android:paddingRight="30dp"
+        android:layout_margin="10dp"
+                   android:paddingLeft="30dp"
+             	   android:paddingTop="10dp"
+                   android:paddingBottom="10dp"
+                   android:textColor="@drawable/game_button_txt"
+                   android:textStyle="bold"
+                   android:background="@drawable/game_button_bg"
+                   android:gravity="left|top" />
 
     <Button
         android:id="@+id/main_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/game_button"
+        android:layout_height="0dp"
+        android:layout_width="fill_parent"
+        android:layout_weight="1"
         android:layout_marginTop="25dp"
         android:text="@string/enter_main" 
-        android:background="@color/game_blue"
-        android:textColor="@color/myColor"/>
+        android:paddingRight="30dp"
+        android:layout_margin="10dp"
+        		   android:paddingLeft="30dp"
+             	   android:paddingTop="10dp"
+                   android:paddingBottom="10dp"
+                   android:textColor="@drawable/home_button_txt"
+                   android:textStyle="bold"
+                   android:background="@drawable/home_button_bg"
+                   android:gravity="left|top" />
 
     <Button
         android:id="@+id/leaderboard_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/main_button"
+        android:layout_height="0dp"
+        android:layout_width="fill_parent"
+        android:layout_weight="1"
         android:layout_marginTop="25dp"
-        android:layout_centerHorizontal="true"
         android:text="@string/enter_leaderboard" 
-        android:background="@color/game_blue"
-        android:textColor="@color/myColor"/>
+        android:layout_margin="10dp"
+                   android:paddingLeft="30dp"
+                   android:paddingRight="30dp"
+                   android:paddingTop="10dp"
+                   android:paddingBottom="10dp"
+                   android:textColor="@drawable/leaderboard_button_txt"
+                   android:textStyle="bold"
+                   android:background="@drawable/leaderboard_button_bg"
+                   android:gravity="left|top" />
 
     <Button
         android:id="@+id/rules_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/leaderboard_button"
+        android:layout_height="0dp"
+        android:layout_width="fill_parent"
+        android:layout_weight="1"
         android:layout_marginTop="25dp"
+        android:layout_margin="10dp"
         android:text="@string/enter_rules" 
-        android:background="@color/game_blue"
-        android:textColor="@color/myColor"/>
+        android:paddingLeft="30dp"
+                   android:paddingRight="30dp"
+                   android:paddingTop="10dp"
+                   android:paddingBottom="10dp"
+                   android:textColor="@drawable/rules_button_txt"
+                   android:textStyle="bold"
+                   android:background="@drawable/rules_button_bg"
+                   android:gravity="left|top" />
 
     <Button
         android:id="@+id/settings_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/rules_button"
+        android:layout_height="0dp"
+        android:layout_width="fill_parent"
+        android:layout_weight="1"
         android:layout_marginTop="25dp"
-        android:text="@string/enter_settings" 
-        android:background="@color/game_blue"
-        android:textColor="@color/myColor"/>
+        android:text="@string/enter_settings"                    
+                   android:layout_margin="10dp"
+                   android:paddingLeft="30dp"
+                   android:paddingRight="30dp"
+                   android:paddingTop="10dp"
+                   android:paddingBottom="10dp"
+                   android:textColor="@drawable/settings_button_txt"
+                   android:textStyle="bold"
+                   android:background="@drawable/settings_button_bg"
+                   android:gravity="left|top" />
 
-</RelativeLayout>
+</LinearLayout>

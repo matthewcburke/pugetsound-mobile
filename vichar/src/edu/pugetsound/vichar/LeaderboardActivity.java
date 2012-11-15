@@ -36,13 +36,18 @@ public class LeaderboardActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_leaderboard);
-        createJson();
+        getJson();
         names = getJSONStrings(myJson);
         names = sortScores(names);
         createTable();
     }
     
-	
+	public void getJson() {
+	    //gets Json from webserver using the HttpService and sets myJson 
+	    //equal to the return value.
+	    //will replace createJson.
+	    createJson();
+	}
     public void createJson() {
         try{           
         myJson.put("Davis", "9000000");
@@ -52,6 +57,9 @@ public class LeaderboardActivity extends Activity {
         myJson.put("Kirah", "5462");
         myJson.put("Not Top Five", "1");
         myJson.put("Robert", "4652");
+        myJson.put("Shakira", "4692");
+        myJson.put("VinDeasel", "432");
+        
         
         }
         catch(JSONException ex){
@@ -154,6 +162,12 @@ public class LeaderboardActivity extends Activity {
         TableRow row3 = new TableRow(this);
         TableRow row4 = new TableRow(this);
         TableRow row5 = new TableRow(this);
+        TableRow row6 = new TableRow(this);
+        TableRow row7 = new TableRow(this);
+        TableRow row8 = new TableRow(this);
+        TableRow row9 = new TableRow(this);
+        TableRow row10 = new TableRow(this);
+
         
         //creates title row
         TextView title = new TextView(this);  
@@ -234,6 +248,71 @@ public class LeaderboardActivity extends Activity {
             row5.addView(new TextView(this));
             row5.addView(score5);
         }
+        if (halt >= 6) {
+            //creates row #6
+              TextView name6 = new TextView(this);  
+              name6.setText(names.get(5)[0]);   
+              name6.setTextColor(getResources().getColor(R.color.game_blue));
+              TextView score6 = new TextView(this);  
+              score6.setText(names.get(5)[1]); 
+              score6.setTextColor(getResources().getColor(R.color.game_blue));
+              row6.addView(new TextView(this));
+              row6.addView(name6);
+              row6.addView(new TextView(this));
+              row6.addView(score6);
+          }
+        if (halt >= 7) {
+            //creates row #7
+              TextView name7 = new TextView(this);  
+              name7.setText(names.get(6)[0]);   
+              name7.setTextColor(getResources().getColor(R.color.game_blue));
+              TextView score7 = new TextView(this);  
+              score7.setText(names.get(6)[1]); 
+              score7.setTextColor(getResources().getColor(R.color.game_blue));
+              row7.addView(new TextView(this));
+              row7.addView(name7);
+              row7.addView(new TextView(this));
+              row7.addView(score7);
+          }
+        if (halt >= 8) {
+            //creates row #8
+              TextView name8 = new TextView(this);  
+              name8.setText(names.get(7)[0]);   
+              name8.setTextColor(getResources().getColor(R.color.game_blue));
+              TextView score8 = new TextView(this);  
+              score8.setText(names.get(7)[1]); 
+              score8.setTextColor(getResources().getColor(R.color.game_blue));
+              row8.addView(new TextView(this));
+              row8.addView(name8);
+              row8.addView(new TextView(this));
+              row8.addView(score8);
+          }
+        if (halt >= 9) {
+            //creates row #9
+              TextView name9 = new TextView(this);  
+              name9.setText(names.get(8)[0]);   
+              name9.setTextColor(getResources().getColor(R.color.game_blue));
+              TextView score9 = new TextView(this);  
+              score9.setText(names.get(8)[1]); 
+              score9.setTextColor(getResources().getColor(R.color.game_blue));
+              row9.addView(new TextView(this));
+              row9.addView(name9);
+              row9.addView(new TextView(this));
+              row9.addView(score9);
+          }
+        if (halt >= 10) {
+            //creates row #10
+              TextView name10 = new TextView(this);  
+              name10.setText(names.get(9)[0]);   
+              name10.setTextColor(getResources().getColor(R.color.game_blue));
+              TextView score10 = new TextView(this);  
+              score10.setText(names.get(9)[1]); 
+              score10.setTextColor(getResources().getColor(R.color.game_blue));
+              row10.addView(new TextView(this));
+              row10.addView(name10);
+              row10.addView(new TextView(this));
+              row10.addView(score10);
+          }
             
         table.addView(row0); //add rows to table
         table.addView(row1);
@@ -241,6 +320,11 @@ public class LeaderboardActivity extends Activity {
         table.addView(row3);
         table.addView(row4);
         table.addView(row5);
+        table.addView(row6);
+        table.addView(row7);
+        table.addView(row8);
+        table.addView(row9);
+        table.addView(row10);
         setContentView(table); //puts the table on the screen
         }
 }

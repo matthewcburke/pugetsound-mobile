@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--This .xml file sets the text color for the game button-->
+
+<selector xmlns:android="http://schemas.android.com/apk/res/android" >
+   <!-- pressed -->
+  <item android:state_pressed="true" android:color="#FDD017" />
+ 
+  <!-- focused -->
+  <item android:state_focused="true" android:color="#FDD017" />
+ 
+  <!-- default -->
+  <item android:color="#fff" />
+    
+
+</selector>
