@@ -14,6 +14,7 @@
 
     <!-- Text to Read -->
     <string name="default_twitter_prompt">No Current Twitter Challenge!</string>
+    <string name="conn_dialog">Vichar requires an active internet connection. Would you like to connect?</string>
 
     <!-- Buttons -->
     <string name="button_ok">OK</string>
@@ -22,6 +23,10 @@
     <string name="login_with_vichar">Login With Vichar</string>
     <string name="enter_test">Go to TestActivity</string>
     <string name="enter_main">Back to Main</string>
+    <string name="connect">Connect</string>
+    <string name="cancel">Cancel</string>
+    <string name="toggle_sound">Toggle Sound</string>
+    <string name="logout_twitter">Logout of Twitter</string>
 
     <!-- EditText Hints -->
     <string name="enter_pin">Enter Above Pin</string>
@@ -35,6 +40,9 @@
     <string name="access_token_secret_key">access_token_secret_key</string>
     <string name="twitter_username_key">twitter_username_key</string>
     <string name="vichar_username_key">vichar_username_key</string>
+    <string name="toggle_sound_key">toggle_sound_key</string>
+    <string name="first_launch_flag">first_launch_flag</string>
+    
     <string name="title_activity_test">TestActivity</string>
 
     <color name="myColor">#F5F5F5</color>

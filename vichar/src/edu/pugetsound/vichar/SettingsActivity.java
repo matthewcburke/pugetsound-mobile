@@ -3,6 +3,7 @@ package edu.pugetsound.vichar;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -35,7 +36,7 @@ public class SettingsActivity extends Activity {
     }
     
     /*
-     * creates buttons
+     * Creates buttons
      */
     public void createButtons()   {
         
@@ -43,21 +44,37 @@ public class SettingsActivity extends Activity {
           mainmenub.setOnClickListener(mainMenuListener); //making the thing that checks if the button's been pushed
         Button aboutb = (Button)findViewById(R.id.about_button);
           aboutb.setOnClickListener(aboutListener); 
+        Button twLogout = (Button) findViewById(R.id.logout_twitter_button);
+          twLogout.setOnClickListener(twitterListener);
+        Button toggleSound = (Button) findViewById(R.id.toggle_sound_button);
+          toggleSound.setOnClickListener(soundListener);
       }
 
     //Creates listeners on buttons to see if they've been pushed.
       private OnClickListener mainMenuListener = new OnClickListener() { //sets what happens when the button is pushed
-        public void onClick(View v) { 
-            //What happens when button is pushed
-            startActivity(new Intent(context, MainMenuActivity.class));
+    	  public void onClick(View v) { 
+              //What happens when button is pushed
+    		  startActivity(new Intent(context, MainMenuActivity.class));
           }
-         };
+      };
       private OnClickListener aboutListener = new OnClickListener() { //sets what happens when the button is pushed
-        public void onClick(View v) { 
+    	  public void onClick(View v) { 
                       
-            startActivity(new Intent(context, AboutActivity.class));
+    		  startActivity(new Intent(context, AboutActivity.class));
           }
-         };           
+      };
+      private OnClickListener twitterListener = new OnClickListener() {
+    	  public void onClick(View v)  {
+    		  
+    		  logoutTwitter();  //initiate twitter "logout"
+    	  }
+      };
+      private OnClickListener soundListener = new OnClickListener()  {
+    	  public void onClick(View v)  {
+    		  toggleSound();
+    	  }
+      };
+  		
 
     /*
      * (non-Javadoc)
@@ -85,5 +102,30 @@ public class SettingsActivity extends Activity {
             default:
                 return super.onOptionsItemSelected(item);
     	}
+    }
+    
+    private void logoutTwitter() {
+    	//TODO:need log in flags
+    }
+    
+    private void toggleSound() {    	
+    	PreferenceUtility pu = new PreferenceUtility();
+    	Boolean soundEnabled = pu.returnBoolean(getString(R.string.toggle_sound_key), true, this);
+    	
+    	Log.d("SoundToggle", "sound enabled pre-set? " + soundEnabled);
+    	
+    	if(soundEnabled==null || !soundEnabled)  {
+    		pu.saveBoolean(getString(R.string.toggle_sound_key), true, this);
+    	} else {
+    		pu.saveBoolean(getString(R.string.toggle_sound_key), false, this);
+    	}
+    	
+    	pu = new PreferenceUtility();
+    	try {
+    		Boolean toggleResult = pu.returnBoolean(getString(R.string.toggle_sound_key), true, this);
+    		System.out.println("sound enabled post-set? " + toggleResult);
+    	} catch (NullPointerException ex) 	{ 
+    		System.out.println("null pointer");
+    	}    	
     }
 }

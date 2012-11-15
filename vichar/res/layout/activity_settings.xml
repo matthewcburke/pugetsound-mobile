@@ -31,5 +31,27 @@
         android:layout_marginTop="25dp"
         android:text="@string/enter_about" />
     
+    <Button 
+        android:id="@+id/logout_twitter_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="25dp"
+        android:layout_marginTop="100dp"
+        android:text="@string/logout_twitter"
+        />
+    
+    <Button
+        android:id="@+id/toggle_sound_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="25dp"
+        android:layout_marginTop="100dp"
+        android:text="@string/toggle_sound"
+        />
+    
 
 </RelativeLayout>
