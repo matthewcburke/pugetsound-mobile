@@ -23,6 +23,13 @@ public class MainActivity extends Activity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        PreferenceUtility prefs = new PreferenceUtility();
+        String loginInfo = prefs.returnSavedString(getString(R.string.access_token_key), getString(R.string.prefs_error), this);
+        if(loginInfo != getString(R.string.prefs_error)) {
+        	prefs.saveBoolean("loggedin", true, this);
+        	Intent intent = new Intent(this, MainMenuActivity.class);
+        	startActivity(intent);
+        }
         setContentView(R.layout.activity_main);
         createButtons();
     }
@@ -63,8 +70,8 @@ public class MainActivity extends Activity
     
     public void authorizeLoginwithVichar(View view)
     {
-    	Intent login = new Intent(this, LoginActivity.class);
-    	startActivity(login);
+    	Intent intent = new Intent(this, LoginActivity.class);
+    	startActivity(intent);
     }
     
     public void authorizeTwitter(View view)
