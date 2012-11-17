@@ -4,7 +4,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
     <string name="title_activity_main">MainActivity</string>
-    <string name="test_activity_game">This is the GameActivity!</string>
+    <string name="test_activity_game">Oh no! No connection! Are you on campus? Wifi on?</string>
     <string name="oauth_consumer_key">iLFFFcFcRnZ4y9NkYwqWg</string>
     <string name="oauth_consumer_secret">yD64YyfSF7AsIG0qkziTVImMdzcgbnihloCDtw3ER0</string>
     <string name="oauth_callback_url">http://www.PLACEHOLDERURL.com</string>
