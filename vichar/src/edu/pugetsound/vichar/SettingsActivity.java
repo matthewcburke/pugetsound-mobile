@@ -104,8 +104,13 @@ public class SettingsActivity extends Activity {
     	}
     }
     
+    /**
+     * "logs out" twitter, by setting logged in flag to false
+     *  No real logging out happens
+     */
     private void logoutTwitter() {
-    	//TODO:need log in flags
+    	PreferenceUtility pu = new PreferenceUtility();
+    	pu.saveString(getString(R.string.tw_login_key), "false", this);
     }
     
     private void toggleSound() {    	

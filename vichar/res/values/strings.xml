@@ -42,6 +42,7 @@
     <string name="vichar_username_key">vichar_username_key</string>
     <string name="toggle_sound_key">toggle_sound_key</string>
     <string name="first_launch_flag">first_launch_flag</string>
+    <string name="tw_login_key">tw_login_flag_key</string>
     
     <string name="title_activity_test">TestActivity</string>
 

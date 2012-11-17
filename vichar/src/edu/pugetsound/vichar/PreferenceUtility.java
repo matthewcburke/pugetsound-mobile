@@ -44,7 +44,7 @@ public class PreferenceUtility {
     public String returnSavedString(String key, String error, Context con)
     {
    		SharedPreferences sharedPref = con.getSharedPreferences(con.getString(R.string.prefs_key), 0);
-   		//retrieve String, retrieve FAIL if pref with this name is not a String
+   		//retrieve String, retrieve error if pref with this name is not a String
    		String toReturn = sharedPref.getString(key, error);
    		
    		Log.d("viCHar", toReturn);

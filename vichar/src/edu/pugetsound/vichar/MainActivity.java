@@ -25,9 +25,12 @@ public class MainActivity extends Activity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         PreferenceUtility prefs = new PreferenceUtility();
+        //TODO: this part may need to be revised. currently it appears to redirect passed login screen if twitter is logged in
+        //however, we probably want to give user the option of using guest account anyhow. instead, perhaps just change button 
+        //to say "use twitter" as opposed to "login with twitter"?
         String loginInfo = prefs.returnSavedString(getString(R.string.access_token_key), getString(R.string.prefs_error), this);
         if(loginInfo != getString(R.string.prefs_error)) {
-        	prefs.saveBoolean("loggedin", true, this);
+        	prefs.saveBoolean(getString(R.string.tw_login_key), true, this);
         	Intent intent = new Intent(this, MainMenuActivity.class);
         	startActivity(intent);
         }
@@ -111,20 +114,17 @@ public class MainActivity extends Activity
     private boolean checkFirstLaunch()  {
     	boolean result = false;
     	PreferenceUtility pu = new PreferenceUtility();
-    	try {
-    		Boolean firstLaunch = pu.returnBoolean(getString(R.string.first_launch_flag), null, this);
-    		if(firstLaunch==true) { 
-    			//if first launch is true, set to false (true here has been carried over from previous launch)
-    			pu.saveBoolean(getString(R.string.first_launch_flag), false, this);
-    		}
-    	} catch (NullPointerException ex)  {
-    		//if null pointer then this flag hasn't been initialized,
-    		//meaning this is first launch
-    		pu.saveBoolean(getString(R.string.first_launch_flag), true, this);
-    		Log.d("MainAct", "Caught null pointer, first launch! set first launch flag to true");
-    		result = true;
-    	}
-    	System.out.println("first launch? " + result);
+
+		String firstLaunch = pu.returnSavedString(getString(R.string.first_launch_flag), getString(R.string.prefs_error), this);
+		if(firstLaunch==getString(R.string.prefs_error)) { 
+			//if error returned, this is first launch.
+			pu.saveString(getString(R.string.first_launch_flag), "true", this);
+			result = true;
+		}
+		if(firstLaunch=="true")  {
+			//if first launch is true, set to false (true here has been carried over from previous launch)
+			pu.saveString(getString(R.string.first_launch_flag), "false", this);
+		}
     	return result;
     }
     
@@ -135,9 +135,9 @@ public class MainActivity extends Activity
     private void firstLaunch()  {
     	System.out.println("Setting first launch prefs");
     	PreferenceUtility pu = new PreferenceUtility();
-    	//toggled sound on
+    	//toggle sound on
     	pu.saveBoolean(getString(R.string.toggle_sound_key), true, this);
-    	System.out.println("supposedly set toggle sound key to true. Did I? checking...");
-    	System.out.println(pu.returnBoolean(getString(R.string.toggle_sound_key), false, this));
+    	//set twitter logged in flag to false
+    	pu.saveBoolean(getString(R.string.tw_login_key), false, this);
     }
 }
