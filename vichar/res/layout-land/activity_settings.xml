@@ -1,28 +1,18 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-     android:layout_height="match_parent"
-    android:background="@drawable/vi_char_robot" >
+    android:layout_height="match_parent" 
+    android:background="@drawable/settings">
 
-    <Button
-        android:id="@+id/login_with_twitter"
+    <TextView
+        android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:onClick="authorizeTwitter"
-        android:text="@string/login_with_twitter" />
-
-    <Button
-        android:id="@+id/login_with_vichar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/login_with_twitter"
-        android:layout_alignLeft="@+id/login_with_twitter"
-        android:layout_marginBottom="63dp"
-        android:onClick="authorizeLoginwithVichar"
-        android:text="@string/login_with_vichar" />
-    
+        android:text="@string/enter_settings"
+        tools:context=".SettingsActivity" />
+   
     <Button
         android:id="@+id/main_menu_button"
         android:layout_width="wrap_content"
@@ -32,6 +22,15 @@
         android:layout_marginRight="25dp"
         android:layout_marginTop="25dp"
         android:text="@string/enter_main_menu" />
-
+    <Button
+        android:id="@+id/about_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="25dp"
+        android:layout_marginTop="25dp"
+        android:text="@string/enter_about" />
+    
 
 </RelativeLayout>

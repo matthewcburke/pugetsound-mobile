@@ -1,0 +1,57 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/epic" >
+
+    <Button
+        android:id="@+id/settings_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="28dp"
+        android:text="@string/enter_settings" 
+        android:background="@color/game_blue"
+        android:textColor="@color/myColor"/>
+        
+
+    <Button
+        android:id="@+id/rules_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginRight="90dp"
+        android:text="@string/enter_rules"
+        android:background="@color/game_blue"
+        android:textColor="@color/myColor" />
+
+    <Button
+        android:id="@+id/leaderboard_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="18dp"
+        android:text="@string/enter_leaderboard" 
+        android:background="@color/game_blue"
+        android:textColor="@color/myColor"/>
+
+    <Button
+        android:id="@+id/game_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:text="@string/enter_game" 
+        android:background="@color/game_blue"
+        android:textColor="@color/myColor"/>
+
+    <Button
+        android:id="@+id/main_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:text="@string/enter_main" 
+        android:background="@color/game_blue"
+        android:textColor="@color/myColor"/>
+
+</RelativeLayout>

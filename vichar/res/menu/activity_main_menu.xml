@@ -1,0 +1,29 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menu_settings"
+        android:title="@string/menu_settings"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
+    
+    
+  
+         <item android:id="@+id/enter_main" 
+             android:title="@string/enter_main" 
+             android:orderInCategory="100" 
+             android:showAsAction="always"></item>
+         <item android:id="@+id/enter_leaderboard" 
+             android:title="@string/enter_leaderboard" 
+             android:orderInCategory="100" 
+             android:showAsAction="ifRoom"></item>
+         <item android:id="@+id/enter_rules"
+             android:title="@string/enter_rules" 
+             android:orderInCategory="100" 
+             android:showAsAction="ifRoom"></item>
+         <item android:id="@+id/enter_settings" 
+             android:title="@string/enter_settings" 
+             android:showAsAction="ifRoom"></item>
+         <item android:id="@+id/enter_game" 
+             android:title="@string/enter_game" 
+             android:orderInCategory="100" 
+             android:showAsAction="ifRoom"></item>
+    
+</menu>
