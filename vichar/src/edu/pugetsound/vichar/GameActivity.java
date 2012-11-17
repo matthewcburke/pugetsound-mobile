@@ -1,12 +1,8 @@
 package edu.pugetsound.vichar;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import edu.pugetsound.vichar.SocketService.LocalBinder;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -35,19 +31,22 @@ import android.support.v4.app.FragmentActivity;
  */
 public class GameActivity extends FragmentActivity implements OnTouchListener {
 
+	//JSON namespaces
+	private static final String GAME_ENGINE_NAMESPACE = "engine";
+    private static final String WEB_NAMESPACE = "web";
+    private String deviceUUID; // Device namespace
+	
+    // Views
 	private View gameView;
 	private TextView textView;
-	//private SocketService socketService;
-	private NetworkingService networkingService = null;
-	private Messenger networkingServiceMessenger = null;
+
+	// Service Stuff
+    private Messenger networkingServiceMessenger = null;
     boolean isBoundToNetworkingService = false;
-    private float touchX, touchY;
-    private final String JSON_GAME_ENGINE_NAMESPACE = "engine";
-    private String deviceUUID;
-    private JSONObject gameState;
-    private JSONObject deviceState;
-      
     final Messenger mMessenger = new Messenger(new IncomingHandler());
+    
+    private float touchX, touchY;
+    private JSONObject gameState; // TODO delete. deprecated.
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -69,8 +68,12 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
     	
         //Bind to the networking service
     	doBindNetworkingService();
+    	
+    	// TODO remove this
     	try {
+    		// Reset turret to keep things simple
     		gameState = new JSONObject("{\"turret\":{\"position\":\"100,0,300\",\"ID\":\"1\"}}");
+    		pushDeviceState(gameState);
     	} catch(JSONException e) {
     		Log.i(this.toString(), "JSONException");
     	}
@@ -114,40 +117,28 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
     		if(ev.getAction() == MotionEvent.ACTION_MOVE) {
     			dx = ev.getX() - touchX;
     			dy = ev.getY() - touchY;
-    			Log.d(this.toString(),"Touch move");
     		}
     		if(ev.getAction() == MotionEvent.ACTION_DOWN 
     				|| ev.getAction() == MotionEvent.ACTION_MOVE) {
     			// Remember new touch coors
     			touchX = ev.getX();
     			touchY = ev.getY();
-    			Log.d(this.toString(),"Touch down or move");
     		} else if(ev.getAction() == MotionEvent.ACTION_UP) {
     			// reset values
     			touchX = 0f;
     			touchY = 0f;
     			dx = 0f;
     			dy = 0f;
-    			Log.d(this.toString(),"Touch up");
     		}
 
     		// Touch propagated to gameView.
             float x = ev.getX();
             float y = ev.getY();
-            Log.d(this.toString(),"Touch event propagated to gameView");
-	    	Log.d(this.toString(),"startX: " + x);
-	    	Log.d(this.toString(),"startY: " + y);
-	    	Log.d(this.toString(),"dX: " + dx);
-	    	Log.d(this.toString(),"dY: " + dy);
 	    	
 	    	try {
-	    		// TODO fix likely concurrency problems. 
-	    		// TODO local gameState should be polled on a timer.
-	    		//updateLocalGameState();
 		    	JSONObject turret = gameState.getJSONObject("turret");
-		    	//JSONObject turret = json.getJSONObject("turret");
 		    	String position = turret.getString("position");
-		    	Log.d(this.toString(),position);
+		    	//Log.d(this.toString(),position);
 		    	String[] coors = position.split("\\s*,\\s*");
 		    	
 		    	// Calc change with floats
@@ -169,12 +160,7 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
 		    	}
 		    	
 		    	turret.put("position", position);
-		    	Log.d(this.toString(),turret.toString());
-		    	gameState.put("turret", turret);
-		    	Log.d(this.toString(),gameState.toString());
-		    	updateRemoteGameState();
-		    	this.textView.setText(gameState.getJSONObject("turret").get("position").toString());
-		    	//updateLocalGameState();
+		    	pushDeviceState(obtainDeviceState().put("turret", turret));
 	    	} catch (JSONException e) {
 	    		//something
 	    		Log.i(this.toString(),"JSONException");
@@ -184,63 +170,78 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
     }
     
     /**
-     * Updates the remote game state with the contents
-     * of the local gameState variable.
-     * @return
+     * Called every time the gameState is updated with the remote game state.
+     * This method should call other methods and contain very little logic of 
+     * its own. 
      */
-    private boolean updateRemoteGameState() {
-    	// TODO: remove this when we're properly using namespaces
-    	JSONObject sendState = gameState;
-    	
-    	// Insert the device state into the proper namespace
-    	// TODO: uncomment this when we're properly using namespaces
-//    	JSONObject sendState = null;
-//    	try {
-//    		sendState = new JSONObject().put(deviceUUID, deviceState);
-//    	} catch (JSONException e) {
-//    		Log.i(this.toString(), "updateRemoteGameState: JSONException");
-//    	}
-    	
-    	boolean isSuccessful = false;
-    	if(isBoundToNetworkingService) {
-    		//TODO re-enable posting
-    		//networkingService.postJSONObject(gameState, null);
-    		//networkingService.queueOutboundJson(gameState);
-    		Bundle b = new Bundle();
-    		b.putString("" + NetworkingService.MSG_QUEUE_OUTBOUND_J_STRING, 
-    				sendState.toString());
-    		Message msg = Message.obtain(null, 
-    				NetworkingService.MSG_QUEUE_OUTBOUND_J_STRING);
-    		msg.setData(b);
-    		try {
-    			networkingServiceMessenger.send(msg);
-    		} catch (RemoteException e) {
-                //TODO handle RemoteException
-    			Log.i(this.toString(), "updateRemoteGameState: RemoteException");
-            }
-    		isSuccessful = true;
-    	} else {
-    		Log.i(this.toString(),"Not Bound to NetworkingService");
+    private void onGameStateChange(String stateStr) {
+    	try {
+    		JSONObject gameState = new JSONObject(stateStr);
+    		
+    		//Pull out official namespaces
+    		JSONObject engineState = gameState; // TODO: delete 
+    		JSONObject webState = gameState; // TODO: delete 
+    		// TODO uncomment for correct namespacing:
+    		//JSONObject engineState = new JSONObject(stateStr).get(GAME_ENGINE_NAMESPACE);
+    		//JSONObject webState = new JSONObject(stateStr).get(WEB_NAMESPACE);
+    		
+    		// TODO: delete. just supports old turret test:
+    		this.gameState = gameState; 
+    		// TODO remove this with turret test stuff
+    		this.textView.setText(this.gameState.getJSONObject("turret").get("position").toString());
+    	} catch(JSONException e) {
+    		//shit!
+    		e.printStackTrace();
     	}
-    	// TODO retries
-    	return isSuccessful;
     }
     
     /**
-     * Updates the local (client) gameState variable with
-     * the contents of the server's game state.
+     * Returns a blank device state JSONObject
+     * Use this method to get a reference to a device state that you can modify
+     * and push.
+     * 
+     * This just makes it extra clear that you are passing snapshots of info
+     * to the server. Do not try to get info about the device from a local copy
+     * of the device state.
+     * 
      * @return
-     */    
-    private void updateLocalGameState(String str) {
+     */
+    private JSONObject obtainDeviceState() {
+    	return new JSONObject();
+    }
+    
+    /**
+     * Wraps a device state snapshot in the deviceUUID and pushes it to the 
+     * server.
+     * @param deviceState
+     */
+    private void pushDeviceState(JSONObject deviceState) {
     	try {
-    		JSONObject json = new JSONObject(str);
-    		Log.d(this.toString(), "New State: " + json.toString());
-    		// Just pull out the official game state namespace
-    		//gameState = json.get(JSON_GAME_ENGINE_NAMESPACE);
-    		//onGameStateChange();
+    		
+    		JSONObject sendState = new JSONObject().put(deviceUUID, deviceState);
+    		
+    		// TODO: delete for proper namespacing:
+    		sendState = deviceState; 
+    		
+    		if(isBoundToNetworkingService) {
+        		Bundle b = new Bundle();
+        		b.putString("" + NetworkingService.MSG_QUEUE_OUTBOUND_J_STRING, 
+        				sendState.toString());
+        		Message msg = Message.obtain(null, 
+        				NetworkingService.MSG_QUEUE_OUTBOUND_J_STRING);
+        		msg.setData(b);
+        		try {
+        			networkingServiceMessenger.send(msg);
+        		} catch (RemoteException e) {
+                    //TODO handle RemoteException
+        			Log.i(this.toString(), "updateRemoteGameState: RemoteException");
+                }
+        	} else {
+        		Log.i(this.toString(),"Not Bound to NetworkingService");
+        	}
     	} catch(JSONException e) {
-    		// do something
-    		Log.d(this.toString(), "Couldn't Make JSON from string.");
+    		// This really shouldn't happen...right?
+    		Log.i(this.toString(), "pushDeviceState: JSONException");
     	}
     }
     
@@ -254,10 +255,8 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
         public void handleMessage(Message msg) {
             switch (msg.what) {
 	            case NetworkingService.MSG_SET_JSON_STRING_VALUE:
-	            	String str = msg
-    				.getData()
-    				.getString("" + NetworkingService.MSG_SET_JSON_STRING_VALUE);
-	            	updateLocalGameState(str);
+	            	String str = msg.getData().getString("" + NetworkingService.MSG_SET_JSON_STRING_VALUE);
+	            	onGameStateChange(str);
 	            	break;
 	            default:
 	                super.handleMessage(msg);
@@ -277,25 +276,14 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
          */
     	public void onServiceConnected(
         				ComponentName className, 
-        				IBinder service)
+        				IBinder binder)
         {
-        	//TODO we're using both binder and messenger. Choose one?
-    		//TODO should service run in separate thread?
     		Log.d(this.toString(),"Start onServiceConnected");
-        	NetworkingService.LocalBinder binder = (NetworkingService.LocalBinder) service;
-        	Log.d(this.toString(),"binder: " + binder.toString());
-        	Log.d(this.toString(),"service: " + service.toString());
-
-        	// Get a reference to the service interface
-        	networkingService = binder.getService();
-        	Log.d(this.toString(),"networkingService: " + networkingService.toString());
-        	
         	// Create a Messenger that references the service
-        	networkingServiceMessenger = networkingService.getMessenger();
+        	networkingServiceMessenger = new Messenger(binder);
         	Log.d(this.toString(),"networkingServiceMessenger: " + networkingServiceMessenger.toString());
         	
         	isBoundToNetworkingService = true;
-	        Log.d(this.toString(),networkingService.toString());
 	        Log.d(this.toString(),"Bound to HttpSevice");
 	        
 	        try {
@@ -305,9 +293,7 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
 	        } catch (RemoteException e) {
                 //TODO handle RemoteException
 	        	// The service crashed before we could do anything with it
-            }
-	        
-	        networkingService.startPolling();
+	        }
         }
 
     	/**
@@ -353,6 +339,5 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
     protected void onDestroy() {
         super.onDestroy();
         doUnbindNetworkingService();
-        //doUnbindSocketService();
     }
 }
