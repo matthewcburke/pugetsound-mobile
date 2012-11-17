@@ -24,16 +24,15 @@ public class MainActivity extends Activity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        createButtons();
         PreferenceUtility prefs = new PreferenceUtility();
-        //TODO: this part may need to be revised. currently it appears to redirect passed login screen if twitter is logged in
-        //however, we probably want to give user the option of using guest account anyhow. instead, perhaps just change button 
-        //to say "use twitter" as opposed to "login with twitter"?
         String loginInfo = prefs.returnSavedString(getString(R.string.access_token_key), getString(R.string.prefs_error), this);
         if(loginInfo != getString(R.string.prefs_error)) {
         	prefs.saveBoolean(getString(R.string.tw_login_key), true, this);
+        	Button button = (Button)findViewById(R.id.login_with_twitter);
+        	button.setText("Continue with Twitter");
         }
-        setContentView(R.layout.activity_main);
-        createButtons();
         checkConnection(); //check network connectivity
         Boolean firstLaunch = checkFirstLaunch(); //check if this the first app launch
         if(firstLaunch) firstLaunch();	//if so, executed appropriate instructions
@@ -87,8 +86,16 @@ public class MainActivity extends Activity
     
     public void authorizeTwitter(View view)
     {
+    	PreferenceUtility prefs = new PreferenceUtility();
+    	boolean isLoggedIn = prefs.returnBoolean(getString(R.string.tw_login_key), false, this);
+    	if(isLoggedIn == true){
+    		Intent intent = new Intent(this, MainMenuActivity.class);
+    		startActivity(intent);
+    	}
+    	else{
     	Intent twitterOAuthIntent = new Intent(this, TwitterOAuthActivity.class);
     	startActivity(twitterOAuthIntent);
+    	}
     }
     
     /**
