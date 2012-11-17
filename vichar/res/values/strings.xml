@@ -70,5 +70,8 @@
     <string name="title_activity_splash">SplashActivity</string>
     <string name="title_activity_splash_screen">SplashScreen</string>
     <color name="game_blue">#483d8b</color>
+    <string name="choose_username">Choose Username</string>
+    <string name="play_as_guest">Play as Guest</string>
+    <string name="guest_name">guest name</string>
 
 </resources>

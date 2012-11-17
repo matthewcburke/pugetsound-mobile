@@ -12,16 +12,17 @@
         android:layout_centerVertical="true"
         android:onClick="authorizeTwitter"
         android:text="@string/login_with_twitter" />
-
+
     <Button
         android:id="@+id/login_with_vichar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/login_with_twitter"
         android:layout_alignLeft="@+id/login_with_twitter"
+        android:layout_alignRight="@+id/login_with_twitter"
         android:layout_marginBottom="63dp"
         android:onClick="authorizeLoginwithVichar"
-        android:text="@string/login_with_vichar" />
+        android:text="@string/play_as_guest" />
     
     <Button
         android:id="@+id/main_menu_button"

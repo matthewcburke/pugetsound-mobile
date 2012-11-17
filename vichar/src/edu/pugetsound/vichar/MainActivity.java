@@ -31,8 +31,6 @@ public class MainActivity extends Activity
         String loginInfo = prefs.returnSavedString(getString(R.string.access_token_key), getString(R.string.prefs_error), this);
         if(loginInfo != getString(R.string.prefs_error)) {
         	prefs.saveBoolean(getString(R.string.tw_login_key), true, this);
-        	Intent intent = new Intent(this, MainMenuActivity.class);
-        	startActivity(intent);
         }
         setContentView(R.layout.activity_main);
         createButtons();

@@ -50,9 +50,8 @@ public class LoginActivity extends Activity {
     */ 
     private void storeUsername(String username)
     {
-    	//TODO: username key shouldn't be hardcoded, instead should be in strings.xml
     	PreferenceUtility prefs = new PreferenceUtility();
-    	prefs.saveString("username", username, this);
+    	prefs.saveString(getString(R.string.guest_name), username, this);
     }
 
 }
