@@ -319,7 +319,7 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_onQCARInitializedNative(JNIEnv *, j
 
     // Comment in to enable tracking of up to 2 targets simultaneously and
     // split the work over multiple frames:
-    QCAR::setHint(QCAR::HINT_MAX_SIMULTANEOUS_IMAGE_TARGETS, 5);
+    QCAR::setHint(QCAR::HINT_MAX_SIMULTANEOUS_IMAGE_TARGETS, 2);
     QCAR::setHint(QCAR::HINT_IMAGE_TARGET_MULTI_FRAME_ENABLED, 1);
 }
 
@@ -474,14 +474,12 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
 
         // draw third object
         QCAR::Matrix44F modelViewProjection3;
-        float shellScale;
-        shellScale = kObjectScale/4;
 
         SampleUtils::translatePoseMatrix(0.0f, 0.0f, kObjectScale,
         		&modelViewMatrix3.data[0]);
         SampleUtils::rotatePoseMatrix( 0.0f, 0.0f, 0.0f, 0.0f,
         		&modelViewMatrix3.data[0]);
-        SampleUtils::scalePoseMatrix(shellScale, shellScale, shellScale,
+        SampleUtils::scalePoseMatrix(kObjectScale, kObjectScale, kObjectScale,
         		&modelViewMatrix3.data[0]);
         SampleUtils::multiplyMatrix(&projectionMatrix.data[0],
         		&modelViewMatrix3.data[0] ,
