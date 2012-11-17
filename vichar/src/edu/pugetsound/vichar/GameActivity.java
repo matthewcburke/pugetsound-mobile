@@ -1,19 +1,19 @@
 package edu.pugetsound.vichar;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import edu.pugetsound.vichar.SocketService.LocalBinder;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,21 +31,33 @@ import android.support.v4.app.FragmentActivity;
  */
 public class GameActivity extends FragmentActivity implements OnTouchListener {
 
+	//JSON namespaces
+	private static final String GAME_ENGINE_NAMESPACE = "engine";
+    private static final String WEB_NAMESPACE = "web";
+    private String deviceUUID; // Device namespace
+	
+    // Views
 	private View gameView;
 	private TextView textView;
-	//private SocketService socketService;
-	private HttpService httpService;
-    boolean isBoundToSocketService = false;
-    boolean isBoundToHttpService = false;
+
+	// Service Stuff
+    private Messenger networkingServiceMessenger = null;
+    boolean isBoundToNetworkingService = false;
+    final Messenger mMessenger = new Messenger(new IncomingHandler());
+    
     private float touchX, touchY;
-    private JSONObject gameState;
+    private JSONObject gameState; // TODO delete. deprecated.
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
+    	super.onCreate(savedInstanceState);
+    	//Force landscape orientation because it is required by AR Module
     	this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_game);
+    	setContentView(R.layout.activity_game);
         
+    	// Get the UUID we generated when this app was installed
+    	deviceUUID = Installation.id(this);
+    	
         //the whole screen becomes sensitive to touch
         View gameContainer = (View) findViewById(R.id.game_container);
         this.gameView = (View) findViewById(R.id.augmented_reality_fragment);
@@ -53,26 +65,18 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
         gameContainer.setOnTouchListener(this);
         
         this.textView = (TextView) findViewById(R.id.game_view_text);
-//    	doBindSocketService();
-//    	Intent intent = new Intent(GameActivity.this, SocketService.class);
-//    	startService(intent);
     	
-    	doBindHttpService();
-    	//Intent intent = new Intent(GameActivity.this, HttpService.class);
-    	//startService(intent);
-        /*// Bind this activity to Networking Service
-        Intent intent = new Intent(GameActivity.this, HttpService.class);
-        bindService(intent, socketServiceConnection, Context.BIND_AUTO_CREATE);*/
+        //Bind to the networking service
+    	doBindNetworkingService();
     	
-//    	do {
-//    		//wait for HttpService
-//    	} while(!isBoundToHttpService);
+    	// TODO remove this
     	try {
+    		// Reset turret to keep things simple
     		gameState = new JSONObject("{\"turret\":{\"position\":\"100,0,300\",\"ID\":\"1\"}}");
+    		pushDeviceState(gameState);
     	} catch(JSONException e) {
     		Log.i(this.toString(), "JSONException");
     	}
-    	//updateLocalGameState();
     }
 
     @Override
@@ -113,40 +117,28 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
     		if(ev.getAction() == MotionEvent.ACTION_MOVE) {
     			dx = ev.getX() - touchX;
     			dy = ev.getY() - touchY;
-    			Log.d(this.toString(),"Touch move");
     		}
     		if(ev.getAction() == MotionEvent.ACTION_DOWN 
     				|| ev.getAction() == MotionEvent.ACTION_MOVE) {
     			// Remember new touch coors
     			touchX = ev.getX();
     			touchY = ev.getY();
-    			Log.d(this.toString(),"Touch down or move");
     		} else if(ev.getAction() == MotionEvent.ACTION_UP) {
     			// reset values
     			touchX = 0f;
     			touchY = 0f;
     			dx = 0f;
     			dy = 0f;
-    			Log.d(this.toString(),"Touch up");
     		}
 
     		// Touch propagated to gameView.
             float x = ev.getX();
             float y = ev.getY();
-            Log.d(this.toString(),"Touch event propagated to gameView");
-	    	Log.d(this.toString(),"startX: " + x);
-	    	Log.d(this.toString(),"startY: " + y);
-	    	Log.d(this.toString(),"dX: " + dx);
-	    	Log.d(this.toString(),"dY: " + dy);
 	    	
 	    	try {
-	    		// TODO fix likely concurrency problems. 
-	    		// TODO local gameState should be polled on a timer.
-	    		updateLocalGameState();
 		    	JSONObject turret = gameState.getJSONObject("turret");
-		    	//JSONObject turret = json.getJSONObject("turret");
 		    	String position = turret.getString("position");
-		    	Log.d(this.toString(),position);
+		    	//Log.d(this.toString(),position);
 		    	String[] coors = position.split("\\s*,\\s*");
 		    	
 		    	// Calc change with floats
@@ -168,12 +160,7 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
 		    	}
 		    	
 		    	turret.put("position", position);
-		    	Log.d(this.toString(),turret.toString());
-		    	gameState.put("turret", turret);
-		    	Log.d(this.toString(),gameState.toString());
-		    	updateRemoteGameState();
-		    	this.textView.setText(gameState.getJSONObject("turret").get("position").toString());
-		    	//updateLocalGameState();
+		    	pushDeviceState(obtainDeviceState().put("turret", turret));
 	    	} catch (JSONException e) {
 	    		//something
 	    		Log.i(this.toString(),"JSONException");
@@ -183,103 +170,104 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
     }
     
     /**
-     * Updates the remote game state with the contents
-     * of the local gameState variable.
-     * @return
+     * Called every time the gameState is updated with the remote game state.
+     * This method should call other methods and contain very little logic of 
+     * its own. 
      */
-    private boolean updateRemoteGameState() {
-    	boolean isSuccessful = false;
-    	if(isBoundToHttpService) {
-    		httpService.send(gameState);
-    		Log.d(this.toString(), httpService.getJSON().toString());
-    		isSuccessful = true;
-    	} else {
-    		Log.i(this.toString(),"Not Bound to HttpService");
+    private void onGameStateChange(String stateStr) {
+    	try {
+    		JSONObject gameState = new JSONObject(stateStr);
+    		
+    		//Pull out official namespaces
+    		JSONObject engineState = gameState; // TODO: delete 
+    		JSONObject webState = gameState; // TODO: delete 
+    		// TODO uncomment for correct namespacing:
+    		//JSONObject engineState = new JSONObject(stateStr).get(GAME_ENGINE_NAMESPACE);
+    		//JSONObject webState = new JSONObject(stateStr).get(WEB_NAMESPACE);
+    		
+    		// TODO: delete. just supports old turret test:
+    		this.gameState = gameState; 
+    		// TODO remove this with turret test stuff
+    		this.textView.setText(this.gameState.getJSONObject("turret").get("position").toString());
+    	} catch(JSONException e) {
+    		//shit!
+    		e.printStackTrace();
     	}
-    	// TODO retries
-    	return isSuccessful;
     }
     
     /**
-     * Updates the local (client) gameState variable with
-     * the contents of the server's game state.
+     * Returns a blank device state JSONObject
+     * Use this method to get a reference to a device state that you can modify
+     * and push.
+     * 
+     * This just makes it extra clear that you are passing snapshots of info
+     * to the server. Do not try to get info about the device from a local copy
+     * of the device state.
+     * 
      * @return
      */
-    private boolean updateLocalGameState() {
-    	boolean isSuccessful = false;
-    	if(isBoundToHttpService) {
-    		gameState = httpService.getJSON();
-    		Log.d(this.toString(), httpService.getJSON().toString());
-    		isSuccessful = true;
-    	} else {
-    		Log.i(this.toString(),"Not Bound to HttpService");
-    	}
-    	// TODO retries
-    	return isSuccessful;
+    private JSONObject obtainDeviceState() {
+    	return new JSONObject();
     }
     
     /**
-     * Is x and y inside view? I don't know... Try this function.
-     * Generally better to register the view itself with a touch 
-     * listener, but in special cases, use this.
-     * @param view
-     * @param rx
-     * @param ry
-     * @return true if x and y falls inside given view, false if not.
+     * Wraps a device state snapshot in the deviceUUID and pushes it to the 
+     * server.
+     * @param deviceState
      */
-    private boolean isViewContains(View view, float rx, float ry) {
-        int[] l = new int[2];
-        view.getLocationOnScreen(l);
-        int x = l[0];
-        int y = l[1];
-        int w = view.getWidth();
-        int h = view.getHeight();
-
-        if (rx < x || rx > x + w || ry < y || ry > y + h) {
-            return false;
+    private void pushDeviceState(JSONObject deviceState) {
+    	try {
+    		
+    		JSONObject sendState = new JSONObject().put(deviceUUID, deviceState);
+    		
+    		// TODO: delete for proper namespacing:
+    		sendState = deviceState; 
+    		
+    		if(isBoundToNetworkingService) {
+        		Bundle b = new Bundle();
+        		b.putString("" + NetworkingService.MSG_QUEUE_OUTBOUND_J_STRING, 
+        				sendState.toString());
+        		Message msg = Message.obtain(null, 
+        				NetworkingService.MSG_QUEUE_OUTBOUND_J_STRING);
+        		msg.setData(b);
+        		try {
+        			networkingServiceMessenger.send(msg);
+        		} catch (RemoteException e) {
+                    //TODO handle RemoteException
+        			Log.i(this.toString(), "updateRemoteGameState: RemoteException");
+                }
+        	} else {
+        		Log.i(this.toString(),"Not Bound to NetworkingService");
+        	}
+    	} catch(JSONException e) {
+    		// This really shouldn't happen...right?
+    		Log.i(this.toString(), "pushDeviceState: JSONException");
+    	}
+    }
+    
+    /**
+     * Handles incoming messages from NetworkingService
+     * @author DuBious
+     *
+     */
+    class IncomingHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+	            case NetworkingService.MSG_SET_JSON_STRING_VALUE:
+	            	String str = msg.getData().getString("" + NetworkingService.MSG_SET_JSON_STRING_VALUE);
+	            	onGameStateChange(str);
+	            	break;
+	            default:
+	                super.handleMessage(msg);
+            }
         }
-        return true;
     }
     
-//    private ServiceConnection socketServiceConnection = new ServiceConnection() 
-//    { //need this to create the connection to the service
-//        public void onServiceConnected(
-//        				ComponentName className, 
-//        				IBinder service)
-//        {
-//        	Log.d(this.toString(),"Start onServiceConnected");
-//        	SocketService.LocalBinder binder = (SocketService.LocalBinder) service;
-//	        socketService = binder.getService();
-//	        isBoundToSocketService = true;
-//	        Log.d(this.toString(),"Bound to SocketSevice");
-//        }
-//
-//        public void onServiceDisconnected(ComponentName className) 
-//        {
-//        	isBoundToSocketService = false;
-//        }
-//    };
-//    
-//    private void doBindSocketService() {
-//    	Log.d(this.toString(),"Binding SocketSevice");
-//        bindService(new Intent(GameActivity.this, SocketService.class), 
-//        		socketServiceConnection, Context.BIND_AUTO_CREATE);
-//        isBoundToSocketService = true;
-//    }
-//
-//
-//    private void doUnbindSocketService() {
-//        if (isBoundToSocketService) {
-//            // Detach our existing connection.
-//            unbindService(socketServiceConnection);
-//            isBoundToSocketService = false;
-//        }
-//    }
-    
     /**
-     * Forms the connection between this Activity and the HttpService
+     * Forms the connection between this Activity and the NetworkingService
      */
-    private ServiceConnection httpServiceConnection = new ServiceConnection() 
+    private ServiceConnection networkingServiceConnection = new ServiceConnection() 
     { //need this to create the connection to the service
         /**
          * Called when the service is started and bound to this Service Connection
@@ -288,15 +276,24 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
          */
     	public void onServiceConnected(
         				ComponentName className, 
-        				IBinder service)
+        				IBinder binder)
         {
-        	Log.d(this.toString(),"Start onServiceConnected");
-        	HttpService.LocalBinder binder = (HttpService.LocalBinder) service;
-	        httpService = binder.getService();
-	        Log.d(this.toString(),httpService.toString());
-	        isBoundToHttpService = true;
+    		Log.d(this.toString(),"Start onServiceConnected");
+        	// Create a Messenger that references the service
+        	networkingServiceMessenger = new Messenger(binder);
+        	Log.d(this.toString(),"networkingServiceMessenger: " + networkingServiceMessenger.toString());
+        	
+        	isBoundToNetworkingService = true;
 	        Log.d(this.toString(),"Bound to HttpSevice");
-	        updateLocalGameState();
+	        
+	        try {
+		        Message msg = Message.obtain(null, NetworkingService.MSG_REGISTER_CLIENT);
+	            msg.replyTo = mMessenger;
+	            networkingServiceMessenger.send(msg);
+	        } catch (RemoteException e) {
+                //TODO handle RemoteException
+	        	// The service crashed before we could do anything with it
+	        }
         }
 
     	/**
@@ -305,31 +302,42 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
     	 */
         public void onServiceDisconnected(ComponentName className) 
         {
-        	isBoundToHttpService = false;
+        	isBoundToNetworkingService = false;
         }
     };
     
     /**
-     * Binds this activity to the HttpService
+     * Binds this activity to the NetworkingService
      */
-    private void doBindHttpService() {
+    private void doBindNetworkingService() {
     	Log.d(this.toString(),"Binding HttpSevice");
-        bindService(new Intent(GameActivity.this, HttpService.class), 
-        		httpServiceConnection, Context.BIND_AUTO_CREATE);
+        bindService(new Intent(GameActivity.this, NetworkingService.class), 
+        		networkingServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
     /**
-     * Unbinds this activity from the HttpService
+     * Unbinds this activity from the NetworkingService
      */
-    private void doUnbindHttpService() {
-        // Detach our existing connection.
-        unbindService(httpServiceConnection);
+    private void doUnbindNetworkingService() {
+    	// Unregister Messenger
+    	if (networkingServiceMessenger != null) {
+            try {
+                Message msg = Message.obtain(null, NetworkingService.MSG_UNREGISTER_CLIENT);
+                msg.replyTo = mMessenger;
+                networkingServiceMessenger.send(msg);
+                networkingServiceMessenger = null;
+            } catch (RemoteException e) {
+                // There is nothing special we need to do if the service has crashed.
+            }
+        }
+    	// Detach our existing connection.
+    	
+        unbindService(networkingServiceConnection);
     }
     
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        doUnbindHttpService();
-        //doUnbindSocketService();
+        doUnbindNetworkingService();
     }
 }

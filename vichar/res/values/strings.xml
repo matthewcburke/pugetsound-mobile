@@ -5,7 +5,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
     <string name="title_activity_main">MainActivity</string>
-    <string name="test_activity_game">This is the GameActivity!</string>
+    <string name="test_activity_game">Oh no! No connection! Are you on campus? Wifi on?</string>
     <string name="oauth_consumer_key">iLFFFcFcRnZ4y9NkYwqWg</string>
     <string name="oauth_consumer_secret">yD64YyfSF7AsIG0qkziTVImMdzcgbnihloCDtw3ER0</string>
     <string name="oauth_callback_url">http://www.PLACEHOLDERURL.com</string>
@@ -16,6 +16,7 @@
 
     <!-- Text to Read -->
     <string name="default_twitter_prompt">No Current Twitter Challenge!</string>
+    <string name="conn_dialog">Vichar requires an active internet connection. Would you like to connect?</string>
 
     <!-- Buttons -->
     <string name="button_ok">OK</string>
@@ -24,6 +25,10 @@
     <string name="login_with_vichar">Login With Vichar</string>
     <string name="enter_test">Go to TestActivity</string>
     <string name="enter_main">Back to Main</string>
+    <string name="connect">Connect</string>
+    <string name="cancel">Cancel</string>
+    <string name="toggle_sound">Toggle Sound</string>
+    <string name="logout_twitter">Logout of Twitter</string>
 
     <!-- EditText Hints -->
     <string name="enter_pin">Enter Above Pin</string>
@@ -37,6 +42,10 @@
     <string name="access_token_secret_key">access_token_secret_key</string>
     <string name="twitter_username_key">twitter_username_key</string>
     <string name="vichar_username_key">vichar_username_key</string>
+    <string name="toggle_sound_key">toggle_sound_key</string>
+    <string name="first_launch_flag">first_launch_flag</string>
+    <string name="tw_login_key">tw_login_flag_key</string>
+    
     <string name="title_activity_test">TestActivity</string>
 
     <color name="myColor">#F5F5F5</color>
@@ -63,5 +72,8 @@
     <string name="title_activity_splash">SplashActivity</string>
     <string name="title_activity_splash_screen">SplashScreen</string>
     <color name="game_blue">#483d8b</color>
+    <string name="choose_username">Choose Username</string>
+    <string name="play_as_guest">Play as Guest</string>
+    <string name="guest_name">guest name</string>
 
 </resources>

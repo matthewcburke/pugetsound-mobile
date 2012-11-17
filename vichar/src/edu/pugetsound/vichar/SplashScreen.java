@@ -4,6 +4,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -13,7 +14,7 @@ import android.os.Bundle;
  *
  */
 public class SplashScreen extends Activity {
-    private long splashDelay = 2000;//stays on screen for 2 seconds
+    private long splashDelay = 1000;//stays on screen for 2 seconds
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -33,7 +34,6 @@ public class SplashScreen extends Activity {
             
         };
         Timer timer = new Timer();
-        timer.schedule(task, splashDelay);//implements the delay and runs the thread
-    }
-    
+        timer.schedule(task, splashDelay);//implements the delay and runs the thread              
+    }    
 }

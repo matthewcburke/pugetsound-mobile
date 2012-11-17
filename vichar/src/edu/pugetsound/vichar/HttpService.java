@@ -26,7 +26,7 @@ import android.util.Log;
 
 /**
  * A bound service that provides a simple, non-continuous interface with the server.
- * @author Kirah Taylor & Robert Shapiro
+ * @author Kirah Taylor
  * @version 10/24/12
  */
 public class HttpService extends Service {

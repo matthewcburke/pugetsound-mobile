@@ -26,6 +26,9 @@
 
     <!-- Get permission to access WLAN MAC address. -->
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    
+    <!-- Get permission to disconnect/connect/change network connections -->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
 
     <!-- Get permission to access HW ID. -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
@@ -60,6 +63,11 @@
 		</activity>
         <activity
             android:name=".GameActivity"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
+        </activity>
+        <activity
+            android:name=".LoginActivity"
             android:label="@string/app_name"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
         </activity>
@@ -129,11 +137,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <service android:name="SocketService" />
         <service android:name="HttpService" />
-
-        
+        <service android:name="NetworkingService" />
     </application>
 
 </manifest>
