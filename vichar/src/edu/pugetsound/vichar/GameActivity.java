@@ -7,6 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import edu.pugetsound.vichar.SocketService.LocalBinder;
+import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -19,8 +20,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.SlidingDrawer;
 import android.widget.TextView;
+import android.support.v4.app.Fragment;
 //Import Fragment dependencies
 import android.support.v4.app.FragmentActivity;
 
@@ -39,6 +47,10 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
     boolean isBoundToHttpService = false;
     private float touchX, touchY;
     private JSONObject gameState;
+    
+    private boolean activeTwitter = false;
+    private float touchTwX;
+    private int actionUp = 0;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,12 +64,18 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
         this.gameView.setOnTouchListener(this);
         gameContainer.setOnTouchListener(this);
         
+        
+//        tweetContainer.
+        
+        Button tweetFragTab = (Button)findViewById(R.id.tweet_frag_button);
+        tweetFragTab.setOnTouchListener(tweetFragTabListener);
+        
         this.textView = (TextView) findViewById(R.id.game_view_text);
 //    	doBindSocketService();
 //    	Intent intent = new Intent(GameActivity.this, SocketService.class);
 //    	startService(intent);
     	
-    	doBindHttpService();
+    	//doBindHttpService();
     	//Intent intent = new Intent(GameActivity.this, HttpService.class);
     	//startService(intent);
         /*// Bind this activity to Networking Service
@@ -67,14 +85,18 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
 //    	do {
 //    		//wait for HttpService
 //    	} while(!isBoundToHttpService);
-    	try {
-    		gameState = new JSONObject("{\"turret\":{\"position\":\"100,0,300\",\"ID\":\"1\"}}");
-    	} catch(JSONException e) {
-    		Log.i(this.toString(), "JSONException");
-    	}
+//    	try {
+//    		gameState = new JSONObject("{\"turret\":{\"position\":\"100,0,300\",\"ID\":\"1\"}}");
+//    	} catch(JSONException e) {
+//    		Log.i(this.toString(), "JSONException");
+//    	}
     	//updateLocalGameState();
     }
+    
 
+    
+       
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_game, menu);
@@ -93,6 +115,85 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
     	}
     }
     
+    
+    private OnTouchListener tweetFragTabListener = new OnTouchListener() {
+		public boolean onTouch(View v, MotionEvent me) { 
+			return tweetContainerTouch(v, me);
+		}
+       };
+    
+    private boolean tweetContainerTouch(View v, MotionEvent me)  {
+    	View tweetContainer = (View) findViewById(R.id.tweet_container);
+    	switch (me.getAction()) {
+			case MotionEvent.ACTION_DOWN:
+				actionUp=0;
+				touchTwX = me.getRawX();
+				System.out.println("action down at " + touchTwX);
+				//touchTwX = me.getX();            
+       	
+			case MotionEvent.ACTION_MOVE:
+				actionUp=0;
+				//calculate motion change
+				System.out.println("motion event x " + me.getRawX());
+   		
+				float delta = me.getRawX() - touchTwX;  
+				System.out.println("Delta " + delta);
+				touchTwX = me.getRawX();
+
+   		
+				//calculate new x coordinate of view
+				System.out.println("right location " + tweetContainer.getRight());
+				//float newX = tweetContainer.getRight() - delta;
+				//System.out.println("new right location " + newX);
+
+				FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) tweetContainer.getLayoutParams();
+				params.rightMargin = params.rightMargin - (int) delta;
+				tweetContainer.setLayoutParams(params);  
+				//FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+				//params.rightMargin = tweetContainer.getRight() - (int)delta;
+   		   		
+			case MotionEvent.ACTION_UP:
+				actionUp++;
+				if(actionUp==2) {
+					System.out.println("------ACTION UP OR CANCEL------");	
+					View gameContainer = (View) findViewById(R.id.game_container);
+					if(tweetContainer.getLeft() < gameContainer.getWidth() - 200) {
+						FrameLayout.LayoutParams paramsSuccess = (FrameLayout.LayoutParams) tweetContainer.getLayoutParams();
+						paramsSuccess.rightMargin = 0;
+						tweetContainer.setLayoutParams(paramsSuccess);  
+					} else {		        			
+						FrameLayout.LayoutParams paramsReset = (FrameLayout.LayoutParams) tweetContainer.getLayoutParams();
+						paramsReset.rightMargin = -300;
+						tweetContainer.setLayoutParams(paramsReset);  	        		
+					}
+				}   		        		
+   			}			
+        return true;
+    }
+       
+    /**
+     * Looks at current gamestate for twitter challenge
+     * @return True if new challenge, false if not
+     */
+    private void UpdateTwitterState()  {
+    	if(activeTwitter)  return;  //if there is alread a twitter challenge, we don't need to do anything
+    	
+ 
+    	//TODO:take json, parse, check if there is a twitter vote. Update activeTwitter flag
+    	
+    	//assuming there is a new twitter challenge...
+    	TweetFragment tweetFrag = (TweetFragment) getSupportFragmentManager().findFragmentById(R.id.tweet_fragment);
+        tweetFrag.setPrompt(getString(R.string.default_twitter_prompt));
+    }
+    
+    /**
+     * Sends tweet
+     * @param view
+     */
+    public void sendTweet(View view)     {
+    	TweetFragment tweetFrag = (TweetFragment) getSupportFragmentManager().findFragmentById(R.id.tweet_fragment);
+        tweetFrag.sendTweet(view);	
+    }
     /**
      * Capture touch events
      * @param v
@@ -329,7 +430,9 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        doUnbindHttpService();
+        //doUnbindHttpService();
         //doUnbindSocketService();
     }
+    
+    
 }
