@@ -145,6 +145,10 @@ public class TwitterOAuthActivity extends Activity {
     		{
     			System.out.println(ex);
     		}
+            catch(Exception ex) {
+            	System.out.println(ex);
+            	ex.printStackTrace();
+            }
             return result;
         }
     	
@@ -155,10 +159,15 @@ public class TwitterOAuthActivity extends Activity {
         @Override
         protected void onPostExecute(Boolean result) 
         {
-        	oAuthUrl = requestToken.getAuthorizationURL();
-			Log.d("ViChar", "url retrieved");
-			Log.d("Vichar", oAuthUrl);
-			webView.loadUrl(oAuthUrl);
+        	if(result==true) {
+	        	oAuthUrl = requestToken.getAuthorizationURL();
+				Log.d("ViChar", "url retrieved");
+				Log.d("Vichar", oAuthUrl);
+				webView.loadUrl(oAuthUrl);
+        	} else {
+        		//TODO: decide behavoir if request token retrieval fails
+        		System.out.println("request token retireval failed");
+        	}
         }
     }
     

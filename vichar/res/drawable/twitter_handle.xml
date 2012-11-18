@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android" >
+  <item>
+      android:drawable="@drawable/twitter_logo"
+    <shape>
+      <gradient android:startColor="#FDD017" android:endColor="#FFFF49" android:angle="270" />
+      <stroke android:width="1px" android:color="#444" />
+      
+      <corners android:radius="3dp" />
+      
+    </shape>
+  </item>    
+
+</selector>
