@@ -25,6 +25,7 @@ import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SlidingDrawer;
 import android.widget.TextView;
@@ -61,13 +62,12 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
         //the whole screen becomes sensitive to touch
         View gameContainer = (View) findViewById(R.id.game_container);
         this.gameView = (View) findViewById(R.id.augmented_reality_fragment);
-        this.gameView.setOnTouchListener(this);
-        gameContainer.setOnTouchListener(this);
+ //       this.gameView.setOnTouchListener(this);
+ //       gameContainer.setOnTouchListener(this);
         
+
         
-//        tweetContainer.
-        
-        Button tweetFragTab = (Button)findViewById(R.id.tweet_frag_button);
+        ImageButton tweetFragTab = (ImageButton)findViewById(R.id.tweet_frag_button);
         tweetFragTab.setOnTouchListener(tweetFragTabListener);
         
         this.textView = (TextView) findViewById(R.id.game_view_text);
@@ -113,8 +113,7 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
             default:
                 return super.onOptionsItemSelected(item);
     	}
-    }
-    
+    }    
     
     private OnTouchListener tweetFragTabListener = new OnTouchListener() {
 		public boolean onTouch(View v, MotionEvent me) { 
@@ -124,39 +123,33 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
     
     private boolean tweetContainerTouch(View v, MotionEvent me)  {
     	View tweetContainer = (View) findViewById(R.id.tweet_container);
+    	View gameContainer = (View) findViewById(R.id.game_container);
     	switch (me.getAction()) {
 			case MotionEvent.ACTION_DOWN:
 				actionUp=0;
 				touchTwX = me.getRawX();
-				System.out.println("action down at " + touchTwX);
-				//touchTwX = me.getX();            
-       	
+				System.out.println("action down at " + touchTwX);       	
 			case MotionEvent.ACTION_MOVE:
-				actionUp=0;
-				//calculate motion change
-				System.out.println("motion event x " + me.getRawX());
-   		
-				float delta = me.getRawX() - touchTwX;  
-				System.out.println("Delta " + delta);
-				touchTwX = me.getRawX();
-
-   		
-				//calculate new x coordinate of view
-				System.out.println("right location " + tweetContainer.getRight());
-				//float newX = tweetContainer.getRight() - delta;
-				//System.out.println("new right location " + newX);
-
-				FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) tweetContainer.getLayoutParams();
-				params.rightMargin = params.rightMargin - (int) delta;
-				tweetContainer.setLayoutParams(params);  
-				//FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-				//params.rightMargin = tweetContainer.getRight() - (int)delta;
-   		   		
+				actionUp=0;				
+				System.out.println("motion event x " + me.getRawX());				
+				//only execute changes if user hasn't dragged too far left
+				if(me.getRawX()>gameContainer.getWidth()-tweetContainer.getWidth()) {   
+					//calculate motion change
+					float delta = me.getRawX() - touchTwX;  
+					System.out.println("Delta " + delta);
+					touchTwX = me.getRawX();
+	   		
+					//calculate new x coordinate of view
+					System.out.println("right location " + tweetContainer.getRight());
+					//set new params
+					FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) tweetContainer.getLayoutParams();
+					params.rightMargin = params.rightMargin - (int) delta;
+					tweetContainer.setLayoutParams(params);  
+				}
 			case MotionEvent.ACTION_UP:
 				actionUp++;
 				if(actionUp==2) {
-					System.out.println("------ACTION UP OR CANCEL------");	
-					View gameContainer = (View) findViewById(R.id.game_container);
+					System.out.println("------ACTION UP OR CANCEL------");						
 					if(tweetContainer.getLeft() < gameContainer.getWidth() - 200) {
 						FrameLayout.LayoutParams paramsSuccess = (FrameLayout.LayoutParams) tweetContainer.getLayoutParams();
 						paramsSuccess.rightMargin = 0;
