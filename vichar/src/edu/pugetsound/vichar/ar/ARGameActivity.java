@@ -23,6 +23,10 @@ package edu.pugetsound.vichar.ar;
 
 import java.util.Vector;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -41,13 +45,30 @@ import android.view.WindowManager;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
+import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View.OnTouchListener;
+//Import Fragment dependencies
+import android.support.v4.app.FragmentActivity;
+
 import com.qualcomm.QCAR.QCAR;
 
+import edu.pugetsound.vichar.GameActivity;
+import edu.pugetsound.vichar.Installation;
+import edu.pugetsound.vichar.NetworkingService;
 import edu.pugetsound.vichar.R;
 
 
 /** The main activity for the ARGameActivity. */
-public class ARGameActivity extends Activity
+public class ARGameActivity extends FragmentActivity implements OnTouchListener 
 {
     // Application status constants:
     private static final int APPSTATUS_UNINITED         = -1;
@@ -110,6 +131,19 @@ public class ARGameActivity extends Activity
     // The menu item for swapping data sets:
     MenuItem mDataSetMenuItem = null;
     boolean mIsStonesAndChipsDataSetActive  = false;
+    
+  //JSON namespaces
+    private static final String GAME_ENGINE_NAMESPACE = "engine";
+    private static final String WEB_NAMESPACE = "web";
+    private String deviceUUID; // Device namespace
+    	
+	// Service Stuff
+    private Messenger networkingServiceMessenger = null;
+    boolean isBoundToNetworkingService = false;
+    final Messenger mMessenger = new Messenger(new IncomingHandler());
+    
+    private float touchX, touchY;
+    private JSONObject gameState; // TODO delete. deprecated.
     
     /** Static initializer block to load native libraries on start-up. */
     static
@@ -281,21 +315,32 @@ public class ARGameActivity extends Activity
      * to an activity. */
     protected void onCreate(Bundle savedInstanceState)
     {
-        DebugLog.LOGD("ARGameActivity::onCreate");
-        super.onCreate(savedInstanceState);
-        
+    	DebugLog.LOGD("ARGameActivity::onCreate");
+    	super.onCreate(savedInstanceState);
+//    	setContentView(R.layout.activity_ar);
+    	
+    	// Get the UUID we generated when this app was installed
+    	deviceUUID = Installation.id(this);
+
+    	//the whole screen becomes sensitive to touch
+//    	View gameContainer = (View) findViewById(R.id.game_container);
+//    	gameContainer.setOnTouchListener(this);
+
+        //Bind to the networking service
+    	doBindNetworkingService();
+    	
         // Set the splash screen image to display during initialization:
-        mSplashScreenImageResource = R.drawable.splash;
-        
-        // Load any sample specific textures:  
-        mTextures = new Vector<Texture>();
-        loadTextures();
-        
-        // Query the QCAR initialization flags:
-        mQCARFlags = getInitializationFlags();
-        
-        // Update the application status to start initializing application
-        updateApplicationStatus(APPSTATUS_INIT_APP);
+    	mSplashScreenImageResource = R.drawable.splash;
+
+    	// Load any sample specific textures:  
+    	mTextures = new Vector<Texture>();
+    	loadTextures();
+
+    	// Query the QCAR initialization flags:
+    	mQCARFlags = getInitializationFlags();
+
+    	// Update the application status to start initializing application
+    	updateApplicationStatus(APPSTATUS_INIT_APP);
     }
 
     
@@ -350,7 +395,31 @@ public class ARGameActivity extends Activity
     
     /** Native method for setting / updating the projection matrix for AR content rendering */
     private native void setProjectionMatrix();
-
+    
+//    /** Native method for getting phone location */
+//    private native float[] getCameraLocationNative();
+//    
+//    private JSONObject makePositionJSON(float[] nativeArray) throws JSONException
+//    {	
+//    	JSONObject position = new JSONObject();
+//    	
+//    	position.put("x", "" + nativeArray[0]);
+//    	position.put("y", "" + nativeArray[1]);
+//    	position.put("z", "" + nativeArray[2]);
+//    	
+//    	return position; 	
+//    }
+//    
+//    private JSONObject makeRotationJSON(float[] nativeArray) throws JSONException
+//    {	
+//    	JSONObject rotation = new JSONObject();
+//    	
+//    	rotation.put("x", "" + nativeArray[4]);
+//    	rotation.put("y", "" + nativeArray[5]);
+//    	rotation.put("z", "" + nativeArray[6]);
+//    	
+//    	return rotation; 	
+//    }
 
    /** Called when the activity will start interacting with the user.*/
     protected void onResume()
@@ -396,6 +465,35 @@ public class ARGameActivity extends Activity
             setProjectionMatrix();
     }
     
+    /**
+     * Called every time the gameState is updated with the remote game state.
+     * This method should call other methods and contain very little logic of 
+     * its own. 
+     */
+    private void onGameStateChange(String stateStr) {
+    	
+//    	pushDeviceState(obtainDeviceState());
+    	
+    	try {
+    		JSONObject gameState = new JSONObject(stateStr);
+
+    		//Pull out official namespaces
+    		JSONObject engineState = gameState; // TODO: delete 
+    		JSONObject webState = gameState; // TODO: delete 
+    		// TODO uncomment for correct namespacing:
+    		//JSONObject engineState = new JSONObject(stateStr).get(GAME_ENGINE_NAMESPACE);
+    		//JSONObject webState = new JSONObject(stateStr).get(WEB_NAMESPACE);
+
+    		// TODO: delete. just supports old turret test:
+    		this.gameState = gameState; 
+    		// TODO remove this with turret test stuff
+    		DebugLog.LOGD(this.gameState.getJSONObject("turret").get("position").toString());
+    	} catch(JSONException e) {
+    		//shit!
+    		e.printStackTrace();
+    	}
+    }
+    
 
     /** Called when the system is about to start resuming a previous activity.*/
     protected void onPause()
@@ -428,6 +526,8 @@ public class ARGameActivity extends Activity
     {
         DebugLog.LOGD("ARGameActivity::onDestroy");
         super.onDestroy();
+        
+        doUnbindNetworkingService();
         
         // Dismiss the splash screen time out handler:
         if (mSplashScreenHandler != null)
@@ -793,15 +893,13 @@ public class ARGameActivity extends Activity
     {
         return mTextures.size();
     }
-
-    
+  
     /** Returns the texture object at the specified index. */
     public Texture getTexture(int i)
     {
         return mTextures.elementAt(i);
     }
-
-    
+   
     /** A helper for loading native libraries stored in "libs/armeabi*". */
     public static boolean loadLibrary(String nLibName)
     {
@@ -823,5 +921,222 @@ public class ARGameActivity extends Activity
         }
         
         return false;
-    }    
+    }
+    
+    /**
+     * Capture touch events
+     * @param v
+     * @param event
+     * @return
+     */
+    public boolean onTouch(View v, MotionEvent ev)
+    {
+        // TODO check other views above game view
+        //if(v.equals(this.gameView)) {
+        	//return true; // true indicates event is consumed
+        //}
+
+    	float dx = 0f;
+    	float dy = 0f;
+
+    	if(ev.getAction() == MotionEvent.ACTION_MOVE) {
+    		dx = ev.getX() - touchX;
+    		dy = ev.getY() - touchY;
+    	}
+    	if(ev.getAction() == MotionEvent.ACTION_DOWN 
+    			|| ev.getAction() == MotionEvent.ACTION_MOVE) {
+    		// Remember new touch coors
+    		touchX = ev.getX();
+    		touchY = ev.getY();
+    	} else if(ev.getAction() == MotionEvent.ACTION_UP) {
+    		// reset values
+    		touchX = 0f;
+    		touchY = 0f;
+    		dx = 0f;
+    		dy = 0f;
+    	}
+
+    	// Touch propagated to gameView.
+    	float x = ev.getX();
+    	float y = ev.getY();
+
+    	try {
+    		JSONObject turret = gameState.getJSONObject("turret");
+    		String position = turret.getString("position");
+    		//Log.d(this.toString(),position);
+    		String[] coors = position.split("\\s*,\\s*");
+
+    		// Calc change with floats
+    		//		    	float turretX = Float.valueOf(coors[0].trim()).floatValue();
+    		//		    	float turretZ = Float.valueOf(coors[2].trim()).floatValue();
+    		//		    	coors[0] = Float.toString(turretX + dx);
+    		//		    	coors[2] =  Float.toString(turretZ + dy);
+
+    		// Calc change with ints
+    		int turretX = Math.round(Float.valueOf(coors[0].trim()).floatValue());
+    		int turretZ = Math.round(Float.valueOf(coors[2].trim()).floatValue());
+    		coors[0] = Integer.toString(turretX + Math.round(dx));
+    		coors[1] = Integer.toString(Math.round(Float.valueOf(coors[1].trim()).floatValue())); // for good measure
+    		coors[2] = Integer.toString(turretZ + Math.round(dy));
+
+    		for(int i = 0; i < coors.length; i++) {
+    			if(i == 0) position = coors[i];
+    			else position += "," + coors[i];
+    		}
+
+    		turret.put("position", position);
+    		pushDeviceState(obtainDeviceState().put("turret", turret));
+    	} catch (JSONException e) {
+    		//something
+    		Log.i(this.toString(),"JSONException");
+    	}
+    	return true; //Must return true to get move events
+    }
+    
+    /**
+     * Returns a blank device state JSONObject
+     * Use this method to get a reference to a device state that you can modify
+     * and push.
+     * 
+     * This just makes it extra clear that you are passing snapshots of info
+     * to the server. Do not try to get info about the device from a local copy
+     * of the device state.
+     * 
+     * @return
+     */
+    private JSONObject obtainDeviceState() {
+    	return new JSONObject();
+    }
+    
+    /**
+     * Wraps a device state snapshot in the deviceUUID and pushes it to the 
+     * server.
+     * @param deviceState
+     */
+    private void pushDeviceState(JSONObject deviceState) {
+    	try {
+    		
+//    		float[] cameraLoc = getCameraLocationNative();
+//    		deviceState.put("position", makePositionJSON(cameraLoc));
+//    		deviceState.put("rotation", makeRotationJSON(cameraLoc));
+    		
+    		JSONObject sendState = new JSONObject().put(deviceUUID, deviceState);
+    		
+    		// TODO: delete for proper namespacing:
+    		sendState = deviceState; 
+    		
+    		if(isBoundToNetworkingService) {
+        		Bundle b = new Bundle();
+        		b.putString("" + NetworkingService.MSG_QUEUE_OUTBOUND_J_STRING, 
+        				sendState.toString());
+        		Message msg = Message.obtain(null, 
+        				NetworkingService.MSG_QUEUE_OUTBOUND_J_STRING);
+        		msg.setData(b);
+        		try {
+        			networkingServiceMessenger.send(msg);
+        		} catch (RemoteException e) {
+                    //TODO handle RemoteException
+        			Log.i(this.toString(), "updateRemoteGameState: RemoteException");
+                }
+        	} else {
+        		Log.i(this.toString(),"Not Bound to NetworkingService");
+        	}
+    	} catch(JSONException e) {
+    		// This really shouldn't happen...right?
+    		Log.i(this.toString(), "pushDeviceState: JSONException");
+    	}
+    }
+    
+    /**
+     * Handles incoming messages from NetworkingService
+     * @author DuBious
+     *
+     */
+    class IncomingHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+	            case NetworkingService.MSG_SET_JSON_STRING_VALUE:
+	            	String str = msg.getData().getString("" + NetworkingService.MSG_SET_JSON_STRING_VALUE);
+	            	onGameStateChange(str);
+	            	break;
+	            default:
+	                super.handleMessage(msg);
+            }
+        }
+    }
+    
+    /**
+     * Forms the connection between this Activity and the NetworkingService
+     */
+    private ServiceConnection networkingServiceConnection = new ServiceConnection() 
+    { //need this to create the connection to the service
+        /**
+         * Called when the service is started and bound to this Service Connection
+         * @param className The classname of the activity
+         * @param service the service's binder object
+         */
+    	public void onServiceConnected(
+        				ComponentName className, 
+        				IBinder binder)
+        {
+    		Log.d(this.toString(),"Start onServiceConnected");
+        	// Create a Messenger that references the service
+        	networkingServiceMessenger = new Messenger(binder);
+        	Log.d(this.toString(),"networkingServiceMessenger: " + networkingServiceMessenger.toString());
+        	
+        	isBoundToNetworkingService = true;
+	        Log.d(this.toString(),"Bound to HttpSevice");
+	        
+	        try {
+		        Message msg = Message.obtain(null, NetworkingService.MSG_REGISTER_CLIENT);
+	            msg.replyTo = mMessenger;
+	            networkingServiceMessenger.send(msg);
+	        } catch (RemoteException e) {
+                //TODO handle RemoteException
+	        	// The service crashed before we could do anything with it
+	        }
+        }
+
+    	/**
+    	 * Called when the service stops or unbinds itself
+    	 * @param className The Classname of the activity
+    	 */
+        public void onServiceDisconnected(ComponentName className) 
+        {
+        	isBoundToNetworkingService = false;
+        }
+    };
+    
+    /**
+     * Binds this activity to the NetworkingService
+     */
+    private void doBindNetworkingService() {
+    	Log.d(this.toString(),"Binding HttpSevice");
+        bindService(new Intent(ARGameActivity.this, NetworkingService.class), 
+        		networkingServiceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    /**
+     * Unbinds this activity from the NetworkingService
+     */
+    private void doUnbindNetworkingService() {
+    	// Unregister Messenger
+    	if (networkingServiceMessenger != null) {
+            try {
+                Message msg = Message.obtain(null, NetworkingService.MSG_UNREGISTER_CLIENT);
+                msg.replyTo = mMessenger;
+                networkingServiceMessenger.send(msg);
+                networkingServiceMessenger = null;
+            } catch (RemoteException e) {
+                // There is nothing special we need to do if the service has crashed.
+            }
+        }
+    	// Detach our existing connection.
+    	
+        unbindService(networkingServiceConnection);
+    }
 }
+
+
+

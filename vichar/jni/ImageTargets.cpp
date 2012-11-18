@@ -526,6 +526,14 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
     QCAR::Renderer::getInstance().end();
 }
 
+// TODO: write this function to return the camera location.
+//JNIEXPORT float[] JNICALL
+//Java_edu_pugetsound_vichar_ar_ARGameActivity()
+//{
+//	float[6] cameraLocation;
+//	cameraLocation = {0,0,0,0,0,0};
+//	return cameraLocation;
+//}
 
 void
 configureVideoBackground()

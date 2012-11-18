@@ -63,11 +63,11 @@ public class NetworkingService extends Service {
  	ArrayList<Messenger> mClients = new ArrayList<Messenger>();
  	int mValue = 0; // Holds last value set by a client.
 	
-	static final int MSG_REGISTER_CLIENT = 1;
-    static final int MSG_UNREGISTER_CLIENT = 2;
-    static final int MSG_SET_JSON_STRING_VALUE = 3;
-    static final int MSG_RET_JSON_STRING_FROM_SERVER = 4;
-    static final int MSG_QUEUE_OUTBOUND_J_STRING = 5;
+	public static final int MSG_REGISTER_CLIENT = 1;
+	public static final int MSG_UNREGISTER_CLIENT = 2;
+	public static final int MSG_SET_JSON_STRING_VALUE = 3;
+	public static final int MSG_RET_JSON_STRING_FROM_SERVER = 4;
+	public static final int MSG_QUEUE_OUTBOUND_J_STRING = 5;
     
     /**
      * IncomingHandler performs internal functions in response to the received 
