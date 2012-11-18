@@ -3,96 +3,105 @@
     android:layout_width="fill_parent"
     android:layout_height="match_parent"
     android:background="@drawable/epic_portrait"
-    android:orientation="vertical"
-    android:weightSum="5" >
+    android:orientation="vertical" 
+    android:weightSum="11">
 
     <!--Uses selectors which allows the buttons to change colors when 
     you press them. To use selectors we make two separate drawable .xml files
     and point android:textColor and android:background to these.
+    
+    Also, to create the grid effect, we must use nested linear layouts. 
+    
+    I have also opted to use nested weights to take advantage of weightSum. Note that 
+    "Layout weights require a widget to be measured twice. When a LinearLayout 
+    with non-zero weights is nested inside another LinearLayout with non-zero 
+    weights, then the number of measurements increase exponentially." However, In our
+    case this exponent is small enough (we only nest one layer deep) for this effect to
+    be negligable. 
      -->
     <Button
         android:id="@+id/game_button"
         android:layout_height="0dp"
         android:layout_width="fill_parent"
-        android:layout_weight="1"
-        android:layout_marginTop="25dp"
+        android:layout_weight="3"
+        android:layout_marginTop="10dp"
         android:text="@string/enter_game"
-        android:paddingRight="30dp"
-        android:layout_margin="10dp"
-                   android:paddingLeft="30dp"
-             	   android:paddingTop="10dp"
-                   android:paddingBottom="10dp"
+        android:layout_margin="5dp"
+             	   android:paddingTop="5dp"
+                   android:paddingBottom="5dp"
                    android:textColor="@drawable/game_button_txt"
-                   android:textStyle="bold"
+                   style="@style/ShadowTextStyle"
                    android:background="@drawable/game_button_bg"
                    android:gravity="left|top" />
 
-    <Button
-        android:id="@+id/main_button"
-        android:layout_height="0dp"
-        android:layout_width="fill_parent"
-        android:layout_weight="1"
-        android:layout_marginTop="25dp"
-        android:text="@string/enter_main" 
-        android:paddingRight="30dp"
-        android:layout_margin="10dp"
-        		   android:paddingLeft="30dp"
-             	   android:paddingTop="10dp"
-                   android:paddingBottom="10dp"
-                   android:textColor="@drawable/home_button_txt"
-                   android:textStyle="bold"
-                   android:background="@drawable/home_button_bg"
+    <LinearLayout 
+         android:layout_width="fill_parent"
+         android:layout_height="0dp"
+         android:layout_weight="4"
+         android:weightSum="2"
+         android:orientation="horizontal">
+    	<Button
+        	android:id="@+id/main_button"
+        	android:layout_width="0dp"
+      		android:layout_height="fill_parent"
+        	android:layout_weight="1"
+        	android:layout_marginTop="5dp"
+        	android:text="@string/enter_main" 
+        	android:layout_margin="5dp"
+             	   android:paddingTop="5dp"
+                   android:paddingBottom="5dp"
+                   android:textColor="@drawable/grayscale_button_txt"
+                   style="@style/ShadowTextStyle"
+                   android:background="@drawable/grayscale_button_bg"
                    android:gravity="left|top" />
 
-    <Button
-        android:id="@+id/leaderboard_button"
-        android:layout_height="0dp"
-        android:layout_width="fill_parent"
-        android:layout_weight="1"
-        android:layout_marginTop="25dp"
-        android:text="@string/enter_leaderboard" 
-        android:layout_margin="10dp"
-                   android:paddingLeft="30dp"
-                   android:paddingRight="30dp"
-                   android:paddingTop="10dp"
-                   android:paddingBottom="10dp"
-                   android:textColor="@drawable/leaderboard_button_txt"
-                   android:textStyle="bold"
-                   android:background="@drawable/leaderboard_button_bg"
-                   android:gravity="left|top" />
-
+    	<Button
+        	android:id="@+id/leaderboard_button"
+        	android:layout_width="0dp"
+      		android:layout_height="fill_parent"
+        	android:layout_weight="1"
+       		android:text="@string/enter_leaderboard" 
+        	android:layout_margin="5dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:textColor="@drawable/grayscale_button_txt"
+            style="@style/ShadowTextStyle"
+            android:background="@drawable/scores_button_bg"
+            android:gravity="left|top" />
+	</LinearLayout>
+    
+    <LinearLayout 
+         android:layout_height="0dp"
+      	 android:layout_width="fill_parent"
+         android:layout_weight="4"
+         android:weightSum="2"
+         android:orientation="horizontal">
     <Button
         android:id="@+id/rules_button"
-        android:layout_height="0dp"
-        android:layout_width="fill_parent"
+        android:layout_width="0dp"
+      	android:layout_height="fill_parent"
         android:layout_weight="1"
-        android:layout_marginTop="25dp"
-        android:layout_margin="10dp"
+        android:layout_margin="5dp"
         android:text="@string/enter_rules" 
-        android:paddingLeft="30dp"
-                   android:paddingRight="30dp"
-                   android:paddingTop="10dp"
-                   android:paddingBottom="10dp"
-                   android:textColor="@drawable/rules_button_txt"
-                   android:textStyle="bold"
-                   android:background="@drawable/rules_button_bg"
+                   android:paddingTop="5dp"
+                   android:paddingBottom="5dp"
+                   android:textColor="@drawable/grayscale_button_txt"
+                   style="@style/ShadowTextStyle"
+                   android:background="@drawable/grayscale_button_bg"
                    android:gravity="left|top" />
 
     <Button
         android:id="@+id/settings_button"
-        android:layout_height="0dp"
-        android:layout_width="fill_parent"
+        android:layout_width="0dp"
+      	android:layout_height="fill_parent"
         android:layout_weight="1"
-        android:layout_marginTop="25dp"
         android:text="@string/enter_settings"                    
-                   android:layout_margin="10dp"
-                   android:paddingLeft="30dp"
-                   android:paddingRight="30dp"
-                   android:paddingTop="10dp"
-                   android:paddingBottom="10dp"
-                   android:textColor="@drawable/settings_button_txt"
-                   android:textStyle="bold"
+                   android:layout_margin="5dp"
+                   android:paddingTop="5dp"
+                   android:paddingBottom="5dp"
+                   android:textColor="@drawable/grayscale_button_txt"
+                   style="@style/ShadowTextStyle"
                    android:background="@drawable/settings_button_bg"
                    android:gravity="left|top" />
-
+	</LinearLayout>
 </LinearLayout>

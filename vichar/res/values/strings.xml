@@ -40,6 +40,7 @@
     <string name="access_token_secret_key">access_token_secret_key</string>
     <string name="twitter_username_key">twitter_username_key</string>
     <string name="vichar_username_key">vichar_username_key</string>
+
     <string name="toggle_sound_key">toggle_sound_key</string>
     <string name="first_launch_flag">first_launch_flag</string>
     <string name="tw_login_key">tw_login_flag_key</string>
@@ -47,6 +48,9 @@
     <string name="title_activity_test">TestActivity</string>
 
     <color name="myColor">#F5F5F5</color>
+
+    <string name="corner_radious">8dp</string>
+
 
     <string name="title_activity_leaderboard">LeaderboardActivity</string>
     <string name="title_activity_main_menu">MainMenuActivity</string>
@@ -56,11 +60,6 @@
     <string name="title_activity_tweet">TweetActivity</string>
     <string name="about_info">Nathan, Kirah, Micheal, Robert, Davis</string>
     <string name="enter_main_menu">Main Menu</string>
-    <string name="name1">blank</string>
-    <string name="name2">blank</string>
-    <string name="name3">blank</string>
-    <string name="name4">blank</string>
-    <string name="name5">blank</string>
     <string name="enter_about">About</string>
     <string name="enter_leaderboard">Top Scores</string>
     <string name="enter_settings">Settings</string>
@@ -69,9 +68,11 @@
     <string name="login">Login</string>
     <string name="title_activity_splash">SplashActivity</string>
     <string name="title_activity_splash_screen">SplashScreen</string>
-    <color name="game_blue">#483d8b</color>
+
     <string name="choose_username">Choose Username</string>
     <string name="play_as_guest">Play as Guest</string>
     <string name="guest_name">guest name</string>
+    <color name="game_blue">#268bd2</color>
+
 
 </resources>
