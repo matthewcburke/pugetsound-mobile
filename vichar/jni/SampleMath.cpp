@@ -219,6 +219,70 @@ SampleMath::Matrix44FTranspose(QCAR::Matrix44F m)
     return r;
 }
 
+//Begin additions by Erin============================================================================================
+//i = rows
+//j = columns
+QCAR::Matrix34F
+SampleMath::phoneCoorMatrix(QCAR::Matrix34F m) {
+    QCAR::Matrix34F r;
+    //transpose 3x3 rotation matrix
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            r.data[i*4+j] = m.data[i+4*j];
+        }
+    }
+
+    //Transfer position coords to r
+    r.data[3] = m.data[3];
+    r.data[7] = m.data[7];
+    r.data[11] = m.data[11];
+
+    //get new pos coords
+    matrxVecMult(&r);
+
+    return r;
+}
+
+void
+SampleMath::matrxVecMult(QCAR::Matrix34F *m) {
+    //i = rows
+    //j = columns
+    //k = index in posTemp
+    float vecTemp [3]; //Gets pos vector from 3x4 matrix
+    float posTemp [3]; //Resulting position vector
+
+    //copy pos over
+    vecTemp[0] = m->data[0];
+    vecTemp[1] = m->data[7];
+    vecTemp[2] = m->data[11];
+
+    //Calculate posTemp = -R^-1 * T
+    for (int k=0; k<3; k++) {
+        for (int i=0; i<3; i++) {
+            for (int j=0; j<3; j++) {
+                posTemp[k] = (-1*m->data[3*i+j])*vecTemp[j];
+            }
+        }
+    }
+
+    //put results back
+    m->data[3] = posTemp[0];
+    m->data[7] = posTemp[1];
+    m->data[11] = posTemp[2];
+}
+
+void
+SampleMath::swapRotPos(QCAR::Matrix34F m, QCAR::Matrix34F *n) {
+    //i = rows
+    //j = columns
+    for (int i=0; i<3; i++) {
+        for (int j=0;j<3; j++) {
+            n->data[3*i+j] = m.data[3*i+j];
+        }
+    }
+}
+//End==============================================================================================================
+
 
 float
 SampleMath::Matrix44FDeterminate(QCAR::Matrix44F& m)
