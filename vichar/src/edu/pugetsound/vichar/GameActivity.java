@@ -70,13 +70,13 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
     	doBindNetworkingService();
     	
     	// TODO remove this
-    	try {
-    		// Reset turret to keep things simple
-    		gameState = new JSONObject("{\"turret\":{\"position\":\"100,0,300\",\"ID\":\"1\"}}");
-    		pushDeviceState(gameState);
-    	} catch(JSONException e) {
-    		Log.i(this.toString(), "JSONException");
-    	}
+//    	try {
+//    		// Reset turret to keep things simple
+//    		gameState = new JSONObject("{\"turret\":{\"position\":\"100,0,300\",\"ID\":\"1\"}}");
+//    		pushDeviceState(gameState);
+//    	} catch(JSONException e) {
+//    		Log.i(this.toString(), "JSONException");
+//    	}
     }
 
     @Override
@@ -105,67 +105,67 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
      */
     public boolean onTouch(View v, MotionEvent ev)
     {
-        // TODO check other views above game view
-        //if(v.equals(this.gameView)) {
-        	//return true; // true indicates event is consumed
-        //}
-    	if(v.equals(this.gameView)) {
-    		
-    		float dx = 0f;
-    		float dy = 0f;
-    		
-    		if(ev.getAction() == MotionEvent.ACTION_MOVE) {
-    			dx = ev.getX() - touchX;
-    			dy = ev.getY() - touchY;
-    		}
-    		if(ev.getAction() == MotionEvent.ACTION_DOWN 
-    				|| ev.getAction() == MotionEvent.ACTION_MOVE) {
-    			// Remember new touch coors
-    			touchX = ev.getX();
-    			touchY = ev.getY();
-    		} else if(ev.getAction() == MotionEvent.ACTION_UP) {
-    			// reset values
-    			touchX = 0f;
-    			touchY = 0f;
-    			dx = 0f;
-    			dy = 0f;
-    		}
-
-    		// Touch propagated to gameView.
-            float x = ev.getX();
-            float y = ev.getY();
-	    	
-	    	try {
-		    	JSONObject turret = gameState.getJSONObject("turret");
-		    	String position = turret.getString("position");
-		    	//Log.d(this.toString(),position);
-		    	String[] coors = position.split("\\s*,\\s*");
-		    	
-		    	// Calc change with floats
-//		    	float turretX = Float.valueOf(coors[0].trim()).floatValue();
-//		    	float turretZ = Float.valueOf(coors[2].trim()).floatValue();
-//		    	coors[0] = Float.toString(turretX + dx);
-//		    	coors[2] =  Float.toString(turretZ + dy);
-		    	
-		    	// Calc change with ints
-		    	int turretX = Math.round(Float.valueOf(coors[0].trim()).floatValue());
-		    	int turretZ = Math.round(Float.valueOf(coors[2].trim()).floatValue());
-		    	coors[0] = Integer.toString(turretX + Math.round(dx));
-		    	coors[1] = Integer.toString(Math.round(Float.valueOf(coors[1].trim()).floatValue())); // for good measure
-		    	coors[2] = Integer.toString(turretZ + Math.round(dy));
-		    	
-		    	for(int i = 0; i < coors.length; i++) {
-		    		if(i == 0) position = coors[i];
-		    		else position += "," + coors[i];
-		    	}
-		    	
-		    	turret.put("position", position);
-		    	pushDeviceState(obtainDeviceState().put("turret", turret));
-	    	} catch (JSONException e) {
-	    		//something
-	    		Log.i(this.toString(),"JSONException");
-	    	}
-    	}
+//        // TODO check other views above game view
+//        //if(v.equals(this.gameView)) {
+//        	//return true; // true indicates event is consumed
+//        //}
+//    	if(v.equals(this.gameView)) {
+//    		
+//    		float dx = 0f;
+//    		float dy = 0f;
+//    		
+//    		if(ev.getAction() == MotionEvent.ACTION_MOVE) {
+//    			dx = ev.getX() - touchX;
+//    			dy = ev.getY() - touchY;
+//    		}
+//    		if(ev.getAction() == MotionEvent.ACTION_DOWN 
+//    				|| ev.getAction() == MotionEvent.ACTION_MOVE) {
+//    			// Remember new touch coors
+//    			touchX = ev.getX();
+//    			touchY = ev.getY();
+//    		} else if(ev.getAction() == MotionEvent.ACTION_UP) {
+//    			// reset values
+//    			touchX = 0f;
+//    			touchY = 0f;
+//    			dx = 0f;
+//    			dy = 0f;
+//    		}
+//
+//    		// Touch propagated to gameView.
+//            float x = ev.getX();
+//            float y = ev.getY();
+//	    	
+//	    	try {
+//		    	JSONObject turret = gameState.getJSONObject("turret");
+//		    	String position = turret.getString("position");
+//		    	//Log.d(this.toString(),position);
+//		    	String[] coors = position.split("\\s*,\\s*");
+//		    	
+//		    	// Calc change with floats
+////		    	float turretX = Float.valueOf(coors[0].trim()).floatValue();
+////		    	float turretZ = Float.valueOf(coors[2].trim()).floatValue();
+////		    	coors[0] = Float.toString(turretX + dx);
+////		    	coors[2] =  Float.toString(turretZ + dy);
+//		    	
+//		    	// Calc change with ints
+//		    	int turretX = Math.round(Float.valueOf(coors[0].trim()).floatValue());
+//		    	int turretZ = Math.round(Float.valueOf(coors[2].trim()).floatValue());
+//		    	coors[0] = Integer.toString(turretX + Math.round(dx));
+//		    	coors[1] = Integer.toString(Math.round(Float.valueOf(coors[1].trim()).floatValue())); // for good measure
+//		    	coors[2] = Integer.toString(turretZ + Math.round(dy));
+//		    	
+//		    	for(int i = 0; i < coors.length; i++) {
+//		    		if(i == 0) position = coors[i];
+//		    		else position += "," + coors[i];
+//		    	}
+//		    	
+//		    	turret.put("position", position);
+//		    	pushDeviceState(obtainDeviceState().put("turret", turret));
+//	    	} catch (JSONException e) {
+//	    		//something
+//	    		Log.i(this.toString(),"JSONException");
+//	    	}
+//    	}
         return true; //Must return true to get move events
     }
     
@@ -175,24 +175,24 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
      * its own. 
      */
     private void onGameStateChange(String stateStr) {
-    	try {
-    		JSONObject gameState = new JSONObject(stateStr);
-    		
-    		//Pull out official namespaces
-    		JSONObject engineState = gameState; // TODO: delete 
-    		JSONObject webState = gameState; // TODO: delete 
-    		// TODO uncomment for correct namespacing:
-    		//JSONObject engineState = new JSONObject(stateStr).get(GAME_ENGINE_NAMESPACE);
-    		//JSONObject webState = new JSONObject(stateStr).get(WEB_NAMESPACE);
-    		
-    		// TODO: delete. just supports old turret test:
-    		this.gameState = gameState; 
-    		// TODO remove this with turret test stuff
-    		this.textView.setText(this.gameState.getJSONObject("turret").get("position").toString());
-    	} catch(JSONException e) {
-    		//shit!
-    		e.printStackTrace();
-    	}
+//    	try {
+//    		JSONObject gameState = new JSONObject(stateStr);
+//    		
+//    		//Pull out official namespaces
+//    		JSONObject engineState = gameState; // TODO: delete 
+//    		JSONObject webState = gameState; // TODO: delete 
+//    		// TODO uncomment for correct namespacing:
+//    		//JSONObject engineState = new JSONObject(stateStr).get(GAME_ENGINE_NAMESPACE);
+//    		//JSONObject webState = new JSONObject(stateStr).get(WEB_NAMESPACE);
+//    		
+//    		// TODO: delete. just supports old turret test:
+//    		this.gameState = gameState; 
+//    		// TODO remove this with turret test stuff
+//    		this.textView.setText(this.gameState.getJSONObject("turret").get("position").toString());
+//    	} catch(JSONException e) {
+//    		//shit!
+//    		e.printStackTrace();
+//    	}
     }
     
     /**

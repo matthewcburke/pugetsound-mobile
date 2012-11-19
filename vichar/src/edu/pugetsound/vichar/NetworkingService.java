@@ -47,8 +47,14 @@ import android.util.Log;
  */
 public class NetworkingService extends Service {
 
-	public static final String DEFAULT_SERVER_IP = "10.150.2.55";
+	//TEST-COMMENT: use the localhost ip address 127.0.0.1
+	public static final String DEFAULT_SERVER_IP = "127.0.0.1";
+	//TEST-COMMENT: This is the real server's IP
+	//public static final String DEFAULT_SERVER_IP = "10.150.2.55";
+	//TEST-COMMENT: configure this to the port you want to test at
 	public static final String DEFAULT_PORT = "4242";
+	//TEST-COMMENT: if you want to test a specific location, add it to the end here
+	// like this: + "/gameState.json"
 	public static final String DEFAULT_DOMAIN 
 		= "http://" + DEFAULT_SERVER_IP + ":" + DEFAULT_PORT;
 	
@@ -265,9 +271,15 @@ public class NetworkingService extends Service {
 					outboundJson.putAll(outboundQueue.poll());
 				}
 				
+				// TEST-COMMENT: I've set this condition to always be true
 				// If we have something to send
-				if(outboundJson != null) {
-					String outboundJStr = outboundJson.toString();
+				if(true) {
+					//String outboundJStr = outboundJson.toString();
+					
+					//TEST-COMMENT: set this to the json string you want to send.
+					// Don't forget to escape double quotes properly
+					String outboundJStr = "{\"turret\":{\"position\":\"100,0,300\",\"ID\":\"1\"}}";
+					
 					//Log.d(this.toString(), "SENDING JSON: " + outboundJStr);
 					conn.setDoOutput(true);	
 					//conn.setDoInput(true);
@@ -296,7 +308,9 @@ public class NetworkingService extends Service {
 						consecutiveFailures++;
 						//TODO do something if it fails over and over
 					}
-					//System.out.println("ResponseCode: " + status);
+					// TEST-COMMENT: this will output the response code every time
+					// it tries to post your string. It will try to do it 10 times a sec.
+					System.out.println("ResponseCode: " + status);
 					
 					// Close connection - so it doesn't mess with the next one
 					conn.disconnect();
