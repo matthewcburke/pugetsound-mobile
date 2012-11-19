@@ -54,6 +54,7 @@
 #include "Texture.h"
 #include "CubeShaders.h"
 #include "Teapot.h"
+ #include "SampleMath.h"    //To get phones location
 
 // UPDATE:: Our models to be displayed
 // TODO: Should we put all of these .h files into one gameObjects.h file?
@@ -359,6 +360,26 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
         const QCAR::Trackable* trackable = state.getActiveTrackable(tIdx);
         QCAR::Matrix44F modelViewMatrix =
             QCAR::Tool::convertPose2GLMatrix(trackable->getPose());
+
+    //Begin additions by Erin================================================================================
+        QCAR::Matrix34F test;   //gets inverse pos matrix
+        QCAR::Matrix34F pos;   //Gets positional data
+        pos = trackable->getPose();
+
+        //Get inverse
+        test = SampleMath::phoneCoorMatrix(trackable->getPose());
+
+        //Print results
+        LOG("Poisiton:");
+        LOG("%f %f %f %f",pos.data[0], pos.data[1], pos.data[2], pos.data[3]);
+        LOG("%f %f %f %f",pos.data[4], pos.data[5], pos.data[6], pos.data[7]);
+        LOG("%f %f %f %f",pos.data[8], pos.data[9], pos.data[10],pos.data[11]);
+        LOG("Inverse:");
+        LOG("%f %f %f %f",test.data[0], test.data[1], test.data[2], test.data[3]);
+        LOG("%f %f %f %f",test.data[4], test.data[5], test.data[6], test.data[7]);
+        LOG("%f %f %f %f",test.data[8], test.data[9], test.data[10], test.data[11]);
+        LOG("=========================");
+    //End============================================================================================
 
         // UPDATE:: Load the trackable position into a second modelViewMatrix to display second item.
         QCAR::Matrix44F modelViewMatrix2 =
