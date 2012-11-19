@@ -527,13 +527,20 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
 }
 
 // TODO: write this function to return the camera location.
-//JNIEXPORT float[] JNICALL
-//Java_edu_pugetsound_vichar_ar_ARGameActivity()
-//{
-//	float[6] cameraLocation;
-//	cameraLocation = {0,0,0,0,0,0};
-//	return cameraLocation;
-//}
+JNIEXPORT jfloatArray JNICALL
+Java_edu_pugetsound_vichar_ar_ARGameActivity_getCameraLocation(JNIEnv * env, jobject)
+{
+
+	jfloatArray cameraLocation;
+	cameraLocation = env->NewFloatArray(6);
+
+	// Set an array full of zeros to test my use of the jni. Replace the values in coordArray with the
+	// phone location and rotation.
+	jfloat coordArray[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+
+	env->SetFloatArrayRegion(cameraLocation, 0, 6, coordArray);
+	return cameraLocation;
+}
 
 void
 configureVideoBackground()
