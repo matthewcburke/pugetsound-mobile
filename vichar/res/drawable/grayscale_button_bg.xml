@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!--This .xml file sets the background for the leaderboard button-->
+<!--This .xml file sets the background for the game button-->
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android" >
     <!-- pressed --> 
-    <item android:drawable="@drawable/pressed_red" android:state_pressed="true"/>
+    <item android:drawable="@drawable/pressed_orange" android:state_pressed="true"/>
     <!-- focused -->
-    <item android:drawable="@drawable/pressed_red" android:state_focused="true"/>
+    <item android:drawable="@drawable/pressed_orange" android:state_focused="true"/>
     <!-- default -->
     <item android:drawable="@drawable/default_grayscale"/> 
     

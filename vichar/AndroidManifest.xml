@@ -81,7 +81,7 @@
         </activity>
         <activity
             android:name=".TestActivity"
-            android:label="@string/title_activity_test" >
+            android:label="+@string/title_activity_test" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.pugetsound.vichar.MainActivity" />
