@@ -143,7 +143,6 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     final Messenger mMessenger = new Messenger(new IncomingHandler());
     
     private float touchX, touchY;
-    private JSONObject gameState; // TODO delete. deprecated.
     
     /** Static initializer block to load native libraries on start-up. */
     static
@@ -478,16 +477,10 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     		JSONObject gameState = new JSONObject(stateStr);
 
     		//Pull out official namespaces
-    		JSONObject engineState = gameState; // TODO: delete 
-    		JSONObject webState = gameState; // TODO: delete 
-    		// TODO uncomment for correct namespacing:
-    		//JSONObject engineState = new JSONObject(stateStr).get(GAME_ENGINE_NAMESPACE);
-    		//JSONObject webState = new JSONObject(stateStr).get(WEB_NAMESPACE);
-
-    		// TODO: delete. just supports old turret test:
-    		this.gameState = gameState; 
-    		// TODO remove this with turret test stuff
-    		DebugLog.LOGD(this.gameState.getJSONObject("turret").get("position").toString());
+    		JSONObject engineState = (JSONObject) gameState.get(GAME_ENGINE_NAMESPACE);
+    		JSONObject webState = (JSONObject) gameState.get(WEB_NAMESPACE);
+    	
+    		// TODO: Pass the engineState to functions that need to render it
     	} catch(JSONException e) {
     		//shit!
     		e.printStackTrace();
@@ -931,11 +924,6 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
      */
     public boolean onTouch(View v, MotionEvent ev)
     {
-        // TODO check other views above game view
-        //if(v.equals(this.gameView)) {
-        	//return true; // true indicates event is consumed
-        //}
-
     	float dx = 0f;
     	float dy = 0f;
 
@@ -954,41 +942,6 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     		touchY = 0f;
     		dx = 0f;
     		dy = 0f;
-    	}
-
-    	// Touch propagated to gameView.
-    	float x = ev.getX();
-    	float y = ev.getY();
-
-    	try {
-    		JSONObject turret = gameState.getJSONObject("turret");
-    		String position = turret.getString("position");
-    		//Log.d(this.toString(),position);
-    		String[] coors = position.split("\\s*,\\s*");
-
-    		// Calc change with floats
-    		//		    	float turretX = Float.valueOf(coors[0].trim()).floatValue();
-    		//		    	float turretZ = Float.valueOf(coors[2].trim()).floatValue();
-    		//		    	coors[0] = Float.toString(turretX + dx);
-    		//		    	coors[2] =  Float.toString(turretZ + dy);
-
-    		// Calc change with ints
-    		int turretX = Math.round(Float.valueOf(coors[0].trim()).floatValue());
-    		int turretZ = Math.round(Float.valueOf(coors[2].trim()).floatValue());
-    		coors[0] = Integer.toString(turretX + Math.round(dx));
-    		coors[1] = Integer.toString(Math.round(Float.valueOf(coors[1].trim()).floatValue())); // for good measure
-    		coors[2] = Integer.toString(turretZ + Math.round(dy));
-
-    		for(int i = 0; i < coors.length; i++) {
-    			if(i == 0) position = coors[i];
-    			else position += "," + coors[i];
-    		}
-
-    		turret.put("position", position);
-    		pushDeviceState(obtainDeviceState().put("turret", turret));
-    	} catch (JSONException e) {
-    		//something
-    		Log.i(this.toString(),"JSONException");
     	}
     	return true; //Must return true to get move events
     }
@@ -1021,9 +974,6 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
 //    		deviceState.put("rotation", makeRotationJSON(cameraLoc));
     		
     		JSONObject sendState = new JSONObject().put(deviceUUID, deviceState);
-    		
-    		// TODO: delete for proper namespacing:
-    		sendState = deviceState; 
     		
     		if(isBoundToNetworkingService) {
         		Bundle b = new Bundle();
