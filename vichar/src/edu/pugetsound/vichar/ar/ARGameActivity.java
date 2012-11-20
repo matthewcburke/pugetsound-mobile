@@ -134,6 +134,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     
   //JSON namespaces
     private static final String GAME_ENGINE_NAMESPACE = "engine";
+    private static final String DEVICES_NAMESPACE = "phones";
     private static final String WEB_NAMESPACE = "web";
     private String deviceUUID; // Device namespace
     	
@@ -974,6 +975,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
 //    		deviceState.put("rotation", makeRotationJSON(cameraLoc));
     		
     		JSONObject sendState = new JSONObject().put(deviceUUID, deviceState);
+    		sendState = new JSONObject().put(DEVICES_NAMESPACE, sendState);
     		
     		if(isBoundToNetworkingService) {
         		Bundle b = new Bundle();
