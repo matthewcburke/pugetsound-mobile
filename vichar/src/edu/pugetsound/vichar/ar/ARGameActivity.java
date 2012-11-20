@@ -474,6 +474,8 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     	
 //    	pushDeviceState(obtainDeviceState());
     	
+    	System.out.println(stateStr);
+    	
     	try {
     		JSONObject gameState = new JSONObject(stateStr);
 
@@ -969,33 +971,41 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
      */
     private void pushDeviceState(JSONObject deviceState) {
     	try {
-    		
 //    		float[] cameraLoc = getCameraLocationNative();
 //    		deviceState.put("position", makePositionJSON(cameraLoc));
 //    		deviceState.put("rotation", makeRotationJSON(cameraLoc));
     		
     		JSONObject sendState = new JSONObject().put(deviceUUID, deviceState);
     		sendState = new JSONObject().put(DEVICES_NAMESPACE, sendState);
+    		pushGameState(sendState);
+    	} catch (JSONException e) {
     		
-    		if(isBoundToNetworkingService) {
-        		Bundle b = new Bundle();
-        		b.putString("" + NetworkingService.MSG_QUEUE_OUTBOUND_J_STRING, 
-        				sendState.toString());
-        		Message msg = Message.obtain(null, 
-        				NetworkingService.MSG_QUEUE_OUTBOUND_J_STRING);
-        		msg.setData(b);
-        		try {
-        			networkingServiceMessenger.send(msg);
-        		} catch (RemoteException e) {
-                    //TODO handle RemoteException
-        			Log.i(this.toString(), "updateRemoteGameState: RemoteException");
-                }
-        	} else {
-        		Log.i(this.toString(),"Not Bound to NetworkingService");
-        	}
-    	} catch(JSONException e) {
-    		// This really shouldn't happen...right?
-    		Log.i(this.toString(), "pushDeviceState: JSONException");
+    	}
+    		
+    }
+    
+    /**
+     * Generally, use the pushDeviceState() function instead of this one.
+     * Be careful with this function. It allows you to change anything in the
+     * game's root JSON object -- i.e. things in other people's namespaces
+     * @param deviceState
+     */
+    private void pushGameState(JSONObject sendState) {
+    	if(isBoundToNetworkingService) {
+    		Bundle b = new Bundle();
+    		b.putString("" + NetworkingService.MSG_QUEUE_OUTBOUND_J_STRING, 
+    				sendState.toString());
+    		Message msg = Message.obtain(null, 
+    				NetworkingService.MSG_QUEUE_OUTBOUND_J_STRING);
+    		msg.setData(b);
+    		try {
+    			networkingServiceMessenger.send(msg);
+    		} catch (RemoteException e) {
+                //TODO handle RemoteException
+    			Log.i(this.toString(), "updateRemoteGameState: RemoteException");
+            }
+    	} else {
+    		Log.i(this.toString(),"Not Bound to NetworkingService");
     	}
     }
     

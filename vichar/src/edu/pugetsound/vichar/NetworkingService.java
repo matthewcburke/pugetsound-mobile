@@ -50,7 +50,7 @@ public class NetworkingService extends Service {
 	public static final String DEFAULT_SERVER_IP = "10.150.2.55";
 	public static final String DEFAULT_PORT = "1730";
 	public static final String DEFAULT_DOMAIN 
-		= "http://" + DEFAULT_SERVER_IP + ":" + DEFAULT_PORT;
+		= "http://" + DEFAULT_SERVER_IP + ":" + DEFAULT_PORT + "/gameSim.json";
 	
 	private Timer timer = new Timer();
 	private boolean polling = false;
