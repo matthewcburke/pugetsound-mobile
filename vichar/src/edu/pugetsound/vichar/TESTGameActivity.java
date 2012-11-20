@@ -25,7 +25,7 @@ public class TESTGameActivity extends FragmentActivity {
         //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         //set default twitter prompt string on Tweet fragment
         TweetFragment tweetFrag = (TweetFragment) getSupportFragmentManager().findFragmentById(R.id.tweet_fragment);
-        tweetFrag.setPrompt(getString(R.string.default_twitter_prompt));
+        tweetFrag.setPrompt(getString(R.string.inactive_twitter));
     }
     
     /**

@@ -36,7 +36,7 @@ import android.support.v4.app.FragmentActivity;
 /**
  * The in-game Activity
  * Extends FragmentActivity to ensure support for Android 2.x
- * @author Michael DuBois
+ * @author Michael DuBois + Everyone
  */
 public class GameActivity extends FragmentActivity implements OnTouchListener {
 
@@ -57,6 +57,7 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
     private float touchX, touchY;
     private JSONObject gameState;
     
+    // Twitter
     private boolean activeTwitter = false;
     private float touchTwX;
     private int actionUp = 0;
@@ -77,10 +78,11 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
  //       this.gameView.setOnTouchListener(this);
  //       gameContainer.setOnTouchListener(this);
         
-
         
-        ImageButton tweetFragTab = (ImageButton)findViewById(R.id.tweet_frag_button);
-        tweetFragTab.setOnTouchListener(tweetFragTabListener);
+        endTwitter(); //initialize twitter frag to inactive vote
+        Button tweetHandle = (Button) findViewById(R.id.tweet_frag_button);
+        tweetHandle.setOnTouchListener(tweetHandleListener);
+        endTwitter();
         
         this.textView = (TextView) findViewById(R.id.game_view_text);
 
@@ -113,11 +115,7 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
 //    	}
     	//updateLocalGameState();
     }
-    
-
-    
        
-    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_game, menu);
@@ -136,7 +134,7 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
     	}
     }    
     
-    private OnTouchListener tweetFragTabListener = new OnTouchListener() {
+    private OnTouchListener tweetHandleListener = new OnTouchListener() {
 		public boolean onTouch(View v, MotionEvent me) { 
 			return tweetContainerTouch(v, me);
 		}
@@ -145,6 +143,7 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
     private boolean tweetContainerTouch(View v, MotionEvent me)  {
     	View tweetContainer = (View) findViewById(R.id.tweet_container);
     	View gameContainer = (View) findViewById(R.id.game_container);
+    	//check type of touch action
     	switch (me.getAction()) {
 			case MotionEvent.ACTION_DOWN:
 				actionUp=0;
@@ -169,35 +168,113 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
 				}
 			case MotionEvent.ACTION_UP:
 				actionUp++;
+				//if this is actually an up action...
 				if(actionUp==2) {
-					System.out.println("------ACTION UP OR CANCEL------");						
+					System.out.println("------ACTION UP OR CANCEL------");	
+					//either snap onscreen
 					if(tweetContainer.getLeft() < gameContainer.getWidth() - 200) {
-						FrameLayout.LayoutParams paramsSuccess = (FrameLayout.LayoutParams) tweetContainer.getLayoutParams();
-						paramsSuccess.rightMargin = 0;
-						tweetContainer.setLayoutParams(paramsSuccess);  
+						snapTwitterOn();
+					//or snap back to beginning
 					} else {		        			
-						FrameLayout.LayoutParams paramsReset = (FrameLayout.LayoutParams) tweetContainer.getLayoutParams();
-						paramsReset.rightMargin = -300;
-						tweetContainer.setLayoutParams(paramsReset);  	        		
+						 snapTwitterOff();       		
 					}
 				}   		        		
    			}			
         return true;
+    }
+    
+    /**
+     * Snaps twitter container onto screen
+     * TODO:clear this up. method shouldn't be public, but needs to be accessed from fragment
+     */
+    public void snapTwitterOn() {
+    	View tweetContainer = (View) findViewById(R.id.tweet_container);
+    	FrameLayout.LayoutParams paramsSuccess = (FrameLayout.LayoutParams) tweetContainer.getLayoutParams();
+		paramsSuccess.rightMargin = 0;
+		tweetContainer.setLayoutParams(paramsSuccess);  
+    }
+    
+    /**
+     * Snap twitter container off screen
+     * TODO:clear this up. method shouldn't be public, but needs to be accessed from fragment
+     */
+    public void snapTwitterOff()  {
+    	View tweetContainer = (View) findViewById(R.id.tweet_container);
+    	FrameLayout.LayoutParams paramsReset = (FrameLayout.LayoutParams) tweetContainer.getLayoutParams();
+		paramsReset.rightMargin = -300;
+		tweetContainer.setLayoutParams(paramsReset);  
     }
        
     /**
      * Looks at current gamestate for twitter challenge
      * @return True if new challenge, false if not
      */
-    private void UpdateTwitterState()  {
-    	if(activeTwitter)  return;  //if there is alread a twitter challenge, we don't need to do anything
+    private void updateTwitterState(JSONObject newState)  {
+    	//TODO: based on web API as of 11/17, which is likely to change    	
     	
- 
-    	//TODO:take json, parse, check if there is a twitter vote. Update activeTwitter flag
-    	
-    	//assuming there is a new twitter challenge...
+//    	JSONObject activeVote = null;
+//    	try{
+//    		JSONObject web = newState.getJSONObject("activeTwitter");
+//    		JSONObject twitter = web.getJSONObject("twitter");
+//    		activeVote = twitter.getJSONObject("activeVote");    		
+//    	} catch (JSONException ex) {
+//    		//TODO:json exception procedures
+//    		System.out.println(ex);
+//    		return;
+//    	}
+//    	
+//    	if(activeVote==null) {
+//    		//if a vote has just ended...
+//    		if(activeTwitter==true)  {    			
+//    			endTwitter();
+//    		}
+//    	} else {
+//    		//if a vote has just begun
+//    		if(activeTwitter==false) {    			
+//    			startTwitter();
+//    		}
+//    	}   
+    	startTwitter();
+    }
+    
+    /**
+     * Initializes twitter view for new twitter vote
+     */
+    @SuppressLint("NewApi")
+	@SuppressWarnings("deprecation")
+	private void startTwitter() {
+    	activeTwitter=true;
+    	//update prompt...
     	TweetFragment tweetFrag = (TweetFragment) getSupportFragmentManager().findFragmentById(R.id.tweet_fragment);
-        tweetFrag.setPrompt(getString(R.string.default_twitter_prompt));
+        tweetFrag.setPrompt(getString(R.string.default_twitter_vote));
+        //TODO:twitter handle button needs to change
+        Button tweetHandle = (Button)findViewById(R.id.tweet_frag_button);
+        //deal with deprecated methods calls, ugh
+        if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN) {
+            tweetHandle.setBackgroundDrawable(getResources().getDrawable(R.drawable.twitter_logo_on));
+        } else {
+        	tweetHandle.setBackground(getResources().getDrawable(R.drawable.twitter_logo_on));
+        }       
+    }
+    
+    /**
+     * Terminates current twitter vote, changes appropriate UI
+     */
+    @SuppressLint("NewApi")
+	@SuppressWarnings("deprecation")
+	private void endTwitter() {
+    	activeTwitter=false;
+    	//update prompt...
+    	TweetFragment tweetFrag = (TweetFragment) getSupportFragmentManager().findFragmentById(R.id.tweet_fragment);
+        tweetFrag.setPrompt(getString(R.string.inactive_twitter));
+        //TODO:twitter handle button needs to change
+        Button tweetHandle = (Button)findViewById(R.id.tweet_frag_button);
+        //deprecated methods again...
+        if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN) {
+            tweetHandle.setBackgroundDrawable(getResources().getDrawable(R.drawable.twitter_logo_off));
+        } else {
+        	tweetHandle.setBackground(getResources().getDrawable(R.drawable.twitter_logo_off));
+        }
     }
     
     /**
@@ -205,9 +282,14 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
      * @param view
      */
     public void sendTweet(View view)     {
-    	TweetFragment tweetFrag = (TweetFragment) getSupportFragmentManager().findFragmentById(R.id.tweet_fragment);
-        tweetFrag.sendTweet(view);	
+    	//only post if twitter vote is active
+    	activeTwitter = true; //TODO:GET RID OF THIS, just for testing
+    	if(activeTwitter)  {
+    		TweetFragment tweetFrag = (TweetFragment) getSupportFragmentManager().findFragmentById(R.id.tweet_fragment);
+    		tweetFrag.sendTweet(view);	
+    	}
     }
+    
     /**
      * Capture touch events
      * @param v
@@ -289,6 +371,7 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
     	try {
     		JSONObject gameState = new JSONObject(stateStr);
     		
+    		updateTwitterState(gameState);
     		//Pull out official namespaces
     		JSONObject engineState = gameState; // TODO: delete 
     		JSONObject webState = gameState; // TODO: delete 

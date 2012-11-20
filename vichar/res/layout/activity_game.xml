@@ -18,11 +18,10 @@
    	    android:orientation="horizontal"
    	    android:layout_marginRight="-200dp" >
 
-   		<ImageButton
+   		<Button
    		    android:id="@+id/tweet_frag_button"
    		    android:layout_width="60dp"
    		    android:layout_height="60dp"
-   		    android:src="@drawable/twitter_logo"
    		    android:contentDescription="@string/tweet_icon"
    		     />
    	

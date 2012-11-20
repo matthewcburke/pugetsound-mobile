@@ -1,9 +1,11 @@
 package edu.pugetsound.vichar;
 
+import edu.pugetsound.vichar.PostTweet.PostTweetCallback;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
+import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,14 +21,14 @@ import android.support.v4.app.*;
  * @author Nathan Pastor
  * @version 10/25/12
  */
-public class TweetFragment extends Fragment {
+public class TweetFragment extends Fragment implements PostTweetCallback {
 
 	//current Twitter challenge prompt
 	private String curPrompt;
-	//current Twitter post attempt
-	private int postAttempt;
-	//max post attempts
-	private final int POST_ATTEMPT_LIMIT = 3;
+
+	private interface MoveTweetContainer {
+		public void snapTwitterOn();
+	}
 	
 	/**
 	 * Initializes display
@@ -35,7 +37,6 @@ public class TweetFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, 
     							ViewGroup container, Bundle savedInstanceState) {
-    	postAttempt = 0;
     	
 //        //get default prompt text
 //    	curPrompt = getString(R.string.default_twitter_prompt);    	
@@ -79,46 +80,30 @@ public class TweetFragment extends Fragment {
     	  .setOAuthAccessTokenSecret(accessSecret);
     	TwitterFactory tf = new TwitterFactory(cb.build());
     	Twitter twitter = tf.getInstance();
-    	//pass twitter object to worker thread
-    	new PostTweet().execute(twitter);
+		//get text of tweet
+		EditText tweetPane = (EditText) getView().findViewById(R.id.tweet_pane);
+		String tweet = tweetPane.getText().toString();
+    	//pass twitter wrapper object to worker thread
+    	TwitterWrapper wrapper = new TwitterWrapper(twitter);
+    	wrapper.setTweet(tweet);
+    	new PostTweet(this, wrapper);
+    }
+    
+    /**
+     * Called after attempted tweet post
+     * @param wrapper TwitterWrapper containing result of tweet post attempt
+     */
+    public void onPostTweet(TwitterWrapper wrapper)  {
+    	//TODO:THIS IS TERRIBLE CODE! Determine behavior here, should be able to move tweet container in activity
+    	if(wrapper.getResult())  {
+    		if(getActivity() instanceof GameActivity) {
+    			((GameActivity) getActivity()).snapTwitterOff();
+    		}    		
+    	} else {
+    		
+    	}
     }
     	
    
-    /**
-     * Posts tweets via worker thread
-     * @author Nathan P
-     * @version 10/23/12
-     */
-    private class PostTweet extends AsyncTask<Twitter, Boolean, Boolean>   {
-    	
-    	/**
-    	 * Posts tweet in background thread
-    	 * @param Twitter[] Array of Twitter objects, which contain necessary
-    	 *                  OAuth identification tokens.
-    	 */
-     	@Override
-        protected Boolean doInBackground(Twitter...twitters)   {
-     		boolean result = false;  
-     		//get twitter object
-     		Twitter twitter = twitters[0];
-     		//get text of tweet
-     		EditText tweetPane = (EditText) getView().findViewById(R.id.tweet_pane);
-     		String tweet = tweetPane.getText().toString();
-        	//execute the post!
-            try {
-            	twitter.updateStatus(tweet);
-            	result = true;
-            }
-            catch (TwitterException te)  {
-            	//attempt maximum of POST_ATTEMPT_LIMIT times on failure
-    			if(postAttempt<POST_ATTEMPT_LIMIT)  {
-    				postAttempt++;
-    				new PostTweet().execute(twitter);
-    			} else {
-    				postAttempt=0;
-    			}
-    		}
-            return result;
-     	}
-    }
+    
 }

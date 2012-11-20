@@ -1,5 +1,7 @@
 package edu.pugetsound.vichar;
 
+import edu.pugetsound.vichar.RetrieveAccessToken.AccessTokenCallback;
+import edu.pugetsound.vichar.RetrieveRequestToken.RequestTokenCallback;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
@@ -21,7 +23,8 @@ import android.widget.EditText;
  * @author Nathan Pastor & Michael Dubois
  * @version 10/15/12
  */
-public class TwitterOAuthActivity extends Activity {
+public class TwitterOAuthActivity extends Activity
+									implements RequestTokenCallback, AccessTokenCallback {
 
 	Twitter twitter;
 	WebView webView;
@@ -62,9 +65,23 @@ public class TwitterOAuthActivity extends Activity {
 		twitter = new TwitterFactory().getInstance();
 		twitter.setOAuthConsumer(getString(R.string.oauth_consumer_key), getString(R.string.oauth_consumer_secret));
     	Log.d("ViChar", "twitter initialized");
-    	//call private class to retrieve request token, true passed as a dummy variable
-    	new RetrieveRequestToken().execute(true);
+    	//retrieve request token
+    	new RetrieveRequestToken(this, new TwitterWrapper(twitter));
 	}
+    
+    public void PostRequestToken(TwitterWrapper wrapper) {
+    	if(wrapper.getResult()) {
+    		requestToken = wrapper.getRequestToken();
+    		twitter = wrapper.getTwitter();
+    		oAuthUrl = wrapper.getRequestToken().getAuthorizationURL();
+			Log.d("ViChar", "url retrieved");
+			Log.d("Vichar", oAuthUrl);
+			webView.loadUrl(oAuthUrl);
+    	} else {
+    		//TODO: decide behavior if request token retrieval fails
+    		System.out.println("request token retireval failed"); 
+    	}
+    }
     
     /**
      * Parses authorization pin entered by user, and finishes Twitter
@@ -77,8 +94,11 @@ public class TwitterOAuthActivity extends Activity {
     	EditText editText = (EditText) findViewById(R.id.twitter_auth_pin);
 		String pin = editText.getText().toString();
 		System.out.println(requestToken);
-		//call private class to retrieve access token, using request token and pin
-		new RetrieveAccessToken().execute(pin);		
+		//retrieve access token, using request token and pin
+		TwitterWrapper wrapper = new TwitterWrapper(twitter);
+		wrapper.setRequestToken(requestToken);
+		wrapper.setPin(pin);
+		new RetrieveAccessToken(this, wrapper);		
 	}
     
     /**
@@ -97,130 +117,17 @@ public class TwitterOAuthActivity extends Activity {
      * Finishes login by advancing to next activity or prompting retry
      * @param loginResult Result of login attempt
      */
-    public void finishLogin(boolean loginResult)    {
-    	if(loginResult==true) 	{
-    		//if login succeeds, set logged in flag to true
+    public void PostAccessToken(TwitterWrapper wrapper)    {
+    	if(wrapper.getResult()) 	{
+    		accessToken = wrapper.getAccessToken(); //temp store access token
     		PreferenceUtility pu = new PreferenceUtility();
-    		pu.saveString(getString(R.string.tw_login_key), "true", this);
-    		//and then move on to main menu
+    		pu.saveString(getString(R.string.tw_login_key), "true", this); //set logged in flag to true
+    		storeAccessToken(accessToken); //save access token
+    		//and then move on to main menu    		
     		Intent mainActIntent = new Intent(this, MainMenuActivity.class);
         	startActivity(mainActIntent);
     	} else	{
     		//TODO: decide what will happen when login fails
     	}
-    }
-    
-    /**
-     * Retrieves OAuth request token in separate thread
-     * @author Nathan P
-     * @version 10/18/12
-     */
-    private class RetrieveRequestToken extends AsyncTask<Boolean, Boolean, Boolean> 
-    {    	
-    	/**
-    	 * Retrieve request token
-    	 * @param Dummy parameter, has no purpose
-    	 * @return True if successful, false if not
-    	 */
-    	@Override
-        protected Boolean doInBackground(Boolean...booleans)
-        {
-            boolean result = false;
-            try 
-            {
-            	requestToken = twitter.getOAuthRequestToken();
-            	result = true;
-            }
-            catch (TwitterException te)
-        	{
-    			System.out.println(te.getStatusCode());
-    			if(401 == te.getStatusCode())
-    	        {
-    	        	System.out.println("Unable to get the request token.");
-    	        } else{
-    	        	te.printStackTrace();
-    	        }
-    		}
-    		catch (IllegalStateException ex)
-    		{
-    			System.out.println(ex);
-    		}
-            catch(Exception ex) {
-            	System.out.println(ex);
-            	ex.printStackTrace();
-            }
-            return result;
-        }
-    	
-        /**
-         * Displays results of authorization by setting URL in webview
-         * @param result Result of request token retrieval attempt
-         */
-        @Override
-        protected void onPostExecute(Boolean result) 
-        {
-        	if(result==true) {
-	        	oAuthUrl = requestToken.getAuthorizationURL();
-				Log.d("ViChar", "url retrieved");
-				Log.d("Vichar", oAuthUrl);
-				webView.loadUrl(oAuthUrl);
-        	} else {
-        		//TODO: decide behavoir if request token retrieval fails
-        		System.out.println("request token retireval failed");
-        	}
-        }
-    }
-    
-    /**
-     * Retrieves OAuth access token in non-UI worker thread
-     * @author Nathan P
-     * @version 10/18/12
-     */
-    private class RetrieveAccessToken extends AsyncTask<String, Boolean, Boolean>
-    {
-    	/**
-    	 * Retrieves access token
-    	 * @param Array of Strings, contain OAuth pin entered by user
-    	 * @return True if successful, false if not
-    	 */
-    	@Override
-        protected Boolean doInBackground(String...pins)
-        {    		
-    		String pin = pins[0];
-    		System.out.println(pin + "pin in worker thread");
-            boolean result = false;
-            try{
-            	if(pin.length() > 0)
-            	{
-            		accessToken = twitter.getOAuthAccessToken(requestToken, pin);
-            		System.out.println(accessToken + "if");
-            	}
-            	else
-            	{
-            		accessToken = twitter.getOAuthAccessToken();
-            		System.out.println(accessToken + "else");
-            	}
-            	result = true;
-            	storeAccessToken(accessToken);
-            } 
-            catch (TwitterException te) 
-            {
-            	if(401 == te.getStatusCode()){
-            		System.out.println("Unable to get the access token.");
-            	}else{
-            		te.printStackTrace();
-            	}
-            }
-            return result;
-        }
-    	
-        /**
-         * No UI to update here
-         * @param Result of access token retrieval attempt
-         */
-        @Override
-        protected void onPostExecute(Boolean result)         {
-        	finishLogin(result);
-        }
-    }
+    }   
 }
