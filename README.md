@@ -35,8 +35,9 @@ Note that the AR activity will not run on the emulator, only on a phone with a c
 * click the `New...` button to create a new builder.
 * in the next window, select `Program` and click `OK`.
 * Name the builder 'ndk-build'.
-* Click `Browse File System...` to select a location. Navigate to where you installed the Android NDK and select the `ndk-build` program.
-* Click `Browse Workspace...` and select the `jni/` folder as the 'Working Directory'.
+* Click `Browse File System...` to select a location. Navigate to where you installed the Android NDK and select the `ndk-build` program. On a windows machine, eclipse will get angry if there is a space in this location string. Since mine was in "Program Files (x86)" I used the DOS short name. See here (http://en.wikipedia.org/wiki/Program_Files) to figure out what it is for your configuration (32 or 64 bit).
+* Click `Browse Workspace...` or `Browse File System...` and select the root project folder `vichar` as the 'Working Directory'.
+* In the Build Options 
 * Click `OK` to finish.
 
 _Note:_ you only need to re-run `ndk-build` if you have made changes to the native resources in the `jni/` folder. Otherwise, I believe that you can modify java code and still run the program.
