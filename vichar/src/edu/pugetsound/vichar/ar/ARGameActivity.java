@@ -453,7 +453,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
      */
     private void onGameStateChange(String stateStr) {
     	
-//    	pushDeviceState(obtainDeviceState());
+    	pushDeviceState(obtainDeviceState());
     	
     	try {
     		JSONObject gameState = new JSONObject(stateStr);
@@ -957,7 +957,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     		deviceState.put("rotation", makeRotationJSON(cameraLoc[3], cameraLoc[4], cameraLoc[5]));
     		
     		// Log the position for testing.
-    		DebugLog.LOGI("position: " + cameraLoc[0] + ", " + cameraLoc[1] + ", " + cameraLoc[2]);
+    		DebugLog.LOGI("pushDeviceState::mb" + deviceState.toString());
     		
     		JSONObject sendState = new JSONObject().put(deviceUUID, deviceState);
     		sendState = new JSONObject().put(DEVICES_NAMESPACE, sendState);
