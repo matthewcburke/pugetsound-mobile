@@ -103,7 +103,7 @@ public class MainMenuActivity extends Activity {
                 return true;
             case R.id.enter_game:
             	//startActivity(new Intent(this, GameActivity.class));
-            	startActivity(new Intent(this, ARGameActivity.class));
+            	startActivity(new Intent(this, edu.pugetsound.vichar.ar.ARGameActivity.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
