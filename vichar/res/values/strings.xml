@@ -13,9 +13,11 @@
     <string name="oauth_token_secret">oauth_token_secret</string>
     <string name="prefs_error">retrieve error</string>
     <string name="ar_name">viChar AR</string>
+    <string name="tweet_icon">Twitter Icon</string>
 
     <!-- Text to Read -->
-    <string name="default_twitter_prompt">No Current Twitter Challenge!</string>
+    <string name="default_twitter_vote">Vote For Your Team!</string>
+    <string name="inactive_twitter">No Current Vote!</string>
     <string name="conn_dialog">Vichar requires an active internet connection. Would you like to connect?</string>
 
     <!-- Buttons -->
@@ -29,6 +31,7 @@
     <string name="cancel">Cancel</string>
     <string name="toggle_sound">Toggle Sound</string>
     <string name="logout_twitter">Logout of Twitter</string>
+    <string name="tweet">tweet</string>
 
     <!-- EditText Hints -->
     <string name="enter_pin">Enter Above Pin</string>

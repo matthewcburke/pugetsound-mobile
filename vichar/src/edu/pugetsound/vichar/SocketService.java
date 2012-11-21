@@ -206,7 +206,7 @@ public class SocketService extends Service {
             socketPort = port;
         }
 
-        @Override
+        
         public void run() {
 
             SocketAddress socketAddress = new InetSocketAddress(socketAddr, socketPort);
