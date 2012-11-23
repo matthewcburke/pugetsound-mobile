@@ -48,11 +48,11 @@ import android.util.Log;
 public class NetworkingService extends Service {
 
 	//TEST-COMMENT: use the localhost ip address 127.0.0.1
-	public static final String DEFAULT_SERVER_IP = "127.0.0.1";
+	public static final String DEFAULT_SERVER_IP = "10.150.26.25";
 	//TEST-COMMENT: This is the real server's IP
 	//public static final String DEFAULT_SERVER_IP = "10.150.2.55";
 	//TEST-COMMENT: configure this to the port you want to test at
-	public static final String DEFAULT_PORT = "4242";
+	public static final String DEFAULT_PORT = "1730";
 	//TEST-COMMENT: if you want to test a specific location, add it to the end here
 	// like this: + "/gameState.json"
 	public static final String DEFAULT_DOMAIN 
@@ -278,7 +278,7 @@ public class NetworkingService extends Service {
 					
 					//TEST-COMMENT: set this to the json string you want to send.
 					// Don't forget to escape double quotes properly
-					String outboundJStr = "{\"turret\":{\"position\":\"100,0,300\",\"ID\":\"1\"}}";
+					String outboundJStr = "{\"turret\":{\"position\":\"100,0,300\",\"ID\":\"1\"}";
 					
 					//Log.d(this.toString(), "SENDING JSON: " + outboundJStr);
 					conn.setDoOutput(true);	
@@ -366,17 +366,17 @@ public class NetworkingService extends Service {
 	 		
 	 		// return the resulting String via Messenger
 	 		// first, Bundle JSON string as a string
-	    	Bundle b = new Bundle();
-	    	b.putString("" + MSG_SET_JSON_STRING_VALUE, returnStr);
-	    	Message msg = Message.obtain(null, MSG_RET_JSON_STRING_FROM_SERVER);
-	    	msg.setData(b);
-	    	try {
-				mMessenger.send(msg);
-			} catch(RemoteException e) {
-				// The caller thread is dead?
-				// There's really nothing we can do if this happens...
-				Log.i(this.toString(), "RemoteException from timer thread.");
-			}
+//	    	Bundle b = new Bundle();
+//	    	b.putString("" + MSG_SET_JSON_STRING_VALUE, returnStr);
+//	    	Message msg = Message.obtain(null, MSG_RET_JSON_STRING_FROM_SERVER);
+//	    	msg.setData(b);
+//	    	try {
+//				mMessenger.send(msg);
+//			} catch(RemoteException e) {
+//				// The caller thread is dead?
+//				// There's really nothing we can do if this happens...
+//				Log.i(this.toString(), "RemoteException from timer thread.");
+//			}
 		}
 	};
 }
