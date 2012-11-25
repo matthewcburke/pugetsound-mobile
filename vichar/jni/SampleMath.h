@@ -54,7 +54,7 @@ public:
     static float Matrix44FDeterminate(QCAR::Matrix44F& m);
     
     static QCAR::Matrix44F Matrix44FInverse(QCAR::Matrix44F& m);
-
+    
   //Begin additions by Erin===========================================================================================
     /**
      * Calculates [R^-1|-R^-1*T] from [R|T]
@@ -64,7 +64,7 @@ public:
     static QCAR::Matrix34F phoneCoorMatrix(QCAR::Matrix34F m);
 
     /**
-     * Calculates -R^-1*T
+     * Helper method: Calculates -R^-1*T
      * param m posMatrix in form [R^-1|T]
      */
     static void matrxVecMult(QCAR::Matrix34F *m);
@@ -75,7 +75,7 @@ public:
      * param n pointer to posMatrix [R2|T2]
      */
     static void swapRotPos(QCAR::Matrix34F m, QCAR::Matrix34F *n);
-//End==========================================================================================================
+  //End===============================================================================================================
     
 };
 
