@@ -474,7 +474,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     	
 //    	pushDeviceState(obtainDeviceState());
     	
-    	System.out.println(stateStr);
+//    	System.out.println(stateStr);
     	
     	try {
     		JSONObject gameState = new JSONObject(stateStr);
