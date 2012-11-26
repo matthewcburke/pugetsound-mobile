@@ -453,7 +453,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
      */
     private void onGameStateChange(String stateStr) {
     	
-//    	pushDeviceState(obtainDeviceState());
+    	pushDeviceState(obtainDeviceState());
     	DebugLog.LOGI("onGameStateChange:" + stateStr);
     	
     	try {
