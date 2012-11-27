@@ -11,7 +11,11 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:onClick="authorizeTwitter"
-        android:text="@string/login_with_twitter" />
+        android:text="@string/login_with_twitter"
+        android:includeFontPadding="true"
+        android:textColor="@drawable/game_button_txt"
+        style="@style/ShadowTextStyle"
+        android:background="@drawable/grayscale_button_bg" />
 
     <Button
         android:id="@+id/login_with_vichar"
@@ -21,6 +25,9 @@
         android:layout_alignLeft="@+id/login_with_twitter"
         android:layout_alignRight="@+id/login_with_twitter"
         android:layout_marginBottom="63dp"
+        android:textColor="@drawable/grayscale_button_txt"
+        style="@style/ShadowTextStyle"
+        android:background="@drawable/grayscale_button_bg"
         android:onClick="authorizeLoginwithVichar"
         android:text="@string/play_as_guest" />
     
