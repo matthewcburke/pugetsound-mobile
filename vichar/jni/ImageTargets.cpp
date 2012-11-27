@@ -85,6 +85,7 @@ GLint mvpMatrixHandle           = 0;
 
 // UPDATE:: added this variable to assist animating rotations for demo.
 float turAng = 0.0;
+float phoneLoc[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
 // Screen dimensions:
 unsigned int screenWidth        = 0;
@@ -361,7 +362,7 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
         QCAR::Matrix44F modelViewMatrix =
             QCAR::Tool::convertPose2GLMatrix(trackable->getPose());
 
-    //Begin additions by Erin================================================================================
+        //Begin additions by Erin================================================================================
         QCAR::Matrix34F test;   //gets inverse pos matrix
         QCAR::Matrix34F pos;   //Gets positional data
         pos = trackable->getPose();
@@ -379,7 +380,11 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
         LOG("%f %f %f %f",test.data[4], test.data[5], test.data[6], test.data[7]);
         LOG("%f %f %f %f",test.data[8], test.data[9], test.data[10], test.data[11]);
         LOG("=========================");
-    //End============================================================================================
+        phoneLoc[0] = test.data[3];
+        phoneLoc[1] = test.data[7];
+        phoneLoc[2] = test.data[11];
+        //End============================================================================================
+
 
         // UPDATE:: Load the trackable position into a second modelViewMatrix to display second item.
         QCAR::Matrix44F modelViewMatrix2 =
@@ -548,13 +553,37 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
 }
 
 // TODO: write this function to return the camera location.
-//JNIEXPORT float[] JNICALL
-//Java_edu_pugetsound_vichar_ar_ARGameActivity()
-//{
-//	float[6] cameraLocation;
-//	cameraLocation = {0,0,0,0,0,0};
-//	return cameraLocation;
-//}
+JNIEXPORT jfloatArray JNICALL
+Java_edu_pugetsound_vichar_ar_ARGameActivity_getCameraLocation(JNIEnv * env, jobject)
+{
+
+	jfloatArray cameraLocation;
+	cameraLocation = env->NewFloatArray(6);
+
+	// Set an array full of zeros to test my use of the jni. Replace the values in coordArray with the
+	// phone location and rotation.
+	jfloat coordArray[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+
+//	//find a better way to get the state object
+//	QCAR::State& state = new QCAR::State();
+//	if(state.getNumActiveTrackables() > 0){
+//		int tIdx=0;
+//		const QCAR::Trackable* trackable = state.getActiveTrackable(tIdx);
+//
+//		// assign the location vector of the array to the coord array.
+//		coordArray[0]=pos.data[3];
+//		coordArray[1]=pos.data[7];
+//		coordArray[2]=pos.data[11];
+//		LOG("C++ Position: %f %f %f", coordArray[0], coordArray[1], coordArray[2]);
+//	}else
+//	{
+//		LOG("Skipped the if statement in getCameraLocation.");
+//	}
+
+	env->SetFloatArrayRegion(cameraLocation, 0, 6, phoneLoc);
+	//delete state;
+	return cameraLocation;
+}
 
 void
 configureVideoBackground()

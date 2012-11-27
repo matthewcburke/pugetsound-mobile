@@ -396,30 +396,11 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     /** Native method for setting / updating the projection matrix for AR content rendering */
     private native void setProjectionMatrix();
     
-//    /** Native method for getting phone location */
-//    private native float[] getCameraLocationNative();
-//    
-//    private JSONObject makePositionJSON(float[] nativeArray) throws JSONException
-//    {	
-//    	JSONObject position = new JSONObject();
-//    	
-//    	position.put("x", "" + nativeArray[0]);
-//    	position.put("y", "" + nativeArray[1]);
-//    	position.put("z", "" + nativeArray[2]);
-//    	
-//    	return position; 	
-//    }
-//    
-//    private JSONObject makeRotationJSON(float[] nativeArray) throws JSONException
-//    {	
-//    	JSONObject rotation = new JSONObject();
-//    	
-//    	rotation.put("x", "" + nativeArray[4]);
-//    	rotation.put("y", "" + nativeArray[5]);
-//    	rotation.put("z", "" + nativeArray[6]);
-//    	
-//    	return rotation; 	
-//    }
+    /** Native method for getting phone location */
+    private native float[] getCameraLocation();
+    
+    // TODO create a flag to indicate whether an target is being tracked, and
+    // write a setter function for the native library to call.
 
    /** Called when the activity will start interacting with the user.*/
     protected void onResume()
@@ -472,7 +453,8 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
      */
     private void onGameStateChange(String stateStr) {
     	
-//    	pushDeviceState(obtainDeviceState());
+    	pushDeviceState(obtainDeviceState());
+    	DebugLog.LOGI("onGameStateChange:" + stateStr);
     	
 //    	System.out.println(stateStr);
     	
@@ -971,10 +953,15 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
      */
     private void pushDeviceState(JSONObject deviceState) {
     	try {
-//    		float[] cameraLoc = getCameraLocationNative();
-//    		deviceState.put("position", makePositionJSON(cameraLoc));
-//    		deviceState.put("rotation", makeRotationJSON(cameraLoc));
     		
+    		// get camera's location and rotation from the native code, format it and put it in the JSON object
+    		float[] cameraLoc = getCameraLocation();
+    		deviceState.put("position", makePositionJSON(cameraLoc[0], cameraLoc[1], cameraLoc[2]));
+    		deviceState.put("rotation", makeRotationJSON(cameraLoc[3], cameraLoc[4], cameraLoc[5]));
+    		
+    		// Log the position for testing.
+    		DebugLog.LOGI("pushDeviceState:" + deviceState.toString());
+
     		JSONObject sendState = new JSONObject().put(deviceUUID, deviceState);
     		sendState = new JSONObject().put(DEVICES_NAMESPACE, sendState);
     		pushGameState(sendState);
@@ -1007,6 +994,44 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     	} else {
     		Log.i(this.toString(),"Not Bound to NetworkingService");
     	}
+    }
+    
+    /**
+     * Takes three floats and makes them into a JSON object formatted for position
+     * @param x
+     * @param y
+     * @param z
+     * @return returns the position JSONObject
+     * @throws JSONException
+     */
+    private JSONObject makePositionJSON(float x, float y, float z) throws JSONException
+    {	
+    	JSONObject position = new JSONObject();
+    	
+    	position.put("x", "" + x);
+    	position.put("y", "" + y);
+    	position.put("z", "" + z);
+    	
+    	return position; 	
+    }
+    
+    /**
+     * Takes three floats and makes them into a JSON object formatted for rotation (orientation based on Euler Angles).
+     * @param xRot
+     * @param yRot
+     * @param zRot
+     * @return 
+     * @throws JSONException
+     */
+    private JSONObject makeRotationJSON(float xRot, float yRot, float zRot) throws JSONException
+    {	
+    	JSONObject rotation = new JSONObject();
+    	
+    	rotation.put("x", "" + xRot);
+    	rotation.put("y", "" + yRot);
+    	rotation.put("z", "" + zRot);
+    	
+    	return rotation; 	
     }
     
     /**
