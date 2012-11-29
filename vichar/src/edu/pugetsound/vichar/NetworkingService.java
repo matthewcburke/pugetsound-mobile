@@ -296,7 +296,7 @@ public class NetworkingService extends Service {
 						consecutiveFailures++;
 						//TODO do something if it fails over and over
 					}
-					//System.out.println("ResponseCode: " + status);
+					System.out.println("ResponseCode: " + status);
 					
 					// Close connection - so it doesn't mess with the next one
 					conn.disconnect();
@@ -330,7 +330,7 @@ public class NetworkingService extends Service {
 				} else {
 					consecutiveFailures++;
 				}
-				//System.out.println("ResponseCode: " + status);
+				System.out.println("ResponseCode: " + status);
 				
 				// Close connection
 				conn2.disconnect();

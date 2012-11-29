@@ -252,18 +252,18 @@ SampleMath::matrxVecMult(QCAR::Matrix34F *m) {
     float posTemp [3]; //Resulting position vector
 
     //copy pos over
-    vecTemp[0] = m->data[0];
+    vecTemp[0] = m->data[3];
     vecTemp[1] = m->data[7];
     vecTemp[2] = m->data[11];
 
     //Calculate posTemp = -R^-1 * T
-    for (int k=0; k<3; k++) {
-        for (int i=0; i<3; i++) {
-            for (int j=0; j<3; j++) {
-                posTemp[k] = (-1*m->data[3*i+j])*vecTemp[j];
-            }
-        }
+
+    for (int i=0; i<3; i++) {
+    	for (int j=0; j<3; j++) {
+    		posTemp[i] += (-1*m->data[4*i+j])*vecTemp[j];
+    	}
     }
+
 
     //put results back
     m->data[3] = posTemp[0];
