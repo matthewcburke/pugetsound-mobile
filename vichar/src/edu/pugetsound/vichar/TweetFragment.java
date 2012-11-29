@@ -2,11 +2,8 @@ package edu.pugetsound.vichar;
 
 import edu.pugetsound.vichar.PostTweet.PostTweetCallback;
 import twitter4j.Twitter;
-import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
-import android.app.Activity;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;

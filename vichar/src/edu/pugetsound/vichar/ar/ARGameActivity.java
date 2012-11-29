@@ -27,6 +27,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -37,14 +38,17 @@ import android.os.Bundle;
 import android.os.Handler;
 // import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
-
+import android.widget.LinearLayout;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -58,13 +62,13 @@ import android.view.MotionEvent;
 import android.view.View.OnTouchListener;
 //Import Fragment dependencies
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 
 import com.qualcomm.QCAR.QCAR;
 
-import edu.pugetsound.vichar.GameActivity;
-import edu.pugetsound.vichar.Installation;
-import edu.pugetsound.vichar.NetworkingService;
-import edu.pugetsound.vichar.R;
+import edu.pugetsound.vichar.*;
 
 
 /** The main activity for the ARGameActivity. */
@@ -132,7 +136,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     MenuItem mDataSetMenuItem = null;
     boolean mIsStonesAndChipsDataSetActive  = false;
     
-  //JSON namespaces
+    //JSON namespaces
     private static final String GAME_ENGINE_NAMESPACE = "engine";
     private static final String DEVICES_NAMESPACE = "phones";
     private static final String WEB_NAMESPACE = "web";
@@ -142,6 +146,13 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     private Messenger networkingServiceMessenger = null;
     boolean isBoundToNetworkingService = false;
     final Messenger mMessenger = new Messenger(new IncomingHandler());
+    
+    // Twitter
+    private boolean activeTwitter = false;
+    private float touchTwX;
+    private int actionUp = 0;
+    private TweetFragment twFrag;
+    private View gui;
     
     private float touchX, touchY;
     
@@ -312,12 +323,13 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
 
     
     /** Called when the activity first starts or the user navigates back
-     * to an activity. */
+     * to an activity. 
+     */
     protected void onCreate(Bundle savedInstanceState)
     {
     	DebugLog.LOGD("ARGameActivity::onCreate");
     	super.onCreate(savedInstanceState);
-//    	setContentView(R.layout.activity_ar);
+
     	
     	// Get the UUID we generated when this app was installed
     	deviceUUID = Installation.id(this);
@@ -330,7 +342,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     	doBindNetworkingService();
     	
         // Set the splash screen image to display during initialization:
-    	mSplashScreenImageResource = R.drawable.splash;
+    	mSplashScreenImageResource = edu.pugetsound.vichar.R.drawable.splash;
 
     	// Load any sample specific textures:  
     	mTextures = new Vector<Texture>();
@@ -339,8 +351,169 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     	// Query the QCAR initialization flags:
     	mQCARFlags = getInitializationFlags();
 
+    	//inflate ui elements
+        LayoutInflater inflater = getLayoutInflater();
+        gui = inflater.inflate(R.layout.activity_ar, null); 
+        
     	// Update the application status to start initializing application
     	updateApplicationStatus(APPSTATUS_INIT_APP);
+    	
+    }
+    
+    private OnTouchListener tweetHandleListener = new OnTouchListener() {
+		public boolean onTouch(View v, MotionEvent me) { 
+			return tweetContainerTouch(v, me);
+		}
+       };
+    
+    private boolean tweetContainerTouch(View v, MotionEvent me)  {
+    	View tweetContainer = (View) findViewById(edu.pugetsound.vichar.R.id.tweet_container);
+    	View gameContainer = (View) findViewById(edu.pugetsound.vichar.R.id.game_container);
+    	//check type of touch action
+    	switch (me.getAction()) {
+			case MotionEvent.ACTION_DOWN:
+				actionUp=0;
+				touchTwX = me.getRawX();
+				System.out.println("action down at " + touchTwX);       	
+			case MotionEvent.ACTION_MOVE:
+				actionUp=0;				
+				System.out.println("motion event x " + me.getRawX());				
+				//only execute changes if user hasn't dragged too far left
+				if(me.getRawX()>gameContainer.getWidth()-tweetContainer.getWidth()) {   
+					//calculate motion change
+					float delta = me.getRawX() - touchTwX;  
+					System.out.println("Delta " + delta);
+					touchTwX = me.getRawX();
+	   		
+					//calculate new x coordinate of view
+					System.out.println("right location " + tweetContainer.getRight());
+					//set new params
+					FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) tweetContainer.getLayoutParams();
+					params.rightMargin = params.rightMargin - (int) delta;
+					tweetContainer.setLayoutParams(params);  
+				}
+			case MotionEvent.ACTION_UP:
+				actionUp++;
+				//if this is actually an up action...
+				if(actionUp==2) {
+					System.out.println("------ACTION UP OR CANCEL------");	
+					//either snap onscreen
+					if(tweetContainer.getLeft() < gameContainer.getWidth() - 200) {
+						snapTwitterOn();
+					//or snap back to beginning
+					} else {		        			
+						 snapTwitterOff();       		
+					}
+				}   		        		
+   			}			
+        return true;
+    }
+    
+    /**
+     * Snaps twitter container onto screen
+     * TODO:clear this up. method shouldn't be public, but needs to be accessed from fragment
+     */
+    public void snapTwitterOn() {
+    	View tweetContainer = (View) findViewById(edu.pugetsound.vichar.R.id.tweet_container);
+    	FrameLayout.LayoutParams paramsSuccess = (FrameLayout.LayoutParams) tweetContainer.getLayoutParams();
+		paramsSuccess.rightMargin = 0;
+		tweetContainer.setLayoutParams(paramsSuccess);  
+    }
+    
+    /**
+     * Snap twitter container off screen
+     * TODO:clear this up. method shouldn't be public, but needs to be accessed from fragment
+     */
+    public void snapTwitterOff()  {
+    	View tweetContainer = (View) findViewById(edu.pugetsound.vichar.R.id.tweet_container);
+    	FrameLayout.LayoutParams paramsReset = (FrameLayout.LayoutParams) tweetContainer.getLayoutParams();
+		paramsReset.rightMargin = -300;
+		tweetContainer.setLayoutParams(paramsReset);  
+    }
+       
+    /**
+     * Looks at current gamestate for twitter challenge
+     * @return True if new challenge, false if not
+     */
+    private void updateTwitterState(JSONObject newState)  {
+    	//TODO: based on web API as of 11/17, which is likely to change    	
+    	
+    	boolean isActive = false;
+    	try{
+    		JSONObject web = newState.getJSONObject("web");
+    		JSONObject twitter = web.getJSONObject("twitter");
+    		JSONObject activeVote = twitter.getJSONObject("activeVote");
+    		isActive = activeVote.getBoolean("isActive");
+    	} catch (JSONException ex) {
+    		//TODO:json exception procedures
+    		System.out.println(ex);
+    		return;
+    	}
+    	
+    	if(isActive==false) {
+    		//if a vote has just ended...
+    		if(activeTwitter==true)  {    			
+    			endTwitter();
+    		}
+    	} else {
+    		//if a vote has just begun
+    		if(activeTwitter==false) {    			
+    			startTwitter();
+    		}
+    	}
+    }
+    
+    /**
+     * Initializes twitter view for new twitter vote
+     */
+    @SuppressLint("NewApi")
+	@SuppressWarnings("deprecation")
+	private void startTwitter() {
+    	activeTwitter=true;
+    	//update prompt...
+    	TweetFragment tweetFrag = (TweetFragment) getSupportFragmentManager().findFragmentById(edu.pugetsound.vichar.R.id.twitter_fragment);
+        tweetFrag.setPrompt(getString(edu.pugetsound.vichar.R.string.default_twitter_vote));
+        //TODO:twitter handle button needs to change
+        Button tweetHandle = (Button)findViewById(edu.pugetsound.vichar.R.id.tweet_frag_button);
+        //deal with deprecated methods calls, ugh
+        if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN) {
+            tweetHandle.setBackgroundDrawable(getResources().getDrawable(edu.pugetsound.vichar.R.drawable.twitter_logo));
+        } else {
+        	tweetHandle.setBackground(getResources().getDrawable(edu.pugetsound.vichar.R.drawable.twitter_logo));
+        }       
+    }
+    
+    /**
+     * Terminates current twitter vote, changes appropriate UI
+     */
+    @SuppressLint("NewApi")
+	@SuppressWarnings("deprecation")
+	private void endTwitter() {
+    	activeTwitter=false;
+    	//update prompt...
+    	TweetFragment tweetFrag = (TweetFragment) getSupportFragmentManager().findFragmentById(edu.pugetsound.vichar.R.id.twitter_fragment);
+        tweetFrag.setPrompt(getString(edu.pugetsound.vichar.R.string.inactive_twitter));
+        //TODO:twitter handle button needs to change
+        Button tweetHandle = (Button)findViewById(edu.pugetsound.vichar.R.id.tweet_frag_button);
+        //deprecated methods again...
+        if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN) {
+            tweetHandle.setBackgroundDrawable(getResources().getDrawable(edu.pugetsound.vichar.R.drawable.twitter_logo));
+        } else {
+        	tweetHandle.setBackground(getResources().getDrawable(edu.pugetsound.vichar.R.drawable.twitter_logo));
+        }
+    }
+    
+    /**
+     * Sends tweet
+     * @param view
+     */
+    public void sendTweet(View view)     {
+    	//only post if twitter vote is active
+    	activeTwitter = true; //TODO:GET RID OF THIS, just for testing
+    	if(activeTwitter)  {
+    		TweetFragment tweetFrag = (TweetFragment) getSupportFragmentManager().findFragmentById(edu.pugetsound.vichar.R.id.twitter_fragment);
+    		tweetFrag.sendTweet(view);	
+    	}
     }
 
     
@@ -482,7 +655,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     		//Pull out official namespaces
     		JSONObject engineState = (JSONObject) gameState.get(GAME_ENGINE_NAMESPACE);
     		JSONObject webState = (JSONObject) gameState.get(WEB_NAMESPACE);
-    	
+    		updateTwitterState(gameState);
     		// TODO: Pass the engineState to functions that need to render it
     	} catch(JSONException e) {
     		//shit!
@@ -687,15 +860,24 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
                             // background is configured.
                             addContentView(mGlView, new LayoutParams(
                                             LayoutParams.MATCH_PARENT,
-                                            LayoutParams.MATCH_PARENT));
-                            
+                                            LayoutParams.MATCH_PARENT));   
+                    	    
                             // Start the camera:
                             updateApplicationStatus(APPSTATUS_CAMERA_RUNNING);
+                            
+                            //make ui visible
+                    	    addContentView(gui, new LayoutParams(
+                                    LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+                    	    //tweet handle touch listener
+                            Button tweetHandle = (Button) findViewById(R.id.tweet_frag_button);
+                            tweetHandle.setOnTouchListener(tweetHandleListener);
+                            endTwitter();
                         }
                 };
 
                 mSplashScreenHandler.postDelayed(mSplashScreenRunnable,
                                                     newSplashScreenTime);
+ 
                 break;
                 
             case APPSTATUS_CAMERA_STOPPED:
@@ -711,7 +893,27 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
                 
             default:
                 throw new RuntimeException("Invalid application state");
-        }
+        }  
+        //updateUI();
+        
+    }
+    
+    public void updateUI() {
+        LayoutInflater inflater = getLayoutInflater();
+        View gui = inflater.inflate(R.layout.activity_ar, null); 
+	    addContentView(gui, new LayoutParams(
+                LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+	    
+//	    FragmentManager fragManager = getSupportFragmentManager();
+//	    FragmentTransaction fragTrans = fragManager.beginTransaction();
+//	    twFrag = new TweetFragment();
+//	    fragTrans.add(R.id.tweet_container, twFrag);
+//	    fragTrans.commit();
+	    
+
+        //endTwitter(); //initialize twitter frag to inactive vote
+        Button tweetHandle = (Button) findViewById(R.id.tweet_frag_button);
+        tweetHandle.setOnTouchListener(tweetHandleListener);
     }
     
     
@@ -767,8 +969,8 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
         addContentView(mSplashScreenView, new LayoutParams(
                         LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         
-        mSplashScreenStartTime = System.currentTimeMillis();
-
+        mSplashScreenStartTime = System.currentTimeMillis();       
+        
     }
     
     
