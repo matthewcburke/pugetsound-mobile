@@ -2,6 +2,7 @@ package edu.pugetsound.vichar;
 
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
+import twitter4j.User;
 import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
 import android.os.AsyncTask;
@@ -49,7 +50,11 @@ public class RetrieveAccessToken extends AsyncTask<TwitterWrapper, TwitterWrappe
         		wrapper.setAccessToken(twitter.getOAuthAccessToken());
         		System.out.println(wrapper.getAccessToken() + "else");
         	}
-        	result = true;        	
+        	result = true;  
+        	
+        	User user = twitter.showUser(twitter.getId());
+        	wrapper.setScreenName(user.getScreenName());
+        	System.out.println("SN - " + user.getScreenName());
         } 
         catch (TwitterException te) 
         {

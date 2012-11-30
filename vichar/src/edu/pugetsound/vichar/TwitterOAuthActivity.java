@@ -5,6 +5,7 @@ import edu.pugetsound.vichar.RetrieveRequestToken.RequestTokenCallback;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
+import twitter4j.User;
 import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
 import android.os.AsyncTask;
@@ -19,7 +20,7 @@ import android.webkit.WebViewClient;
 import android.widget.EditText;
 
 /**
- * Provides interface and guts for logging into Twitter via ViChar app
+ * Provides interface for logging into Twitter via ViChar app
  * @author Nathan Pastor & Michael Dubois
  * @version 10/15/12
  */
@@ -121,7 +122,8 @@ public class TwitterOAuthActivity extends Activity
     	if(wrapper.getResult()) 	{
     		accessToken = wrapper.getAccessToken(); //temp store access token
     		PreferenceUtility pu = new PreferenceUtility();
-    		pu.saveString(getString(R.string.tw_login_key), "true", this); //set logged in flag to true
+    		pu.saveString(getString(R.string.tw_login_key), "true", this); //set logged in flag to true 
+    		pu.saveString(getString(R.string.screenname_key), wrapper.getScreenName(), this); //save screenname			
     		storeAccessToken(accessToken); //save access token
     		//and then move on to main menu    		
     		Intent mainActIntent = new Intent(this, MainMenuActivity.class);

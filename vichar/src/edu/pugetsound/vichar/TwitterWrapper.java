@@ -18,6 +18,7 @@ public class TwitterWrapper {
 	private AccessToken at;
 	private String pin;
 	private String tweet;
+	private String sn;
 
 	public TwitterWrapper(Twitter tw)  {
 		this.tw = tw;
@@ -25,6 +26,10 @@ public class TwitterWrapper {
 
 	public void setResult(Boolean result)  {
 		this.result = result;
+	}
+	
+	public void setScreenName(String sn)  {
+		this.sn = sn;
 	}
 	
 	public void setTweet(String tweet) {
@@ -43,6 +48,10 @@ public class TwitterWrapper {
 		this.pin = pin;
 	}
 
+	public String getScreenName()  {
+		return sn;
+	}
+	
 	public String getPin()  {
 		return pin;
 	}
