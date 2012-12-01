@@ -281,6 +281,39 @@ SampleMath::swapRotPos(QCAR::Matrix34F m, QCAR::Matrix34F *n) {
         }
     }
 }
+
+QCAR::Matrix34F
+vectorSubtract(QCAR::Matrix34F *m, QCAR::Matrix34F *n) {
+	float temp[3] = {m->data[3] - n->data[3], m->data[7] - n->data[7], //position m-n
+			m->data[11] - n->data[11]};
+	QCAR::Matrix34F newPos;
+
+	//Copy over rotational data
+	for (int i=0; i<3; i++) {
+		for (int j=0; j<3; j++) {
+			newPos.data[3*i+j] = m->data[3*i+j];
+		}
+	}
+
+	//Copy over positional data
+	newPos.data[3] = temp[0];
+	newPos.data[7] = temp[1];
+	newPos.data[11] = temp[2];
+
+	return newPos;
+}
+
+int
+getDistance(QCAR::Matrix34F *phone) {
+        float temp = pow(phone->data[3],2) + pow(phone->data[7], 2) +   //First calc for dist
+                pow(phone->data[11],2);
+
+        float dist = sqrt(temp);    //Second calc for dist
+
+        return dist;
+    
+
+}
 //End==============================================================================================================
 
 
