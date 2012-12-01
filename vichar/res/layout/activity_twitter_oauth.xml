@@ -1,38 +1,45 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
-	    
+
+    <WebView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/oauth_webview"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:focusable="true" />
+
     <LinearLayout
-       android:id="@+id/pin_inputs"
-       android:layout_width="fill_parent"
-	   android:layout_height="wrap_content"
-	   android:layout_alignParentBottom= "true" >
-	   	
-        <EditText 
-	        android:id="@+id/twitter_auth_pin"
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
-	        android:layout_weight=".3"
-	        android:ems="10"
-	        android:hint="@string/enter_pin" />
-        
-	    <Button
-	        android:id="@+id/ok_button"
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
-	        android:layout_weight=".7"
-	        android:onClick="sendPin"
-	        android:text="@string/button_ok" /> 
-	           
-	 </LinearLayout>
-	    
-	    <WebView  
-	        xmlns:android="http://schemas.android.com/apk/res/android"
-	    	android:id="@+id/oauth_webview"
-	    	android:layout_width="fill_parent"
-	    	android:layout_height="fill_parent"
-	    	android:layout_above="@+id/pin_inputs"
-	    	android:focusable="true" 	  />
-	    
-</RelativeLayout>
+        android:id="@+id/pin_inputs"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom" >
+
+        <EditText
+            android:id="@+id/twitter_auth_pin"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight=".3"
+            android:ems="10"
+            android:hint="@string/enter_pin" />
+
+        <Button
+            android:id="@+id/ok_button"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight=".7"
+            android:onClick="sendPin"
+            android:text="@string/button_ok" />
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/twitter_loading"
+        style="@android:style/Widget.ProgressBar.Large"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:indeterminate="true"
+        android:background= "@layout/loading_circle" />
+
+</FrameLayout>

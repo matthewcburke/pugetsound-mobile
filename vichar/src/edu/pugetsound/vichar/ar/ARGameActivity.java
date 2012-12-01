@@ -25,10 +25,6 @@ import java.util.Vector;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
@@ -63,9 +59,7 @@ import android.view.View.OnTouchListener;
 import android.view.animation.AlphaAnimation;
 //Import Fragment dependencies
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 
 import com.qualcomm.QCAR.QCAR;
 
@@ -355,10 +349,10 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     	//inflate ui elements
         LayoutInflater inflater = getLayoutInflater();
         gui = inflater.inflate(R.layout.activity_ar, null); 
+        Log.d("UI", "inflated ui");
         
     	// Update the application status to start initializing application
-    	updateApplicationStatus(APPSTATUS_INIT_APP);
-    	
+    	updateApplicationStatus(APPSTATUS_INIT_APP);    	
     }
     
     private OnTouchListener tweetHandleListener = new OnTouchListener() {
@@ -369,7 +363,6 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     
     private boolean tweetContainerTouch(View v, MotionEvent me)  {
     	View tweetContainer = (View) findViewById(edu.pugetsound.vichar.R.id.tweet_container);
-    	View gameContainer = (View) findViewById(edu.pugetsound.vichar.R.id.game_container);
     	//check type of touch action
     	switch (me.getAction()) {
 			case MotionEvent.ACTION_DOWN:
@@ -428,8 +421,11 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     public void snapTwitterOff()  {
     	View tweetContainer = (View) findViewById(edu.pugetsound.vichar.R.id.tweet_container);
     	FrameLayout.LayoutParams paramsReset = (FrameLayout.LayoutParams) tweetContainer.getLayoutParams();
-    	View twFrag = (View) findViewById(R.id.twitter_fragment);    	
-		paramsReset.leftMargin = -twFrag.getWidth();
+    	
+    	//its difficult to get fragment width, instead take entire width of layout and subtract handle button width
+//    	View twHandle = (View) findViewById(R.id.tweet_frag_button);
+//    	int twFragWidth = tweetContainer.getWidth() - twHandle.getWidth();    	
+		paramsReset.leftMargin = -315;
 		tweetContainer.setLayoutParams(paramsReset);  
     }
        
@@ -859,10 +855,12 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
                             
                             //make ui visible
                     	    addContentView(gui, new LayoutParams(
-                                    LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+                                    LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));                    	    
+                    	    Log.d("UI", "add ui");
                     	    //tweet handle touch listener
                             Button tweetHandle = (Button) findViewById(R.id.tweet_frag_button);
                             tweetHandle.setOnTouchListener(tweetHandleListener);
+                    	    snapTwitterOff();
                             endTwitter();
                         }
                 };
@@ -888,26 +886,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
         }  
         //updateUI();
         
-    }
-    
-    public void updateUI() {
-        LayoutInflater inflater = getLayoutInflater();
-        View gui = inflater.inflate(R.layout.activity_ar, null); 
-	    addContentView(gui, new LayoutParams(
-                LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-	    
-//	    FragmentManager fragManager = getSupportFragmentManager();
-//	    FragmentTransaction fragTrans = fragManager.beginTransaction();
-//	    twFrag = new TweetFragment();
-//	    fragTrans.add(R.id.tweet_container, twFrag);
-//	    fragTrans.commit();
-	    
-
-        //endTwitter(); //initialize twitter frag to inactive vote
-        Button tweetHandle = (Button) findViewById(R.id.tweet_frag_button);
-        tweetHandle.setOnTouchListener(tweetHandleListener);
-    }
-    
+    }   
     
     /** Tells native code whether we are in portait or landscape mode */
     private native void setActivityPortraitMode(boolean isPortrait);

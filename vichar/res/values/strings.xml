@@ -40,19 +40,18 @@
     <string name="enter_pin">Enter Above Pin</string>
     <string name="enter_tw_username">Enter Twitter Username</string>
     <string name="enter_vichar_username">Enter ViChar Username</string>
-    <string name="enter_tweet">#</string>
+    <string name="enter_tweet">#eye</string>
 
     <!-- Preference Keys -->
     <string name="prefs_key">prefs_key</string>
     <string name="access_token_key">access_token_key</string>
     <string name="access_token_secret_key">access_token_secret_key</string>
-    <string name="twitter_username_key">twitter_username_key</string>
-    <string name="vichar_username_key">vichar_username_key</string>
     <string name="toggle_sound_key">toggle_sound_key</string>
     <string name="first_launch_flag">first_launch_flag</string>
     <string name="tw_login_key">tw_login_flag_key</string>    
     <string name="title_activity_test">TestActivity</string>
     <string name="screenname_key">screenname</string>
+    <string name="guest_name">guest name</string>
 
     <color name="myColor">#F5F5F5</color>
 
@@ -77,7 +76,7 @@
     <string name="title_activity_splash_screen">SplashScreen</string>
 
 
-    <string name="guest_name">guest name</string>
+
     <color name="game_blue">#268bd2</color>
 
 
