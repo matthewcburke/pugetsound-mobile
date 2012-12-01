@@ -205,6 +205,7 @@ public class NetworkingService extends Service {
 			pollingTask.outboundQueue.offer(json);
 		} catch(ParseException e) {
 			// do something
+			Log.i(this.toString(), "offer ParseException!");
 		}
 		
 		// TODO Should we merge here? Might cause the queue to be empty when we
@@ -230,7 +231,7 @@ public class NetworkingService extends Service {
      * @author DuBious
      */
     private abstract class PollingTask extends TimerTask {
-		public ConcurrentLinkedQueue<JSONObject> outboundQueue 
+		public volatile ConcurrentLinkedQueue<JSONObject> outboundQueue 
 			= new ConcurrentLinkedQueue<JSONObject>();
 		// Track consecutive failures
 		protected int consecutiveFailures = 0;
@@ -259,10 +260,12 @@ public class NetworkingService extends Service {
 				// Process the outbound queue
 				JSONObject outboundJson = outboundQueue.poll(); // null if empty
 				// While something remains in the queue, 
-				while(outboundQueue.peek() != null) {
-					// merge it into outboundJson 
-					// this way we don't have to do multiple POSTs
-					outboundJson.putAll(outboundQueue.poll());
+				synchronized(outboundQueue) {
+					while(outboundQueue.peek() != null) {
+						// merge it into outboundJson 
+						// this way we don't have to do multiple POSTs
+						outboundJson.putAll(outboundQueue.poll());
+					}
 				}
 				
 				// If we have something to send
