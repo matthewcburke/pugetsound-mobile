@@ -493,12 +493,6 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
         phoneLoc[2] = test.data[11];
 //End============================================================================================
 
-        // UPDATE:: Load the trackable position into a second modelViewMatrix to display second item.
-        QCAR::Matrix44F modelViewMatrix2 =
-                    QCAR::Tool::convertPose2GLMatrix(trackable->getPose());
-        QCAR::Matrix44F modelViewMatrix3 =
-                            QCAR::Tool::convertPose2GLMatrix(trackable->getPose());
-
         // Assign Textures according in the texture indices defined at the beginning of the file, and based
         // on the loadTextures() method in ARGameActivity.java.
         const Texture* const tower_shellTexture = textures[tower_shellIndex];
