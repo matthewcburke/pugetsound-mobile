@@ -2,8 +2,8 @@
             Copyright (c) 2012 QUALCOMM Austria Research Center GmbH.
             All Rights Reserved.
             Qualcomm Confidential and Proprietary
-
-@file
+            
+@file 
     ImageTargets.cpp
 
 @brief
@@ -51,10 +51,10 @@
 #include <QCAR/DataSet.h>
 
 #include "SampleUtils.h"
-#include "SampleMath.h"
 #include "Texture.h"
 #include "CubeShaders.h"
 #include "Teapot.h"
+ #include "SampleMath.h"    //To get phones location
 
 // UPDATE:: Our models to be displayed
 // TODO: Should we put all of these .h files into one gameObjects.h file?
@@ -84,15 +84,8 @@ GLint mvpMatrixHandle           = 0;
 #endif
 
 // UPDATE:: added this variable to assist animating rotations for demo.
-float turAng = 0.0;  //UNUSED
+float turAng = 0.0;
 float phoneLoc[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-
-int drawCount = 0.0;
-
-
-
-QCAR::Matrix44F modelViewMatrix;
-
 
 // Screen dimensions:
 unsigned int screenWidth        = 0;
@@ -112,27 +105,9 @@ QCAR::DataSet* dataSetFlakesBox = 0;
 
 bool switchDataSetAsap          = false;
 
-
-
-typedef struct _Model {
-	int id;
-
-	float* vertPointer;
-	float* normPointer;
-    float* texPointer;
-
-    //QCAR::Vec2F position;
-
-	QCAR::Matrix44F transform;
-} Model;
-
-int MAX_MODELS = 100;
-int modelCount;
-Model drawList[100];
-
 // Object to receive update callbacks from QCAR SDK
 class ImageTargets_UpdateCallback : public QCAR::UpdateCallback
-{
+{   
     virtual void QCAR_onUpdate(QCAR::State& /*state*/)
     {
         if (switchDataSetAsap)
@@ -149,7 +124,7 @@ class ImageTargets_UpdateCallback : public QCAR::UpdateCallback
                 LOG("Failed to switch data set.");
                 return;
             }
-
+            
             if (imageTracker->getActiveDataSet() == dataSetVichar)
             {
                 imageTracker->deactivateDataSet(dataSetVichar);
@@ -169,7 +144,7 @@ ImageTargets_UpdateCallback updateCallback;
 JNIEXPORT int JNICALL
 Java_edu_pugetsound_vichar_ar_ARGameActivity_getOpenGlEsVersionNative(JNIEnv *, jobject)
 {
-#ifdef USE_OPENGL_ES_1_1
+#ifdef USE_OPENGL_ES_1_1        
     return 1;
 #else
     return 2;
@@ -196,7 +171,7 @@ JNIEXPORT int JNICALL
 Java_edu_pugetsound_vichar_ar_ARGameActivity_initTracker(JNIEnv *, jobject)
 {
     LOG("Java_edu_pugetsound_vichar_ar_ARGameActivity_initTracker");
-
+    
     // Initialize the image tracker:
     QCAR::TrackerManager& trackerManager = QCAR::TrackerManager::getInstance();
     QCAR::Tracker* tracker = trackerManager.initTracker(QCAR::Tracker::IMAGE_TRACKER);
@@ -226,7 +201,7 @@ JNIEXPORT int JNICALL
 Java_edu_pugetsound_vichar_ar_ARGameActivity_loadTrackerData(JNIEnv *, jobject)
 {
     LOG("Java_edu_pugetsound_vichar_ar_ARGameActivity_loadTrackerData");
-
+    
     // Get the image tracker:
     QCAR::TrackerManager& trackerManager = QCAR::TrackerManager::getInstance();
     QCAR::ImageTracker* imageTracker = static_cast<QCAR::ImageTracker*>(
@@ -293,7 +268,7 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_destroyTrackerData(JNIEnv *, jobjec
             " been initialized.");
         return 0;
     }
-
+    
     if (dataSetVichar != 0)
     {
         if (imageTracker->getActiveDataSet() == dataSetVichar &&
@@ -351,103 +326,20 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_onQCARInitializedNative(JNIEnv *, j
 }
 
 
-
-void
-updateDrawList()
-{
-//Retrieve JSON object or parsed object HERE
-
-//this method pulls substantially from updateDominoTransform in Dominoes.cpp
-
-//arbitratily hardcoded lengths of both list and sublist size
-float interpList[2][7];
-
-for(int w; w<2;w++){
-
-	for(int l; l<7;l++){
-		interpList[w][l]=0.0f;
-	}
-}
-
-//sublist is of composition ID, x,y,z trans, x,y,z,ang
-
-
-//HARDCODING INTERP LIST CONTENTS -- TEMP
-
-interpList[0][1] = 25.0;
-interpList[1][1] = -25.0;
-
-for(int i; i<2; i++)
-{
-	Model* current= &drawList[i];
-	current->transform=SampleMath::Matrix44FIdentity();
-    float* transformPtr = &current->transform.data[0];
-
-	//Must translate communication into
-
-	current->vertPointer=&tower_topVerts[0];
-	current->normPointer=&tower_topNormals[0];
-	current->texPointer=&tower_topTexCoords[0];
-
-
-	float position[3];
-	position[0]=interpList[i][2];
-	position[1]=interpList[i][3];
-	position[2]=interpList[i][4];
-
-	float angle[3];
-	angle[0]=interpList[i][5];
-	angle[1]=interpList[i][6];
-	angle[2]=interpList[i][7];
-	SampleUtils::translatePoseMatrix(position[0],position[1], position[2], transformPtr);
-    SampleUtils::rotatePoseMatrix(angle[0], 0, 0, 1, transformPtr);
-	SampleUtils::rotatePoseMatrix(angle[1], 0, 0, 1, transformPtr);
-	SampleUtils::rotatePoseMatrix(angle[2], 0, 0, 1, transformPtr);
-    //SampleUtils::translatePoseMatrix(-kObjectScale, 0.0f, kObjectScale, transformPtr);
-    SampleUtils::scalePoseMatrix(kObjectScale, kObjectScale, kObjectScale, transformPtr);
-
-
-	drawCount=drawCount+1;
-	//drawList[i]=&current;
-	}
-}
-
-void
-renderModel(float* transform)
-{
-    // Render a cube with the given transform
-    // Assumes prior GL setup
-
-#ifdef USE_OPENGL_ES_1_1
-    glPushMatrix();
-    glMultMatrixf(transform);
-    glDrawElements(GL_TRIANGLES, NUM_CUBE_INDEX, GL_UNSIGNED_SHORT, (const GLvoid*) &cubeIndices[0]);
-    glPopMatrix();
-#else
-
-    QCAR::Matrix44F modelViewProjection, objectMatrix;
-    SampleUtils::multiplyMatrix(&modelViewMatrix.data[0], transform, &objectMatrix.data[0]);
-    SampleUtils::multiplyMatrix(&projectionMatrix.data[0], &objectMatrix.data[0], &modelViewProjection.data[0]);
-    glUniformMatrix4fv(mvpMatrixHandle, 1, GL_FALSE, (GLfloat*)&modelViewProjection.data[0]);
-    //glDrawElements(GL_TRIANGLES, NUM_CUBE_INDEX, GL_UNSIGNED_SHORT, (const GLvoid*) &cubeIndices[0]);
-	glDrawArrays(GL_TRIANGLES, 0, tower_topNumVerts);
-#endif
-}
-
 JNIEXPORT void JNICALL
 Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
 {
     //LOG("Java_edu_pugetsound_vichar_ar_GLRenderer_renderFrame");
 
-    // Clear color and depth buffer
+    // Clear color and depth buffer 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Get the state from QCAR and mark the beginning of a rendering section
     QCAR::State state = QCAR::Renderer::getInstance().begin();
-
+    
     // Explicitly render the Video Background
     QCAR::Renderer::getInstance().drawVideoBackground();
-
+       
 #ifdef USE_OPENGL_ES_1_1
     // Set GL11 flags:
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -456,7 +348,7 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
 
     glEnable(GL_TEXTURE_2D);
     glDisable(GL_LIGHTING);
-
+        
 #endif
 
     glEnable(GL_DEPTH_TEST);
@@ -470,7 +362,7 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
         QCAR::Matrix44F modelViewMatrix =
             QCAR::Tool::convertPose2GLMatrix(trackable->getPose());
 
-//Begin additions by Erin================================================================================
+        //Begin additions by Erin================================================================================
         QCAR::Matrix34F test;   //gets inverse pos matrix
         QCAR::Matrix34F pos;   //Gets positional data
         pos = trackable->getPose();
@@ -479,19 +371,20 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
         test = SampleMath::phoneCoorMatrix(trackable->getPose());
 
         //Print results
-//        LOG("Poisiton:");
-//        LOG("%f %f %f %f",pos.data[0], pos.data[1], pos.data[2], pos.data[3]);
-//        LOG("%f %f %f %f",pos.data[4], pos.data[5], pos.data[6], pos.data[7]);
-//        LOG("%f %f %f %f",pos.data[8], pos.data[9], pos.data[10],pos.data[11]);
-//        LOG("Inverse:");
-//        LOG("%f %f %f %f",test.data[0], test.data[1], test.data[2], test.data[3]);
-//        LOG("%f %f %f %f",test.data[4], test.data[5], test.data[6], test.data[7]);
-//        LOG("%f %f %f %f",test.data[8], test.data[9], test.data[10], test.data[11]);
-//        LOG("=========================");
+        LOG("Poisiton:");
+        LOG("%f %f %f %f",pos.data[0], pos.data[1], pos.data[2], pos.data[3]);
+        LOG("%f %f %f %f",pos.data[4], pos.data[5], pos.data[6], pos.data[7]);
+        LOG("%f %f %f %f",pos.data[8], pos.data[9], pos.data[10],pos.data[11]);
+        LOG("Inverse:");
+        LOG("%f %f %f %f",test.data[0], test.data[1], test.data[2], test.data[3]);
+        LOG("%f %f %f %f",test.data[4], test.data[5], test.data[6], test.data[7]);
+        LOG("%f %f %f %f",test.data[8], test.data[9], test.data[10], test.data[11]);
+        LOG("=========================");
         phoneLoc[0] = test.data[3];
         phoneLoc[1] = test.data[7];
         phoneLoc[2] = test.data[11];
-//End============================================================================================
+        //End============================================================================================
+
 
         // UPDATE:: Load the trackable position into a second modelViewMatrix to display second item.
         QCAR::Matrix44F modelViewMatrix2 =
@@ -524,17 +417,99 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
         glDrawElements(GL_TRIANGLES, NUM_TEAPOT_OBJECT_INDEX, GL_UNSIGNED_SHORT,
                        (const GLvoid*) &teapotIndices[0]);
 #else
-		//Get List of Objects to Draw
 
+        //Draw the tower_top.
+        QCAR::Matrix44F modelViewProjection;
 
-		drawCount=0;
+        // Quick and dirty demonstration of animation. The tower_top turns to face the banana.
+        if( turAng < 180.0)
+        {
+        	turAng = turAng + 1.0;
+        }
 
+        // UPDATE:: translate, rotate and scale the tower_top.
+        SampleUtils::translatePoseMatrix(100.0f, 0.0f, kObjectScale,
+                                    &modelViewMatrix.data[0]);
+        // Animate the tower_top spinning 180 deg.
+        SampleUtils::rotatePoseMatrix(turAng, 0.0f, 0.0f, 1.0f,
+                        			    	&modelViewMatrix.data[0]);
+        // So the tower_top appears upright
+        SampleUtils::rotatePoseMatrix(90.0f, 1.0f, 0.0f, 0.0f,
+                        			&modelViewMatrix.data[0]);
+        SampleUtils::scalePoseMatrix(kObjectScale, kObjectScale, kObjectScale,
+                                    &modelViewMatrix.data[0]);
+        SampleUtils::multiplyMatrix(&projectionMatrix.data[0],
+                                    &modelViewMatrix.data[0] ,
+                                    &modelViewProjection.data[0]);
 
-		// Get the model view matrix
-        modelViewMatrix = QCAR::Tool::convertPose2GLMatrix(trackable->getPose());
+        glUseProgram(shaderProgramID);
+         
+        glVertexAttribPointer(vertexHandle, 3, GL_FLOAT, GL_FALSE, 0,
+                              (const GLvoid*) &tower_topVerts[0]);
+        glVertexAttribPointer(normalHandle, 3, GL_FLOAT, GL_FALSE, 0,
+                              (const GLvoid*) &tower_topNormals[0]);
+        glVertexAttribPointer(textureCoordHandle, 2, GL_FLOAT, GL_FALSE, 0,
+                              (const GLvoid*) &tower_topTexCoords[0]);
+        
+        glEnableVertexAttribArray(vertexHandle);
+        glEnableVertexAttribArray(normalHandle);
+        glEnableVertexAttribArray(textureCoordHandle);
+        
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, tower_topTexture->mTextureID);
+        glUniformMatrix4fv(mvpMatrixHandle, 1, GL_FALSE,
+                           (GLfloat*)&modelViewProjection.data[0] );
+        glDrawArrays(GL_TRIANGLES, 0, tower_topNumVerts);
 
-		//obtain list of objects to draw
-		updateDrawList();
+        SampleUtils::checkGlError("ImageTargets renderFrame");
+
+        // UPDATE:: Draw a banana positioned on the other side of the target.
+        // TO DO:: write a method so we aren't repeating the above code!
+        QCAR::Matrix44F modelViewProjection2;
+
+        SampleUtils::translatePoseMatrix(-100.0f, 0.0f, kObjectScale,
+        		&modelViewMatrix2.data[0]);
+        SampleUtils::rotatePoseMatrix( 90.0f, 1.0f, 0.0f, 0.0f,
+        		&modelViewMatrix2.data[0]);
+        SampleUtils::scalePoseMatrix(kObjectScale, kObjectScale, kObjectScale,
+        		&modelViewMatrix2.data[0]);
+        SampleUtils::multiplyMatrix(&projectionMatrix.data[0],
+        		&modelViewMatrix2.data[0] ,
+        		&modelViewProjection2.data[0]);
+
+        glUseProgram(shaderProgramID);
+
+        glVertexAttribPointer(vertexHandle, 3, GL_FLOAT, GL_FALSE, 0,
+        		(const GLvoid*) &bananaVerts[0]);
+        glVertexAttribPointer(normalHandle, 3, GL_FLOAT, GL_FALSE, 0,
+        		(const GLvoid*) &bananaNormals[0]);
+        glVertexAttribPointer(textureCoordHandle, 2, GL_FLOAT, GL_FALSE, 0,
+        		(const GLvoid*) &bananaTexCoords[0]);
+
+        glEnableVertexAttribArray(vertexHandle);
+        glEnableVertexAttribArray(normalHandle);
+        glEnableVertexAttribArray(textureCoordHandle);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, bananaTexture->mTextureID); // UPDATE:: apply a different texture.
+        glUniformMatrix4fv(mvpMatrixHandle, 1, GL_FALSE,
+        		(GLfloat*)&modelViewProjection2.data[0] );
+        glDrawArrays(GL_TRIANGLES, 0, bananaNumVerts);
+
+        SampleUtils::checkGlError("ImageTargets renderFrame");
+
+        // draw third object
+        QCAR::Matrix44F modelViewProjection3;
+
+        SampleUtils::translatePoseMatrix(0.0f, 0.0f, kObjectScale,
+        		&modelViewMatrix3.data[0]);
+        SampleUtils::rotatePoseMatrix( 0.0f, 0.0f, 0.0f, 0.0f,
+        		&modelViewMatrix3.data[0]);
+        SampleUtils::scalePoseMatrix(kObjectScale, kObjectScale, kObjectScale,
+        		&modelViewMatrix3.data[0]);
+        SampleUtils::multiplyMatrix(&projectionMatrix.data[0],
+        		&modelViewMatrix3.data[0] ,
+        		&modelViewProjection3.data[0]);
 
         glUseProgram(shaderProgramID);
 
@@ -550,15 +525,10 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
         glEnableVertexAttribArray(textureCoordHandle);
 
         glActiveTexture(GL_TEXTURE0);
-
-		// Render the models
-		for (int i = 0; i < drawCount; i++) {
-
-			//Need to pick correct texid here somehow
-			glBindTexture(GL_TEXTURE_2D, tower_shellTexture->mTextureID); // UPDATE:: apply a different texture.
-			Model* model = &drawList[i];
-			renderModel(&model->transform.data[0]);
-			}
+        glBindTexture(GL_TEXTURE_2D, tower_shellTexture->mTextureID); // UPDATE:: apply a different texture.
+        glUniformMatrix4fv(mvpMatrixHandle, 1, GL_FALSE,
+        		(GLfloat*)&modelViewProjection3.data[0] );
+        glDrawArrays(GL_TRIANGLES, 0, tower_shellNumVerts);
 
         SampleUtils::checkGlError("ImageTargets renderFrame");
 
@@ -568,7 +538,7 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
 
     glDisable(GL_DEPTH_TEST);
 
-#ifdef USE_OPENGL_ES_1_1
+#ifdef USE_OPENGL_ES_1_1        
     glDisable(GL_TEXTURE_2D);
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_NORMAL_ARRAY);
@@ -630,7 +600,7 @@ configureVideoBackground()
     config.mSynchronous = true;
     config.mPosition.data[0] = 0.0f;
     config.mPosition.data[1] = 0.0f;
-
+    
     if (isActivityInPortraitMode)
     {
         //LOG("configureVideoBackground PORTRAIT");
@@ -642,7 +612,7 @@ configureVideoBackground()
         {
             LOG("Correcting rendering background size to handle missmatch between screen and video aspect ratios.");
             config.mSize.data[0] = screenWidth;
-            config.mSize.data[1] = screenWidth *
+            config.mSize.data[1] = screenWidth * 
                               (videoMode.mWidth / (float)videoMode.mHeight);
         }
     }
@@ -674,11 +644,11 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_initApplicationNative(
                             JNIEnv* env, jobject obj, jint width, jint height)
 {
     LOG("Java_edu_pugetsound_vichar_ar_ARGameActivity_initApplicationNative");
-
+    
     // Store screen dimensions
     screenWidth = width;
     screenHeight = height;
-
+        
     // Handle to the activity class:
     jclass activityClass = env->GetObjectClass(obj);
 
@@ -690,7 +660,7 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_initApplicationNative(
         return;
     }
 
-    textureCount = env->CallIntMethod(obj, getTextureCountMethodID);
+    textureCount = env->CallIntMethod(obj, getTextureCountMethodID);    
     if (!textureCount)
     {
         LOG("getTextureCount() returned zero.");
@@ -712,7 +682,7 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_initApplicationNative(
     for (int i = 0; i < textureCount; ++i)
     {
 
-        jobject textureObject = env->CallObjectMethod(obj, getTextureMethodID, i);
+        jobject textureObject = env->CallObjectMethod(obj, getTextureMethodID, i); 
         if (textureObject == NULL)
         {
             LOG("GetTexture() returned zero pointer");
@@ -732,16 +702,16 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_deinitApplicationNative(JNIEnv* env
 
     // Release texture resources
     if (textures != 0)
-    {
+    {    
         for (int i = 0; i < textureCount; ++i)
         {
             delete textures[i];
             textures[i] = NULL;
         }
-
+    
         delete[]textures;
         textures = NULL;
-
+        
         textureCount = 0;
     }
 }
@@ -797,7 +767,7 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_stopCamera(JNIEnv *, jobject)
     QCAR::Tracker* imageTracker = trackerManager.getTracker(QCAR::Tracker::IMAGE_TRACKER);
     if(imageTracker != 0)
         imageTracker->stop();
-
+    
     QCAR::CameraDevice::getInstance().stop();
     QCAR::CameraDevice::getInstance().deinit();
 }
@@ -840,23 +810,23 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_setFocusMode(JNIEnv*, jobject, jint
         case 0:
             qcarFocusMode = QCAR::CameraDevice::FOCUS_MODE_NORMAL;
             break;
-
+        
         case 1:
             qcarFocusMode = QCAR::CameraDevice::FOCUS_MODE_CONTINUOUSAUTO;
             break;
-
+            
         case 2:
             qcarFocusMode = QCAR::CameraDevice::FOCUS_MODE_INFINITY;
             break;
-
+            
         case 3:
             qcarFocusMode = QCAR::CameraDevice::FOCUS_MODE_MACRO;
             break;
-
+    
         default:
             return JNI_FALSE;
     }
-
+    
     return QCAR::CameraDevice::getInstance().setFocusMode(qcarFocusMode) ? JNI_TRUE : JNI_FALSE;
 }
 
@@ -869,7 +839,7 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_initRendering(
 
     // Define clear color
     glClearColor(0.0f, 0.0f, 0.0f, QCAR::requiresAlpha() ? 0.0f : 1.0f);
-
+    
     // Now generate the OpenGL texture objects and add settings
     for (int i = 0; i < textureCount; ++i)
     {
@@ -882,7 +852,7 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_initRendering(
                 (GLvoid*)  textures[i]->mData);
     }
 #ifndef USE_OPENGL_ES_1_1
-
+  
     shaderProgramID     = SampleUtils::createProgramFromBuffer(cubeMeshVertexShader,
                                                             cubeFragmentShader);
 
