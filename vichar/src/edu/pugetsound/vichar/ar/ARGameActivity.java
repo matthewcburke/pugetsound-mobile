@@ -49,6 +49,9 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
+import android.graphics.drawable.Drawable;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
@@ -57,6 +60,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View.OnTouchListener;
 import android.view.animation.AlphaAnimation;
+import android.graphics.drawable.BitmapDrawable;
 //Import Fragment dependencies
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -148,6 +152,8 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     private int actionUp = 0;
     private TweetFragment twFrag;
     private View gui;
+    
+    private static final double MAX_EYELID_TO_SCREEN_RATIO = .25;
     
     private float touchX, touchY;
     
@@ -314,6 +320,64 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
         mScreenWidth = metrics.widthPixels;
         mScreenHeight = metrics.heightPixels;
+    }
+    
+    /**
+     * Resizes eyelid overlay bitmaps if they are greater than the defined
+     * MAX_EYELID_TO_SCREEN_RATIO. Maintains aspect ratio.
+     * If the eyelid overlays do not yet exist, function fails gracefully.
+     */
+    private void resizeEyelids() {
+    	ImageView[] eyelids = new ImageView[4];
+    	eyelids[0] = (ImageView) findViewById(R.id.eyelid_top_right);
+    	eyelids[1] = (ImageView) findViewById(R.id.eyelid_top_left);
+    	eyelids[2] = (ImageView) findViewById(R.id.eyelid_bottom_left);
+    	eyelids[3] = (ImageView) findViewById(R.id.eyelid_bottom_right);
+    	for(ImageView eyelid : eyelids) {
+    		if(eyelid != null) {
+    			Drawable drawing = eyelid.getDrawable();
+	    		if (drawing != null) {
+	    			Bitmap bitmap = ((BitmapDrawable) drawing).getBitmap();
+	    			// Get current dimensions
+	    		    int width = bitmap.getWidth();
+	    		    int height = bitmap.getHeight();
+	    		        	    
+	    		    // Determine how much to scale:
+	    		    if(width > MAX_EYELID_TO_SCREEN_RATIO * mScreenWidth
+	    		    	|| height > MAX_EYELID_TO_SCREEN_RATIO * mScreenHeight) 
+	    		    {
+	    		    	double aspectRatio = width / height;
+	    		    	float scale = 1.0f;
+	    		    	if(width > height) {
+	    		    		int newWidth = (int) Math.floor(MAX_EYELID_TO_SCREEN_RATIO * mScreenWidth);
+	    		    		scale = newWidth / ((float) width);
+	    		    	} else {
+	    		    		int newHeight = (int) Math.floor(MAX_EYELID_TO_SCREEN_RATIO * mScreenHeight);
+	    		    		scale = newHeight / ((float) height);
+	    		    	}
+	    		    	
+	    		    	// Create a matrix for the scaling and add the scaling data
+	    		        Matrix matrix = new Matrix();
+	    		        matrix.postScale(scale, scale);
+
+	    		        // Create a new bitmap and convert it to a format understood by the ImageView 
+	    		        Bitmap scaledBitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
+	    		        width = scaledBitmap.getWidth(); // re-use
+	    		        height = scaledBitmap.getHeight(); // re-use
+	    		        BitmapDrawable result 
+	    		        	= new BitmapDrawable(getResources(), scaledBitmap);
+	    		      	    		        
+	    		        // Apply the scaled bitmap
+	    		        eyelid.setImageDrawable(result);
+	    		    	
+	    		    }
+	    		} else {
+	    			Log.i("", "Cant get eyelid drawable");
+	    		}
+    		} else {
+    			Log.i("", "No eyelids!!");
+    		}
+    	}
     }
 
     
@@ -635,7 +699,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     	pushDeviceState(obtainDeviceState());
     	DebugLog.LOGI("onGameStateChange:" + stateStr);
     	
-//    	System.out.println(stateStr);
+    	System.out.println(stateStr);
     	
     	try {
     		JSONObject gameState = new JSONObject(stateStr);
@@ -862,6 +926,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
                             tweetHandle.setOnTouchListener(tweetHandleListener);
                     	    snapTwitterOff();
                             endTwitter();
+                            resizeEyelids();
                         }
                 };
 
@@ -1146,9 +1211,9 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     	try {
     		
     		// get camera's location and rotation from the native code, format it and put it in the JSON object
-    		//float[] cameraLoc = getCameraLocation();
-    		//deviceState.put("position", makePositionJSON(cameraLoc[0], cameraLoc[1], cameraLoc[2]));
-    		//deviceState.put("rotation", makeRotationJSON(cameraLoc[3], cameraLoc[4], cameraLoc[5]));
+    		float[] cameraLoc = getCameraLocation();
+    		deviceState.put("position", makePositionJSON(cameraLoc[0], cameraLoc[1], cameraLoc[2]));
+    		deviceState.put("rotation", makeRotationJSON(cameraLoc[3], cameraLoc[4], cameraLoc[5]));
     		
     		// Log the position for testing.
     		DebugLog.LOGI("pushDeviceState:" + deviceState.toString());
