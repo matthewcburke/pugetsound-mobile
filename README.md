@@ -35,9 +35,10 @@ Note that the AR activity will not run on the emulator, only on a phone with a c
 * click the `New...` button to create a new builder.
 * in the next window, select `Program` and click `OK`.
 * Name the builder 'ndk-build'.
-* Click `Browse File System...` to select a location. Navigate to where you installed the Android NDK and select the `ndk-build` program. On a windows machine, eclipse will get angry if there is a space in this location string. Since mine was in "Program Files (x86)" I used the DOS short name. See here (http://en.wikipedia.org/wiki/Program_Files) to figure out what it is for your configuration (32 or 64 bit).
+* Click `Browse File System...` to select a location. Navigate to where you installed the Android NDK and select the `ndk-build` program (`ndk-build.cmd` on windows). On a windows machine, eclipse will get angry if there is a space in this location string. Since mine was in `Program Files (x86)` I used the DOS short name. See here (http://en.wikipedia.org/wiki/Program_Files) to figure out what it is for your configuration (32 or 64 bit).
 * Click `Browse Workspace...` or `Browse File System...` and select the root project folder `vichar` as the 'Working Directory'.
-* In the Build Options 
+* In the Build Options set the builder to run `During a clean`, this way you can run Project > Clean everytime you pull
+* In the "Refresh" tab, you might want to set the builder to automatically refresh all resources (just be sure to save before you pull and/or project > clean).
 * Click `OK` to finish.
 
 _Note:_ you only need to re-run `ndk-build` if you have made changes to the native resources in the `jni/` folder. Otherwise, I believe that you can modify java code and still run the program.
