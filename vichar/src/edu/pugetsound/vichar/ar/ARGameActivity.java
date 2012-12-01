@@ -347,10 +347,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
 	    			// Get current dimensions
 	    		    int width = bitmap.getWidth();
 	    		    int height = bitmap.getHeight();
-	    		    
-	    		    Log.i("Test", "original width = " + Integer.toString(width));
-	    		    Log.i("Test", "original height = " + Integer.toString(height));
-	    	    
+	    		        	    
 	    		    // Determine how much to scale:
 	    		    if(width > MAX_EYELID_TO_SCREEN_RATIO * mScreenWidth
 	    		    	|| height > MAX_EYELID_TO_SCREEN_RATIO * mScreenHeight) 
@@ -368,10 +365,6 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
 	    		    	// Create a matrix for the scaling and add the scaling data
 	    		        Matrix matrix = new Matrix();
 	    		        matrix.postScale(scale, scale);
-	    		        
-	    		        Log.d("Scale", "mScreenWidth: " + mScreenWidth);
-	    		        Log.d("Scale", "mScreenHeight: " + mScreenHeight);
-	    		        Log.d("Scale", "Scale: " + scale);
 
 	    		        // Create a new bitmap and convert it to a format understood by the ImageView 
 	    		        Bitmap scaledBitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
@@ -379,9 +372,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
 	    		        height = scaledBitmap.getHeight(); // re-use
 	    		        BitmapDrawable result 
 	    		        	= new BitmapDrawable(getResources(), scaledBitmap);
-	    		        Log.i("Test", "scaled width = " + Integer.toString(width));
-	    		        Log.i("Test", "scaled height = " + Integer.toString(height));
-	    		        
+	    		      	    		        
 	    		        // Apply the scaled bitmap
 	    		        eyelid.setImageDrawable(result);
 	    		    	
