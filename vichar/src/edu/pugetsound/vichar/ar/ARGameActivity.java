@@ -144,6 +144,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
 	// Service Stuff
     private Messenger networkingServiceMessenger = null;
     boolean isBoundToNetworkingService = false;
+    private boolean isConnectedToGameServer = false;
     final Messenger mMessenger = new Messenger(new IncomingHandler());
     
     // Twitter
@@ -1299,9 +1300,18 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-	            case NetworkingService.MSG_SET_JSON_STRING_VALUE:
-	            	String str = msg.getData().getString("" + NetworkingService.MSG_SET_JSON_STRING_VALUE);
-	            	onGameStateChange(str);
+	            case NetworkingService.MSG_RET_JSON_STRING_FROM_SERVER:
+	            	Log.d(this.toString(), "Got something from NetworkingService");
+	            	String str = msg.getData().getString("" + NetworkingService.MSG_RET_JSON_STRING_FROM_SERVER);
+	            	Log.d(this.toString(), str);
+	            	if(str != null) {
+	            		isConnectedToGameServer = true;
+	            		onGameStateChange(str);
+	            	}
+	            	break;
+	            case NetworkingService.MSG_NETWORKING_FAILURE:
+	            	isConnectedToGameServer = false;
+	            	Log.d(this.toString(), "Networking Failure");
 	            	break;
 	            default:
 	                super.handleMessage(msg);
