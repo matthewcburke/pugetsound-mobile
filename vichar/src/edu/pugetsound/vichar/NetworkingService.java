@@ -157,6 +157,7 @@ public class NetworkingService extends Service {
 	private void checkVitals() {
 		if(mClients.size() <= 0) {
 			// We have no clients, time to die.
+			this.stopPolling();
 			this.stopSelf();
 		}
 	}
@@ -189,6 +190,12 @@ public class NetworkingService extends Service {
 		return mMessenger.getBinder();
 	}
 	
+	@Override
+	public void onDestroy() {
+		this.stopPolling();
+		super.onDestroy();
+	}
+	
 //------------------------------------------------------------------------------
 // POLLING
 //------------------------------------------------------------------------------
@@ -217,12 +224,16 @@ public class NetworkingService extends Service {
 	 * Stops the polling clock. Subsequent calls have no effect.
 	 */
 	public void stopPolling() {
-		pollingTask.cancel();
+		if(pollingTask != null) {
+			pollingTask.cancel();
+		}
 		polling = false;
 	}
 	
 	public void restartPolling() {
-		pollingTask.resetFailureCount();
+		if(pollingTask != null) {
+			pollingTask.resetFailureCount();
+		}
 	}
 	
 	public void queueOutboundJString(String jStr) {

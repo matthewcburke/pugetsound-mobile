@@ -397,9 +397,6 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     	//the whole screen becomes sensitive to touch
 //    	View gameContainer = (View) findViewById(R.id.game_container);
 //    	gameContainer.setOnTouchListener(this);
-
-        //Bind to the networking service
-    	doBindNetworkingService();
     	
         // Set the splash screen image to display during initialization:
     	mSplashScreenImageResource = edu.pugetsound.vichar.R.drawable.splash;
@@ -646,6 +643,22 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     // TODO create a flag to indicate whether an target is being tracked, and
     // write a setter function for the native library to call.
 
+    protected void onStart() {
+    	DebugLog.LOGD("ARGameActivity::onStart");
+    	super.onStart();
+    	
+    	//Bind to the networking service
+    	doBindNetworkingService();
+    }
+    
+    protected void onStop() {
+    	DebugLog.LOGD("ARGameActivity::onStop");
+    	super.onStop();
+    	
+    	//Bind to the networking service
+    	doUnbindNetworkingService();
+    }
+    
    /** Called when the activity will start interacting with the user.*/
     protected void onResume()
     {
@@ -748,8 +761,6 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     {
         DebugLog.LOGD("ARGameActivity::onDestroy");
         super.onDestroy();
-        
-        doUnbindNetworkingService();
         
         // Dismiss the splash screen time out handler:
         if (mSplashScreenHandler != null)
