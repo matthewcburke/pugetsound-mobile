@@ -370,6 +370,14 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
         //Get inverse
         test = SampleMath::phoneCoorMatrix(trackable->getPose());
 
+        //Get phones distance
+        float dist = SampleMath::getDistance(&pos);
+
+        LOG("=========================================");
+        LOG("%f", dist);
+        LOG("=========================================");
+
+        /*
         //Print results
 //        LOG("Poisiton:");
 //        LOG("%f %f %f %f",pos.data[0], pos.data[1], pos.data[2], pos.data[3]);
@@ -383,6 +391,7 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
         phoneLoc[0] = test.data[3];
         phoneLoc[1] = test.data[7];
         phoneLoc[2] = test.data[11];
+        */
         //End============================================================================================
 
 
@@ -556,6 +565,7 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
 JNIEXPORT jfloatArray JNICALL
 Java_edu_pugetsound_vichar_ar_ARGameActivity_getCameraLocation(JNIEnv * env, jobject)
 {
+
 	jfloatArray cameraLocation;
 	cameraLocation = env->NewFloatArray(6);
 
@@ -563,43 +573,8 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_getCameraLocation(JNIEnv * env, job
 	// phone location and rotation.
 	jfloat coordArray[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
-	//find a better way to get the state object
-	QCAR::State& state = new QCAR::State();
-	if(state.getNumActiveTrackables() > 0){
-		int tIdx=0;
-		const QCAR::Trackable* trackable = state.getActiveTrackable(tIdx);
-
-		//Begin additions by Erin================================================================================
-		QCAR::Matrix34F test;   //gets inverse pos matrix
-		QCAR::Matrix34F pos;   //Gets positional data
-		pos = trackable->getPose();
-
-		//Get inverse
-		test = SampleMath::phoneCoorMatrix(trackable->getPose());
-
-		//Print results
-		//        LOG("Poisiton:");
-		//        LOG("%f %f %f %f",pos.data[0], pos.data[1], pos.data[2], pos.data[3]);
-		//        LOG("%f %f %f %f",pos.data[4], pos.data[5], pos.data[6], pos.data[7]);
-		//        LOG("%f %f %f %f",pos.data[8], pos.data[9], pos.data[10],pos.data[11]);
-		//        LOG("Inverse:");
-		//        LOG("%f %f %f %f",test.data[0], test.data[1], test.data[2], test.data[3]);
-		//        LOG("%f %f %f %f",test.data[4], test.data[5], test.data[6], test.data[7]);
-		//        LOG("%f %f %f %f",test.data[8], test.data[9], test.data[10], test.data[11]);
-		//        LOG("=========================");
-		//End============================================================================================
-		// assign the location vector of the array to the coord array.
-		coordArray[0]=pos.data[3];
-		coordArray[1]=pos.data[7];
-		coordArray[2]=pos.data[11];
-		LOG("C++ Position: %f %f %f", coordArray[0], coordArray[1], coordArray[2]);
-	}else
-	{
-		LOG("Skipped the if statement in getCameraLocation.");
-	}
-
-	env->SetFloatArrayRegion(cameraLocation, 0, 6, coordArray);
-	delete state;
+	env->SetFloatArrayRegion(cameraLocation, 0, 6, phoneLoc);
+	//delete state;
 	return cameraLocation;
 }
 
