@@ -14,10 +14,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 
 /**
  * Takes a dummy JSONObject, converts it to an ArrayList of String[]s of length 2,
@@ -42,6 +45,7 @@ public class LeaderboardActivity extends Activity {
         createTable();
     }
     
+	
 	public void getJson() {
 	    //gets Json from webserver using the HttpService and sets myJson 
 	    //equal to the return value.
@@ -325,6 +329,7 @@ public class LeaderboardActivity extends Activity {
         table.addView(row8);
         table.addView(row9);
         table.addView(row10);
-        setContentView(table); //puts the table on the screen
+        
+        addContentView(table, new LayoutParams( LayoutParams.MATCH_PARENT , LayoutParams.MATCH_PARENT ) ); //puts the table on the screen
         }
 }
