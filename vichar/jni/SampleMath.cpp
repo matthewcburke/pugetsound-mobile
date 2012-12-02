@@ -257,13 +257,11 @@ SampleMath::matrxVecMult(QCAR::Matrix34F *m) {
     vecTemp[2] = m->data[11];
 
     //Calculate posTemp = -R^-1 * T
-
     for (int i=0; i<3; i++) {
     	for (int j=0; j<3; j++) {
     		posTemp[i] += (-1*m->data[4*i+j])*vecTemp[j];
     	}
     }
-
 
     //put results back
     m->data[3] = posTemp[0];
@@ -283,9 +281,9 @@ SampleMath::swapRotPos(QCAR::Matrix34F m, QCAR::Matrix34F *n) {
 }
 
 QCAR::Matrix34F
-vectorSubtract(QCAR::Matrix34F *m, QCAR::Matrix34F *n) {
-	float temp[3] = {m->data[3] - n->data[3], m->data[7] - n->data[7], //position m-n
-			m->data[11] - n->data[11]};
+vectorAdd(QCAR::Matrix34F *m, QCAR::Matrix34F *n) {
+	float temp[3] = {m->data[3] + n->data[3], m->data[7] + n->data[7], //position m-n
+			m->data[11] + n->data[11]};
 	QCAR::Matrix34F newPos;
 
 	//Copy over rotational data
@@ -303,7 +301,7 @@ vectorSubtract(QCAR::Matrix34F *m, QCAR::Matrix34F *n) {
 	return newPos;
 }
 
-int
+float
 getDistance(QCAR::Matrix34F *phone) {
         float temp = pow(phone->data[3],2) + pow(phone->data[7], 2) +   //First calc for dist
                 pow(phone->data[11],2);
@@ -311,8 +309,6 @@ getDistance(QCAR::Matrix34F *phone) {
         float dist = sqrt(temp);    //Second calc for dist
 
         return dist;
-    
-
 }
 //End==============================================================================================================
 

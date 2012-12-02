@@ -78,18 +78,18 @@ public:
 
     /**
      * Gets the relative position between two objects with pos matrices & [R1^-1|T2]
-     * param m pointer to object 1
-     * param n pointer to object 2
+     * param m pointer to object 1, must be in form [R^-1|-R^-1*T]
+     * param n pointer to object 2, must be in form [R2|T2]
      * return posMatrix with position of object two with rotation to object 1
      */
-    static QCAR::Matrix34F vectorSubtract(QCAR::Matrix34F *m, QCAR::Matrix34F *n);
+    static QCAR::Matrix34F vectorAdd(QCAR::Matrix34F *m, QCAR::Matrix34F *n);
 
     /**
      * Calculates the distance between the phone and a target
      * param phone pointer to the phones pos matrix
      * return The distance between the phone and a target
      */
-    static int getDistance(QCAR::Matrix34F *phone);
+    static float getDistance(QCAR::Matrix34F *phone);
   //End===============================================================================================================
     
 };

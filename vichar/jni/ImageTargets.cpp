@@ -355,7 +355,8 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
     glEnable(GL_CULL_FACE);
 
     // Did we find any trackables this frame?
-    for(int tIdx = 0; tIdx < state.getNumActiveTrackables(); tIdx++)
+    int tIdx = 0;
+    if (state.getNumActiveTrackables() > 0)
     {
         // Get the trackable:
         const QCAR::Trackable* trackable = state.getActiveTrackable(tIdx);
@@ -363,6 +364,21 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
             QCAR::Tool::convertPose2GLMatrix(trackable->getPose());
 
         //Begin additions by Erin================================================================================
+        if (state.getNumActiveTrackables() > 1) {
+        	const QCAR::Trackable* object2 = state.getActiveTrackable(tIdx+1);
+
+        	//Get position of target (center image) and new target (tower)
+        	QCAR::Matrix34F posObject1 = SampleMath::phoneCoorMatrix(trackable->getPose());
+        	QCAR::Matrix34F posObject2 = object2->getPose();
+
+        	//Get position of object2 relative to object 1
+        	QCAR::Matrix34F posRelative = SampleMath::vectorAdd(&posObject1, &posObject2);
+
+        	LOG("==========================");
+        	LOG("New target position: (%f,%f,%f)", posRelative.data[3], posRelative.data[7], posRelative.data[11]);
+        	LOG("==========================");
+        }
+
         QCAR::Matrix34F test;   //gets inverse pos matrix
         QCAR::Matrix34F pos;   //Gets positional data
         pos = trackable->getPose();
