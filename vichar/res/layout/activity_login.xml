@@ -11,6 +11,7 @@
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:ems="10"
+        android:maxLength="15"
         android:inputType="text" />
     
     <Button
@@ -20,6 +21,8 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/editText1"
-        android:text="@string/choose_username" />
+        android:text="@string/choose_username"
+        android:textColor="@drawable/game_button_txt"
+        style="@style/ShadowTextStyle" />
 
 </RelativeLayout>

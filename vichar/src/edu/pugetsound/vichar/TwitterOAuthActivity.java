@@ -3,7 +3,6 @@ package edu.pugetsound.vichar;
 import edu.pugetsound.vichar.RetrieveAccessToken.AccessTokenCallback;
 import edu.pugetsound.vichar.RetrieveRequestToken.RequestTokenCallback;
 import twitter4j.Twitter;
-import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
@@ -39,13 +38,9 @@ implements RequestTokenCallback, AccessTokenCallback {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_twitter_oauth);
-
-		//make pin area invisible until redirected to pin url
-		//        View textContainer = (View) findViewById(R.id.pin_inputs);
-		//        textContainer.setVisibility(View.GONE);
-
-		this.webView = (WebView) findViewById(R.id.oauth_webview);
 		
+		
+		this.webView = (WebView) findViewById(R.id.oauth_webview);			
 		this.webView.setWebViewClient(new WebViewClient() //set a couple properties of webview...
 		{
 			//do following to ensure no address bar is visible
@@ -94,7 +89,6 @@ implements RequestTokenCallback, AccessTokenCallback {
 			}
 		});
 
-		Log.d("ViChar", "Activity created, calling authorizeTwitter");
 		authorizeTwitter();
 	}
 
@@ -116,6 +110,10 @@ implements RequestTokenCallback, AccessTokenCallback {
 		new RetrieveRequestToken(this, new TwitterWrapper(twitter));
 	}
 
+	/**
+	 * Called after request token retrieval, either advances to next step or handles failure
+	 * @param wrapper TwitterWrapper which contains result of request token retrieval attempt
+	 */
 	public void PostRequestToken(TwitterWrapper wrapper) {
 		if(wrapper.getResult()) {
 			requestToken = wrapper.getRequestToken();
@@ -125,8 +123,15 @@ implements RequestTokenCallback, AccessTokenCallback {
 			Log.d("Vichar", oAuthUrl);
 			webView.loadUrl(oAuthUrl);
 		} else {
-			//TODO: decide behavior if request token retrieval fails
-			System.out.println("request token retireval failed"); 
+			ConnectionUtility cu = new ConnectionUtility();
+			int connected = cu.checkConnection(this);
+			//if connection, try again
+			if(connected == 2) {
+				new RetrieveAccessToken(this, wrapper);
+			} else { //if no network connection or poor connectivity, show connection dialog
+				ConnectionDialog cd = new ConnectionDialog(this);
+				cd.show();
+			}
 		}
 	}
 
@@ -151,7 +156,7 @@ implements RequestTokenCallback, AccessTokenCallback {
 	/**
 	 * Saves access token to persistent storage, so that user information
 	 * can be persisted across multiple game sessions
-	 * @param accessToken
+	 * @param accessToken access token to be saved
 	 */
 	private void storeAccessToken(AccessToken accessToken)
 	{
@@ -162,7 +167,7 @@ implements RequestTokenCallback, AccessTokenCallback {
 
 	/**
 	 * Finishes login by advancing to next activity or prompting retry
-	 * @param loginResult Result of login attempt
+	 * @param wrapper TwitterWrapper which contains result of access token retrieval attempt
 	 */
 	public void PostAccessToken(TwitterWrapper wrapper)    {
 		if(wrapper.getResult()) 	{
@@ -175,7 +180,15 @@ implements RequestTokenCallback, AccessTokenCallback {
 			Intent mainActIntent = new Intent(this, MainMenuActivity.class);
 			startActivity(mainActIntent);
 		} else	{
-			//TODO: decide what will happen when login fails
+			ConnectionUtility cu = new ConnectionUtility();
+			int connected = cu.checkConnection(this);
+			//if connection, try again
+			if(connected == 2) {
+				new RetrieveAccessToken(this, wrapper);
+			} else { //if no network connection or poor connectivity, show connection dialog
+				ConnectionDialog cd = new ConnectionDialog(this);
+				cd.show();
+			}
 		}
 	}   
 }

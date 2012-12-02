@@ -53,7 +53,10 @@
     <string name="screenname_key">screenname</string>
     <string name="guest_name">guest name</string>
 
+    <!-- Colors -->
     <color name="myColor">#F5F5F5</color>
+    <color name="game_blue">#268bd2</color>
+    <color name="twitter_blue">#4099FF</color>
 
     <string name="corner_radious">8dp</string>
 
@@ -75,9 +78,6 @@
     <string name="title_activity_splash">SplashActivity</string>
     <string name="title_activity_splash_screen">SplashScreen</string>
 
-
-
-    <color name="game_blue">#268bd2</color>
 
 
 </resources>

@@ -22,7 +22,8 @@
             android:layout_height="wrap_content"
             android:layout_weight=".3"
             android:ems="10"
-            android:hint="@string/enter_pin" />
+            android:hint="@string/enter_pin"
+            android:inputType="number" />
 
         <Button
             android:id="@+id/ok_button"
@@ -40,6 +41,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:indeterminate="true"
-        android:background= "@layout/loading_circle" />
+        android:background="@drawable/loading_circle" />
 
 </FrameLayout>
