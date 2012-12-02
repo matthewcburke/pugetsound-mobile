@@ -23,7 +23,7 @@
         android:layout_below="@+id/editText1"
         android:text="@string/choose_username"
         android:textColor="@drawable/game_button_txt"
-        android:style="@style/ShadowTextStyle"
+        style="@style/ShadowTextStyle"
         android:background="@drawable/grayscale_button_bg" />
 
 
