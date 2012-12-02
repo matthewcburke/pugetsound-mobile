@@ -1,15 +1,3 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/menu_settings"
-        android:title="@string/menu_settings"
-        android:orderInCategory="100"
-        android:showAsAction="never" />
-    <item android:id="@+id/enter_game"
-        android:title="@string/enter_game"
-        android:orderInCategory="100"
-        android:showAsAction="ifRoom" />
-    <item android:id="@+id/enter_main_menu" 
-        android:title="@string/enter_main_menu" 
-        android:orderInCategory="100" 
-        android:showAsAction="always"></item>
     
 </menu>
