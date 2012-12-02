@@ -370,12 +370,14 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
         //Get inverse
         test = SampleMath::phoneCoorMatrix(trackable->getPose());
 
+        /*
         //Get phones distance
         float dist = SampleMath::getDistance(&pos);
 
         LOG("=========================================");
         LOG("%f", dist);
         LOG("=========================================");
+		*/
 
         /*
         //Print results
@@ -427,6 +429,7 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
                        (const GLvoid*) &teapotIndices[0]);
 #else
 
+
         //Draw the tower_top.
         QCAR::Matrix44F modelViewProjection;
 
@@ -471,6 +474,7 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
         glDrawArrays(GL_TRIANGLES, 0, tower_topNumVerts);
 
         SampleUtils::checkGlError("ImageTargets renderFrame");
+
 
         // UPDATE:: Draw a banana positioned on the other side of the target.
         // TO DO:: write a method so we aren't repeating the above code!
