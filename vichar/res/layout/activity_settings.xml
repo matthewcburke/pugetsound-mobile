@@ -1,58 +1,84 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" 
+    android:layout_width="fill_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" 
+    android:weightSum="10"
     android:background="@drawable/settings_portrait">
 
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:text="@string/enter_settings"
-        tools:context=".SettingsActivity" />
-   
-    <Button
-        android:id="@+id/main_menu_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginRight="25dp"
-        android:layout_marginTop="25dp"
-        android:text="@string/enter_main_menu" />
-    <Button
-        android:id="@+id/about_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginLeft="25dp"
-        android:layout_marginTop="25dp"
-        android:text="@string/enter_about" />
-    
-    <Button 
-        android:id="@+id/logout_twitter_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginRight="25dp"
-        android:layout_marginTop="100dp"
-        android:text="@string/logout_twitter"
-        />
-    
-    <Button
-        android:id="@+id/toggle_sound_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginRight="25dp"
-        android:layout_marginTop="100dp"
-        android:text="@string/toggle_sound"
-        />
-    
+    <LinearLayout 
+         android:layout_width="fill_parent"
+         android:layout_height="0dp"
+         android:layout_weight="1"
+         android:weightSum="2"
+         android:orientation="horizontal">
+	    <Button
+	        android:layout_width="0dp"
+      		android:layout_height="fill_parent"
+        	android:layout_weight="1"
+        	android:layout_marginTop="1dp"
+        	android:gravity="left|top"
+	        android:id="@+id/main_menu_button"
+	        android:layout_margin="1dp"
+            android:paddingTop="1dp"
+            android:paddingBottom="1dp"
+	        android:textColor="@drawable/game_button_txt"
+	        style="@style/ShadowTextStyle"
+	        android:background="@drawable/grayscale_button_bg"
+	        android:text="@string/enter_main_menu" />
+	    <Button
+	        android:id="@+id/about_button"
+	        android:layout_width="0dp"
+      		android:layout_height="fill_parent"
+        	android:layout_weight="1"
+        	android:gravity="left|top"
+        	android:layout_marginTop="1dp"
+	        android:layout_margin="1dp"
+            android:paddingTop="1dp"
+            android:paddingBottom="1dp"
+	        android:text="@string/enter_about" 
+	        android:textColor="@drawable/grayscale_button_txt"
+	        style="@style/ShadowTextStyle"
+	        android:background="@drawable/grayscale_button_bg"/>
+	</LinearLayout>
+	
+    <LinearLayout 
+         android:layout_width="fill_parent"
+         android:layout_height="0dp"
+         android:layout_weight="1"
+         android:weightSum="2"
+         android:orientation="horizontal">
+	    <Button 
+	        android:id="@+id/logout_twitter_button"
+	        android:layout_width="0dp"
+	        android:gravity="left|top"
+      		android:layout_height="fill_parent"
+        	android:layout_weight="1"
+        	android:layout_marginTop="1dp"
+	        android:layout_margin="1dp"
+            android:paddingTop="1dp"
+            android:paddingBottom="5dp"
+	        android:text="@string/logout_twitter"
+	        android:textColor="@drawable/grayscale_button_txt"
+	        style="@style/ShadowTextStyle"
+	        android:background="@drawable/grayscale_button_bg"
+	        />
+	    
+	    <Button
+	        android:id="@+id/toggle_sound_button"
+	        android:layout_width="0dp"
+      		android:layout_height="fill_parent"
+        	android:layout_weight="1"
+        	android:layout_marginTop="1dp"
+	        android:layout_margin="1dp"
+            android:paddingTop="1dp"
+            android:paddingBottom="1dp"
+            android:gravity="left|top"
+	        android:text="@string/toggle_sound"
+	        android:textColor="@drawable/grayscale_button_txt"
+	        style="@style/ShadowTextStyle"
+	        android:background="@drawable/grayscale_button_bg"
+	        />
+    </LinearLayout>
 
-</RelativeLayout>
+</LinearLayout>

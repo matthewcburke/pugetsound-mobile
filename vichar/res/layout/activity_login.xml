@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/vi_char_robot" >
+    android:background="@drawable/settings_portrait">
     <EditText
         android:id="@+id/editText1"
         android:layout_width="wrap_content"
@@ -11,6 +11,7 @@
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:ems="10"
+        android:maxLength="15"
         android:inputType="text" />
     
     <Button
@@ -20,6 +21,10 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/editText1"
-        android:text="@string/choose_username" />
+        android:text="@string/choose_username"
+        android:textColor="@drawable/game_button_txt"
+        style="@style/ShadowTextStyle"
+        android:background="@drawable/grayscale_button_bg" />
+
 
 </RelativeLayout>

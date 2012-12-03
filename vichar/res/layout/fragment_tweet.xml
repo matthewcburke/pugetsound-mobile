@@ -3,7 +3,7 @@
     android:id="@+id/enter_submit_tweet"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="#808080" >
+    android:background="@drawable/tw_frag_background" >
 
     <TextView
         android:id="@+id/cur_twitter_challenge"

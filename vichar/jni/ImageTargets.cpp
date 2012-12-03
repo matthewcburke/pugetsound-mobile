@@ -371,15 +371,15 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
         test = SampleMath::phoneCoorMatrix(trackable->getPose());
 
         //Print results
-        LOG("Poisiton:");
-        LOG("%f %f %f %f",pos.data[0], pos.data[1], pos.data[2], pos.data[3]);
-        LOG("%f %f %f %f",pos.data[4], pos.data[5], pos.data[6], pos.data[7]);
-        LOG("%f %f %f %f",pos.data[8], pos.data[9], pos.data[10],pos.data[11]);
-        LOG("Inverse:");
-        LOG("%f %f %f %f",test.data[0], test.data[1], test.data[2], test.data[3]);
-        LOG("%f %f %f %f",test.data[4], test.data[5], test.data[6], test.data[7]);
-        LOG("%f %f %f %f",test.data[8], test.data[9], test.data[10], test.data[11]);
-        LOG("=========================");
+//        LOG("Poisiton:");
+//        LOG("%f %f %f %f",pos.data[0], pos.data[1], pos.data[2], pos.data[3]);
+//        LOG("%f %f %f %f",pos.data[4], pos.data[5], pos.data[6], pos.data[7]);
+//        LOG("%f %f %f %f",pos.data[8], pos.data[9], pos.data[10],pos.data[11]);
+//        LOG("Inverse:");
+//        LOG("%f %f %f %f",test.data[0], test.data[1], test.data[2], test.data[3]);
+//        LOG("%f %f %f %f",test.data[4], test.data[5], test.data[6], test.data[7]);
+//        LOG("%f %f %f %f",test.data[8], test.data[9], test.data[10], test.data[11]);
+//        LOG("=========================");
         phoneLoc[0] = test.data[3];
         phoneLoc[1] = test.data[7];
         phoneLoc[2] = test.data[11];

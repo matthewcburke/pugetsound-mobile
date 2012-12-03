@@ -67,9 +67,6 @@ public class MainActivity extends Activity
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
-            case R.id.enter_game:
-            	startActivity(new Intent(this, GameActivity.class));
-                return true;
             case R.id.enter_main_menu:
             	startActivity(new Intent(this, MainMenuActivity.class));
                 return true;

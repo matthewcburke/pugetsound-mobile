@@ -23,14 +23,11 @@ package edu.pugetsound.vichar.ar;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.UUID;
 import java.util.Vector;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
@@ -59,6 +56,9 @@ import android.graphics.drawable.ClipDrawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
+import android.graphics.drawable.Drawable;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
@@ -69,11 +69,10 @@ import android.view.MotionEvent;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.animation.AlphaAnimation;
+import android.graphics.drawable.BitmapDrawable;
 //Import Fragment dependencies
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 
 import com.qualcomm.QCAR.QCAR;
 
@@ -154,6 +153,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
 	// Service Stuff
     private Messenger networkingServiceMessenger = null;
     boolean isBoundToNetworkingService = false;
+    private boolean isConnectedToGameServer = false;
     final Messenger mMessenger = new Messenger(new IncomingHandler());
     
     // Twitter
@@ -162,6 +162,8 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     private int actionUp = 0;
     private TweetFragment twFrag;
     private View gui;
+    
+    private static final double MAX_EYELID_TO_SCREEN_RATIO = .25;
     
     private float touchX, touchY;
     private Button fireb;
@@ -330,6 +332,64 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
         mScreenWidth = metrics.widthPixels;
         mScreenHeight = metrics.heightPixels;
     }
+    
+    /**
+     * Resizes eyelid overlay bitmaps if they are greater than the defined
+     * MAX_EYELID_TO_SCREEN_RATIO. Maintains aspect ratio.
+     * If the eyelid overlays do not yet exist, function fails gracefully.
+     */
+    private void resizeEyelids() {
+    	ImageView[] eyelids = new ImageView[4];
+    	eyelids[0] = (ImageView) findViewById(R.id.eyelid_top_right);
+    	eyelids[1] = (ImageView) findViewById(R.id.eyelid_top_left);
+    	eyelids[2] = (ImageView) findViewById(R.id.eyelid_bottom_left);
+    	eyelids[3] = (ImageView) findViewById(R.id.eyelid_bottom_right);
+    	for(ImageView eyelid : eyelids) {
+    		if(eyelid != null) {
+    			Drawable drawing = eyelid.getDrawable();
+	    		if (drawing != null) {
+	    			Bitmap bitmap = ((BitmapDrawable) drawing).getBitmap();
+	    			// Get current dimensions
+	    		    int width = bitmap.getWidth();
+	    		    int height = bitmap.getHeight();
+	    		        	    
+	    		    // Determine how much to scale:
+	    		    if(width > MAX_EYELID_TO_SCREEN_RATIO * mScreenWidth
+	    		    	|| height > MAX_EYELID_TO_SCREEN_RATIO * mScreenHeight) 
+	    		    {
+	    		    	double aspectRatio = width / height;
+	    		    	float scale = 1.0f;
+	    		    	if(width > height) {
+	    		    		int newWidth = (int) Math.floor(MAX_EYELID_TO_SCREEN_RATIO * mScreenWidth);
+	    		    		scale = newWidth / ((float) width);
+	    		    	} else {
+	    		    		int newHeight = (int) Math.floor(MAX_EYELID_TO_SCREEN_RATIO * mScreenHeight);
+	    		    		scale = newHeight / ((float) height);
+	    		    	}
+	    		    	
+	    		    	// Create a matrix for the scaling and add the scaling data
+	    		        Matrix matrix = new Matrix();
+	    		        matrix.postScale(scale, scale);
+
+	    		        // Create a new bitmap and convert it to a format understood by the ImageView 
+	    		        Bitmap scaledBitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
+	    		        width = scaledBitmap.getWidth(); // re-use
+	    		        height = scaledBitmap.getHeight(); // re-use
+	    		        BitmapDrawable result 
+	    		        	= new BitmapDrawable(getResources(), scaledBitmap);
+	    		      	    		        
+	    		        // Apply the scaled bitmap
+	    		        eyelid.setImageDrawable(result);
+	    		    	
+	    		    }
+	    		} else {
+	    			Log.i("", "Cant get eyelid drawable");
+	    		}
+    		} else {
+    			Log.i("", "No eyelids!!");
+    		}
+    	}
+    }
 
     
     /** Called when the activity first starts or the user navigates back
@@ -347,9 +407,6 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     	//the whole screen becomes sensitive to touch
 //    	View gameContainer = (View) findViewById(R.id.game_container);
 //    	gameContainer.setOnTouchListener(this);
-
-        //Bind to the networking service
-    	doBindNetworkingService();
     	
         
     	// Set the splash screen image to display during initialization:
@@ -365,10 +422,10 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     	//inflate ui elements
         LayoutInflater inflater = getLayoutInflater();
         gui = inflater.inflate(R.layout.activity_ar, null); 
+        Log.d("UI", "inflated ui");
         
     	// Update the application status to start initializing application
-    	updateApplicationStatus(APPSTATUS_INIT_APP);
-    	
+    	updateApplicationStatus(APPSTATUS_INIT_APP);    	
     }
     
     private void makeFireballButton() {
@@ -384,22 +441,26 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
        
     private OnClickListener fireListener = new OnClickListener() { 
    		public void onClick(View v) { 
-   			JSONObject send = new JSONObject();
-          	long seconds = System.currentTimeMillis();
+   			JSONObject req = new JSONObject();
+   			JSONObject id = new JSONObject();
+   			JSONObject fire = new JSONObject();
+   			JSONObject stuff = new JSONObject();
+          	long time = System.currentTimeMillis();
           	float[] cameraLoc = getCameraLocation();
+          	//UUID uuid = UUID.randomUUID();
+          	//String nuuid = uuid.toString();
           	try {
-          		send.put("timeCreated", seconds);
-          		send.put("position", makePositionJSON(cameraLoc[0], cameraLoc[1], cameraLoc[2]));
-          		send.put("rotation", makeRotationJSON(cameraLoc[3], cameraLoc[4], cameraLoc[5]));//is this really necessary?
-          		send.put("Unique ID of request", send);
-          		send.put("fireballs", send);
-          		send.put("requests", send);
-          		} 
-          	catch (JSONException e1) {
-          		// TODO Auto-generated catch block
+          	stuff.put("timeCreated", time);
+      		stuff.put("position", makePositionJSON(cameraLoc[0], cameraLoc[1], cameraLoc[2]));
+      		stuff.put("rotation", makeRotationJSON(cameraLoc[3], cameraLoc[4], cameraLoc[5]));
+      		id.put("" + time, stuff);
+      		fire.put("fireballs", id);
+      		req.put("requests", fire);
+          	} catch (JSONException e1) {
+          	// TODO Auto-generated catch block
           		e1.printStackTrace();
-          		}
-          	pushDeviceState(send);
+          	}
+          	pushDeviceState(req);
   	        fireb.setEnabled(false);
           	//ImageView imageview = (ImageView) findViewById(R.id.fill);
           	//ClipDrawable drawable = (ClipDrawable) imageview.getDrawable();
@@ -421,7 +482,6 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     
     private boolean tweetContainerTouch(View v, MotionEvent me)  {
     	View tweetContainer = (View) findViewById(edu.pugetsound.vichar.R.id.tweet_container);
-    	View gameContainer = (View) findViewById(edu.pugetsound.vichar.R.id.game_container);
     	//check type of touch action
     	switch (me.getAction()) {
 			case MotionEvent.ACTION_DOWN:
@@ -480,8 +540,11 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     public void snapTwitterOff()  {
     	View tweetContainer = (View) findViewById(edu.pugetsound.vichar.R.id.tweet_container);
     	FrameLayout.LayoutParams paramsReset = (FrameLayout.LayoutParams) tweetContainer.getLayoutParams();
-    	View twFrag = (View) findViewById(R.id.twitter_fragment);    	
-		paramsReset.leftMargin = -twFrag.getWidth();
+    	
+    	//its difficult to get fragment width, instead take entire width of layout and subtract handle button width
+//    	View twHandle = (View) findViewById(R.id.tweet_frag_button);
+//    	int twFragWidth = tweetContainer.getWidth() - twHandle.getWidth();    	
+		paramsReset.leftMargin = -315;
 		tweetContainer.setLayoutParams(paramsReset);  
     }
        
@@ -638,6 +701,22 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     // TODO create a flag to indicate whether an target is being tracked, and
     // write a setter function for the native library to call.
 
+    protected void onStart() {
+    	DebugLog.LOGD("ARGameActivity::onStart");
+    	super.onStart();
+    	
+    	//Bind to the networking service
+    	doBindNetworkingService();
+    }
+    
+    protected void onStop() {
+    	DebugLog.LOGD("ARGameActivity::onStop");
+    	super.onStop();
+    	
+    	//Bind to the networking service
+    	doUnbindNetworkingService();
+    }
+    
    /** Called when the activity will start interacting with the user.*/
     protected void onResume()
     {
@@ -692,7 +771,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     	pushDeviceState(obtainDeviceState());
     	DebugLog.LOGI("onGameStateChange:" + stateStr);
     	
-//    	System.out.println(stateStr);
+    	System.out.println(stateStr);
     	
     	try {
     		JSONObject gameState = new JSONObject(stateStr);
@@ -740,8 +819,6 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     {
         DebugLog.LOGD("ARGameActivity::onDestroy");
         super.onDestroy();
-        
-        doUnbindNetworkingService();
         
         // Dismiss the splash screen time out handler:
         if (mSplashScreenHandler != null)
@@ -912,12 +989,15 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
                             
                             //make ui visible
                     	    addContentView(gui, new LayoutParams(
-                                    LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+                                    LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));                    	    
+                    	    Log.d("UI", "add ui");
                     	    //tweet handle touch listener
                             Button tweetHandle = (Button) findViewById(R.id.tweet_frag_button);
                             tweetHandle.setOnTouchListener(tweetHandleListener);
+                    	    snapTwitterOff();
                             endTwitter();
                             makeFireballButton();
+                            resizeEyelids();
                         }
                 };
 
@@ -942,26 +1022,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
         }  
         //updateUI();
         
-    }
-    
-    public void updateUI() {
-        LayoutInflater inflater = getLayoutInflater();
-        View gui = inflater.inflate(R.layout.activity_ar, null); 
-	    addContentView(gui, new LayoutParams(
-                LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-	    
-//	    FragmentManager fragManager = getSupportFragmentManager();
-//	    FragmentTransaction fragTrans = fragManager.beginTransaction();
-//	    twFrag = new TweetFragment();
-//	    fragTrans.add(R.id.tweet_container, twFrag);
-//	    fragTrans.commit();
-	    
-
-        //endTwitter(); //initialize twitter frag to inactive vote
-        Button tweetHandle = (Button) findViewById(R.id.tweet_frag_button);
-        tweetHandle.setOnTouchListener(tweetHandleListener);
-    }
-    
+    }   
     
     /** Tells native code whether we are in portait or landscape mode */
     private native void setActivityPortraitMode(boolean isPortrait);
@@ -1309,9 +1370,18 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-	            case NetworkingService.MSG_SET_JSON_STRING_VALUE:
-	            	String str = msg.getData().getString("" + NetworkingService.MSG_SET_JSON_STRING_VALUE);
-	            	onGameStateChange(str);
+	            case NetworkingService.MSG_RET_JSON_STRING_FROM_SERVER:
+	            	Log.d(this.toString(), "Got something from NetworkingService");
+	            	String str = msg.getData().getString("" + NetworkingService.MSG_RET_JSON_STRING_FROM_SERVER);
+	            	Log.d(this.toString(), str);
+	            	if(str != null) {
+	            		isConnectedToGameServer = true;
+	            		onGameStateChange(str);
+	            	}
+	            	break;
+	            case NetworkingService.MSG_NETWORKING_FAILURE:
+	            	isConnectedToGameServer = false;
+	            	Log.d(this.toString(), "Networking Failure");
 	            	break;
 	            default:
 	                super.handleMessage(msg);

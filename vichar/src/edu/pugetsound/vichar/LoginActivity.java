@@ -1,9 +1,5 @@
 package edu.pugetsound.vichar;
 
-
-
-
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -37,7 +33,7 @@ public class LoginActivity extends Activity {
         	EditText text  = (EditText)findViewById(R.id.editText1);
         	String words;
 			words = text.getText().toString();
-			storeUsername(words);
+			storeUsername(words);			
 			Intent next = new Intent(LoginActivity.this, MainMenuActivity.class);
 			startActivity(next);
         }
@@ -51,7 +47,10 @@ public class LoginActivity extends Activity {
     private void storeUsername(String username)
     {
     	PreferenceUtility prefs = new PreferenceUtility();
-    	prefs.saveString(getString(R.string.guest_name), username, this);
+    	prefs.saveString(getString(R.string.screenname_key), username, this);
+    	
+    	//also need to set twitter login flag to false		
+		prefs.saveBoolean(getString(R.string.tw_login_key), false, this);
     }
 
 }

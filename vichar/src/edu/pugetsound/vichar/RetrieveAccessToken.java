@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 
 /**
  * Retrieves OAuth access token in non-UI worker thread
+ * Also retrieves user's screen name
  * @author Nathan P
  * @version 11/19/12
  */

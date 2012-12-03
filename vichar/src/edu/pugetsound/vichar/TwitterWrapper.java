@@ -6,10 +6,10 @@ import twitter4j.auth.RequestToken;
 import android.app.Activity;
 
 /**
- * A Twitter wrapper class, for Twitter information between TwitterUtility
- * and calling activity
+ * Wraps Twitter related information. Used to pass between Twitter network classes and 
+ * their calling classes. Care should be taken in calling getter methods: in a given instance,
+ * it's likely most of the member fields won't have been initialized
  * @author Nathan P
- *
  */
 public class TwitterWrapper {
 	private Twitter tw;
