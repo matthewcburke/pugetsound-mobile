@@ -137,6 +137,10 @@ int MAX_MODELS = 100;
 int modelCount;
 Model drawList[100];
 
+int interpLength = 0;
+const int MAX_INTERPLENGTH=100;
+float interpList[MAX_INTERPLENGTH][7];
+
 // Object to receive update callbacks from QCAR SDK
 class ImageTargets_UpdateCallback : public QCAR::UpdateCallback
 {
@@ -367,6 +371,8 @@ updateDrawList()
 //this method pulls substantially from updateDominoTransform in Dominoes.cpp
 
 //arbitratily hardcoded lengths of both list and sublist size
+
+/*
 float interpList[3][7];
 
 int interpLength=3;
@@ -377,12 +383,14 @@ for(int w=0; w<3;w++){
 		interpList[w][k]=0.0f;
 	}
 }
+*/
 
 //sublist is of composition ID, x,y,z trans, x,y,z,ang
 
 
 //HARDCODING INTERP LIST CONTENTS -- TEMP
 
+/*
 interpList[0][1] = 50.0;
 interpList[0][2] = 50.0;
 interpList[0][6]=90;
@@ -392,10 +400,12 @@ interpList[1][2] = -50.0;
 
 interpList[2][6]=180;
 interpList[2][5]= 90.0;
+*/
 
 
-for(int i; i<interpLength; i++)
+for(int i = 0; i<interpLength; i++)
 {
+	LOG("dsa;fjasdkjfs;kafjds;kfj;sahdfkjsdfhisfhksafj");
 	Model* current= &drawList[i];
 	current->transform=SampleMath::Matrix44FIdentity();
     float* transformPtr = &current->transform.data[0];
@@ -410,6 +420,7 @@ for(int i; i<interpLength; i++)
 	float* position = &current->pos[0];
 	float* angle = &current->ang[0];
 
+	current->id=interpList[i][0];
 
 	//float position[3];
 	position[0]=interpList[i][1];
@@ -504,13 +515,19 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 	// but if you are getting errors, you can always explicitly type cast them like so (assuming you have jfloats in the array):
 	// float x;
 	// x = (float) posData[i];
+	
 	if(update){
 		int i = 0;
+		int j = 0;
 		jsize len = env->GetArrayLength(test);
 		jfloat* posData = env->GetFloatArrayElements(test, 0);
-		for(i=0; i<len; i++){
-			LOG("JSON to JNI test. Pos. %d : %f", i, posData[i]); //print the elements of the array.
+		while(i<len && posData[(i/7)*7] != 0){
+			//LOG("JSON to JNI test. Pos. %d : %f", i, posData[i]); //print the elements of the array.
+			interpList[i/7][i%7]= (float) posData[i];
+			i++;
 		}
+		interpLength=(i)/7;
+		LOG("%i", interpLength);
 		env->ReleaseFloatArrayElements(test, posData, 0); //release memory
 	}
 
@@ -681,6 +698,8 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 			//Prep Transforms
 			float* position=&model->pos[0];
 			float* angle=&model->ang[0];
+
+			LOG("%f%f%f",position[0],position[1],position[2]);
 
 			//Begin Transforms
 			//BE WARY OF GETTING RID OR ADDING KObject SCALE
