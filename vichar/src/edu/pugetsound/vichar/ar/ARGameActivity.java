@@ -825,7 +825,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
      * @return
      * @throws JSONException
      */
-    private int loadObject(JSONObject type, float typeIndex, int i, boolean notBattery) throws JSONException
+    private int loadObject(JSONObject type, float typeIndex, int i, boolean isBattery) throws JSONException
     {
     	Iterator<String> objItr = type.keys();
     	while( objItr.hasNext())
@@ -839,7 +839,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     		}
     		poseData[i++] = typeIndex; // TODO use enums to represent the types of gameobjects.
     		i = parsePosition(obj.getJSONObject(POSITION_NAMESPACE), i);
-    		if(notBattery)
+    		if(!isBattery)
     		{
         		i = parseRotaion(obj.getJSONObject(ROTATION_NAMESPACE), i);
     		}
