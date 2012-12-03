@@ -484,7 +484,7 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 {
 	bool update;
 	update = (bool) updated; //so we know whether or not to update the drawlist.
-	float testScale = 30.0f;
+	float testScale = 0.3f;
 
 	// here is an example of how to pull the elements out of the jfloatArray. I think c++ will implicitly handle the type casting of jfloats as floats,
 	// but if you are getting errors, you can always explicitly type cast them like so (assuming you have jfloats in the array):
