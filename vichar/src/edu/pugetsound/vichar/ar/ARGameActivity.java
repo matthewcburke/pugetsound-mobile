@@ -21,6 +21,7 @@
 
 package edu.pugetsound.vichar.ar;
 
+import java.util.ArrayList;
 import java.util.Vector;
 
 import org.json.JSONException;
@@ -139,7 +140,23 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     private static final String GAME_ENGINE_NAMESPACE = "engine";
     private static final String DEVICES_NAMESPACE = "phones";
     private static final String WEB_NAMESPACE = "web";
+    private static final String TURRET_NAMESPACE = "turrets";
+    private static final String TURRETBULLET_NAMESPACE = "turretsBullets";
+    private static final String FIREBALL_NAMESPACE = "fireballs";
+    private static final String MINION_NAMESPACE = "minions";
+    private static final String BATTERY_NAMESPACE = "batteries";
+    private static final String PLAYER_NAMESPACE = "player";
+    private static final String EYEBALL_NAMESPACE = "eyeballs";
+    private static final String PLATFORM_NAMESPACE = "platforms";
+    private static final String POSITION_NAMESPACE = "position";
+    private static final String ROTATION_NAMESPACE = "rotation";
     private String deviceUUID; // Device namespace
+    
+    //JSON parsing
+    public static float[] poseData = new float[70];
+    private static final int OBJ_SIZE = 7; 	// the number of array positions to use to represent a game object.
+    private int arrayLen = 70;
+    
     	
 	// Service Stuff
     private Messenger networkingServiceMessenger = null;
@@ -722,6 +739,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     		JSONObject engineState = (JSONObject) gameState.get(GAME_ENGINE_NAMESPACE);
     		JSONObject webState = (JSONObject) gameState.get(WEB_NAMESPACE);
     		updateTwitterState(gameState);
+    		parseEngineState(engineState);
     		// TODO: Pass the engineState to functions that need to render it
     	} catch(JSONException e) {
     		//shit!
@@ -729,6 +747,69 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     	}
     }
     
+    /**
+     * Parse the engineState JSONObject into a float array in ARGameRender.
+     */
+    private void parseEngineState(JSONObject engineState) throws JSONException
+    {
+    	poseData = new float[arrayLen];
+    	int count = 0; 
+    	
+    	JSONObject turrets = engineState.optJSONObject(TURRET_NAMESPACE);
+    	JSONObject turretBullets = engineState.optJSONObject(TURRETBULLET_NAMESPACE);
+    	JSONObject fireballs = engineState.optJSONObject(FIREBALL_NAMESPACE);
+    	JSONObject minions = engineState.optJSONObject(MINION_NAMESPACE);
+    	JSONObject batteries = engineState.optJSONObject(BATTERY_NAMESPACE);
+    	JSONObject player = engineState.optJSONObject(PLAYER_NAMESPACE);
+    	JSONObject eyeballs = engineState.optJSONObject(EYEBALL_NAMESPACE);
+    	JSONObject platforms = engineState.optJSONObject(PLATFORM_NAMESPACE);
+    	
+//    	TODO load other game objects. Write a helper method?
+    	
+    	// load player 
+    	if(player != null)
+    	{
+    	   	if( count + OBJ_SIZE >= arrayLen)
+    	   	{
+    	   		int newLen = arrayLen * 2;
+        		resizeArray(poseData, newLen);
+        		arrayLen = newLen;
+        	}
+    	   	poseData[count++] = 6.0f; // TODO use enums to represent the types of gameobjects.
+    		count = parsePosition(player.getJSONObject(POSITION_NAMESPACE), count);
+    		count = parseRotaion(player.getJSONObject(ROTATION_NAMESPACE), count);
+    		ARGameRenderer.updated = true;
+    	}
+    	else DebugLog.LOGI("No Player");
+    }
+    
+    /**
+     * loads position JSON data into poseData array.
+     * @param xyz
+     * @param i
+     * @throws JSONException
+     */
+    private int parsePosition(JSONObject xyz, int i) throws JSONException
+    {
+    	poseData[i++] = (float) xyz.getLong("x");
+    	poseData[i++] = (float) xyz.getLong("y");
+    	poseData[i++] = (float) xyz.getLong("z");
+    	return i;
+    }
+    
+    /**
+     * loads rotation JSON data into poseData array. Designed to be called immediately after parsePosition.
+     * @param xyz
+     * @param i
+     * @throws JSONException
+     */
+    private int parseRotaion(JSONObject xyz, int i) throws JSONException
+    {
+    	poseData[i++] = (float) xyz.getLong("x");
+    	poseData[i++] = (float) xyz.getLong("y");
+    	poseData[i++] = (float) xyz.getLong("z");
+    	return i;
+    }
 
     /** Called when the system is about to start resuming a previous activity.*/
     protected void onPause()
@@ -1399,6 +1480,16 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     	// Detach our existing connection.
     	
         unbindService(networkingServiceConnection);
+    }
+    
+    private static float[] resizeArray (float[] oldArray, int newSize) {
+    	int oldSize = oldArray.length;
+    	float[] newArray = new float[newSize];
+    	int preserveSize = Math.min(oldSize, newSize);
+    	for(int i=0; i<preserveSize; i++){
+    		newArray[i] = oldArray[i];
+    	}
+    	return newArray; 
     }
 }
 
