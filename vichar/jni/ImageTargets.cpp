@@ -392,11 +392,28 @@ for(int i = 0; i<interpLength; i++)
 	current->transform=SampleMath::Matrix44FIdentity();
     float* transformPtr = &current->transform.data[0];
 
+	current->id=interpList[i][0];
+
 	//Must translate communication into
 
-	current->vertPointer=&tower_topVerts[0];
-	current->normPointer=&tower_topNormals[0];
-	current->texPointer=&tower_topTexCoords[0];
+
+	//HARDCODED FOR TURRET
+	if(id==1 || id !=2){
+		current->vertPointer=&tower_topVerts[0];
+		current->normPointer=&tower_topNormals[0];
+		current->texPointer=&tower_topTexCoords[0];
+
+		
+		current->&numVerts=tower_topNumVerts;
+	}
+
+	if(id==2){
+		current->vertPointer=&tower_shellVerts[0];
+		current->normPointer=&tower_shellNormals[0];
+		current->texPointer=&tower_shellTexCoords[0];
+
+		current->&numVerts=tower_shellNumVerts;
+	}
 
 
 	float* position = &current->pos[0];
@@ -651,15 +668,23 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 			//Test Prints to ensure data was being stored correctly
 			//LOG("OBJECT ID:");
 			//LOG("%i",model->id);
-			
+			int id = model->id;
+
+			if(id==1 || id !=2){
+				model->modelTex=tower_topTexture;
+			}
+			if(id==2){
+				model->modelTex=tower_shellTexture;
+			}
+
 
 			//Verts,norms,texcords assigned here -- Is currently hardcoded to turret coords
 			glVertexAttribPointer(vertexHandle, 3, GL_FLOAT, GL_FALSE, 0,
-								 (const GLvoid*) &tower_topVerts[0]);
+								 (const GLvoid*) model->&vertPointer);
 			glVertexAttribPointer(normalHandle, 3, GL_FLOAT, GL_FALSE, 0,
-								  (const GLvoid*) &tower_topNormals[0]);
+								  (const GLvoid*) model->&normPointer);
 			glVertexAttribPointer(textureCoordHandle, 2, GL_FLOAT, GL_FALSE, 0,
-								  (const GLvoid*) &tower_topTexCoords[0]);
+								  (const GLvoid*) model->&texPointer);
 
 
 			//NON-HARDCODED VERSION
@@ -711,7 +736,7 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 
 			//Assign and bind texture -- once again this is hard coded to turrets
 			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, tower_topTexture->mTextureID);
+			glBindTexture(GL_TEXTURE_2D, &modelTex->mTextureID);
 
 
 			//un-hardcoding
@@ -720,11 +745,8 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 			//apply modelViewProjectionMatrix
 			glUniformMatrix4fv(mvpMatrixHandle, 1, GL_FALSE,
 							   (GLfloat*)&modelViewProjection.data[0] );
-			//Draw -- hardcoded to turret
-			glDrawArrays(GL_TRIANGLES, 0, tower_topNumVerts);
 
-			//Un-hardcoding
-			//glDrawArrays(GL_TRIANGLES, 0, model->&NumVerts);
+			glDrawArrays(GL_TRIANGLES, 0, model->&NumVerts);
 			
 			//Unused method that previous attempted to draw.
 			//renderModel(&model->transform.data[0]);
