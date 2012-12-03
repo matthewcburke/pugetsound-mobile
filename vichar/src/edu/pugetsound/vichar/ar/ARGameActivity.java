@@ -826,27 +826,27 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     	//will opt returning null clear the objects?
     	JSONObject turrets = engineState.optJSONObject(TURRET_NAMESPACE);
     	if(turrets != null){
-    		count = loadObject(turrets, 1.0f, count);
+    		count = loadObject(turrets, 1.0f, count, false);
     	}
     	// TODO change type indices
     	JSONObject turretBullets = engineState.optJSONObject(TURRETBULLET_NAMESPACE);
     	if(turretBullets != null){
-    		count = loadObject(turretBullets, 1.0f, count);
+    		count = loadObject(turretBullets, 1.0f, count, false);
     	}
 
     	JSONObject fireballs = engineState.optJSONObject(FIREBALL_NAMESPACE);
     	if(fireballs != null){
-    		count = loadObject(fireballs, 1.0f, count);
+    		count = loadObject(fireballs, 1.0f, count, false);
     	}
 
     	JSONObject minions = engineState.optJSONObject(MINION_NAMESPACE);
     	if(minions != null){
-    		count = loadObject(minions, 1.0f, count);
+    		count = loadObject(minions, 1.0f, count, false);
     	}
 
     	JSONObject batteries = engineState.optJSONObject(BATTERY_NAMESPACE);
     	if(batteries != null){
-    		count = loadObject(batteries, 1.0f, count);
+    		count = loadObject(batteries, 1.0f, count, true);
     	}
 
     	JSONObject player = engineState.optJSONObject(PLAYER_NAMESPACE);
@@ -869,7 +869,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     	else DebugLog.LOGI("No Player");
 
     	JSONObject eyeballs = engineState.optJSONObject(EYEBALL_NAMESPACE);
-		count = loadObject(eyeballs, 1.0f, count);
+		count = loadObject(eyeballs, 1.0f, count, false);
 
     	JSONObject platforms = engineState.optJSONObject(PLATFORM_NAMESPACE);
     	// TODO do something with the platforms
@@ -883,7 +883,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
      * @return
      * @throws JSONException
      */
-    private int loadObject(JSONObject type, float typeIndex, int i) throws JSONException
+    private int loadObject(JSONObject type, float typeIndex, int i, boolean isBattery) throws JSONException
     {
     	Iterator<String> objItr = type.keys();
     	while( objItr.hasNext())
@@ -897,7 +897,10 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     		}
     		poseData[i++] = typeIndex; // TODO use enums to represent the types of gameobjects.
     		i = parsePosition(obj.getJSONObject(POSITION_NAMESPACE), i);
-    		i = parseRotaion(obj.getJSONObject(ROTATION_NAMESPACE), i);
+    		if(!isBattery)
+    		{
+        		i = parseRotaion(obj.getJSONObject(ROTATION_NAMESPACE), i);
+    		}
     		updated = true;
     	}
     	return i;
