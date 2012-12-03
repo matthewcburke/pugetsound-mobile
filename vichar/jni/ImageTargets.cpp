@@ -399,12 +399,17 @@ for(int i; i<2; i++)
 	angle[0]=interpList[i][5];
 	angle[1]=interpList[i][6];
 	angle[2]=interpList[i][7];
+
+	current->id=2*(i+1);
+
+	/*
 	SampleUtils::translatePoseMatrix(position[0],position[1], position[2], transformPtr);
     SampleUtils::rotatePoseMatrix(angle[0], 0, 0, 1, transformPtr);
 	SampleUtils::rotatePoseMatrix(angle[1], 0, 0, 1, transformPtr);
 	SampleUtils::rotatePoseMatrix(angle[2], 0, 0, 1, transformPtr);
     //SampleUtils::translatePoseMatrix(-kObjectScale, 0.0f, kObjectScale, transformPtr);
     SampleUtils::scalePoseMatrix(kObjectScale, kObjectScale, kObjectScale, transformPtr);
+	*/
 
 
 	drawCount=drawCount+1;
@@ -415,6 +420,7 @@ for(int i; i<2; i++)
 void
 renderModel(float* transform)
 {
+	//CURRENTLY UNUSED
     // Render a cube with the given transform
     // Assumes prior GL setup
 
@@ -422,15 +428,29 @@ renderModel(float* transform)
     glPushMatrix();
     glMultMatrixf(transform);
     glDrawElements(GL_TRIANGLES, NUM_CUBE_INDEX, GL_UNSIGNED_SHORT, (const GLvoid*) &cubeIndices[0]);
-    glPopMatrix();
+    glPopMatrix(); 
+	LOG("NOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPE");
 #else
 
-    QCAR::Matrix44F modelViewProjection, objectMatrix;
-    SampleUtils::multiplyMatrix(&modelViewMatrix.data[0], transform, &objectMatrix.data[0]);
+    QCAR::Matrix44F modelViewProjection;
+	QCAR::Matrix44F objectMatrix;
+    
+
+	/*
+	SampleUtils::multiplyMatrix(&modelViewMatrix.data[0], transform, &objectMatrix.data[0]);
     SampleUtils::multiplyMatrix(&projectionMatrix.data[0], &objectMatrix.data[0], &modelViewProjection.data[0]);
     glUniformMatrix4fv(mvpMatrixHandle, 1, GL_FALSE, (GLfloat*)&modelViewProjection.data[0]);
+	*/
+	
+
     //glDrawElements(GL_TRIANGLES, NUM_CUBE_INDEX, GL_UNSIGNED_SHORT, (const GLvoid*) &cubeIndices[0]);
+
+
+	LOG("drawing");
+	glUniformMatrix4fv(mvpMatrixHandle, 1, GL_FALSE, (GLfloat*)&modelViewProjection.data[0]);
 	glDrawArrays(GL_TRIANGLES, 0, tower_topNumVerts);
+	SampleUtils::checkGlError("ImageTargets renderFrame");
+
 #endif
 }
 
@@ -518,42 +538,114 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
         glDrawElements(GL_TRIANGLES, NUM_TEAPOT_OBJECT_INDEX, GL_UNSIGNED_SHORT,
                        (const GLvoid*) &teapotIndices[0]);
 #else
-		//Get List of Objects to Draw
+		/* MATRIX GUIDE
+		ModelViewMatrix = starting point matrix, with no mods is the center of the image target.
+		Is only modified when not using Prefab transforms
+
+		ObjectMatrix = ModelViewMatrix * transform matrix(in the case of prefab transforms)
+		OR
+		ObjectMatrix = ModelViewMatrix with all transforms performed.
+
+		ProjectionMatrix = Is set utilizing a method in this class, when called by the Java. Is not modified by
+		drawing process.
+
+		ModelViewProjection = (w/ prefab transforms) ObjectMatrix * Projection
+		ModelViewProjection = (w/o prefab transforms) Modified ModelViewMatrix * Projection
+		*/
 
 
 		drawCount=0;
-
-
-		// Get the model view matrix
-        modelViewMatrix = QCAR::Tool::convertPose2GLMatrix(trackable->getPose());
-
-		//obtain list of objects to draw
+		//Get List of Objects to Draw
+		//obtain list of objects to draw -- fills drawList.
 		updateDrawList();
+
+		//Get modelViewMatrix
+		modelViewMatrix = QCAR::Tool::convertPose2GLMatrix(trackable->getPose());
+
+		//Initialize intermediate and final Matricies
+		//Intermediate matrix used only in multiplying using the transform matrix
+		QCAR::Matrix44F objectMatrix;
+
+		//The final matrix that is used to draw
+		QCAR::Matrix44F modelViewProjection;
 
         glUseProgram(shaderProgramID);
 
-        glVertexAttribPointer(vertexHandle, 3, GL_FLOAT, GL_FALSE, 0,
-        		(const GLvoid*) &tower_shellVerts[0]);
-        glVertexAttribPointer(normalHandle, 3, GL_FLOAT, GL_FALSE, 0,
-        		(const GLvoid*) &tower_shellNormals[0]);
-        glVertexAttribPointer(textureCoordHandle, 2, GL_FLOAT, GL_FALSE, 0,
-        		(const GLvoid*) &tower_shellTexCoords[0]);
-
-        glEnableVertexAttribArray(vertexHandle);
-        glEnableVertexAttribArray(normalHandle);
-        glEnableVertexAttribArray(textureCoordHandle);
-
-        glActiveTexture(GL_TEXTURE0);
-
+		
 		// Render the models
 		for (int i = 0; i < drawCount; i++) {
 
-			//Need to pick correct texid here somehow
-			glBindTexture(GL_TEXTURE_2D, tower_shellTexture->mTextureID); // UPDATE:: apply a different texture.
+			//Need to figure out which textures/verticies/etc to use here, currently hardcoded to turrets
+			
+			//Reinitalize ModelViewMatrix to its initialstate, as at this point it gets modified.
+			modelViewMatrix = QCAR::Tool::convertPose2GLMatrix(trackable->getPose());
+
+			//Loads the current model from the drawList
 			Model* model = &drawList[i];
-			renderModel(&model->transform.data[0]);
+
+
+			//These Lines used only for prefab transforms
+			//QCAR::Matrix44F transform;
+			//float* transform=&model->transform.data[0];
+			
+			//Test Prints to ensure data was being stored correctly
+			//LOG("OBJECT ID:");
+			//LOG("%i",model->id);
+			
+
+			//Verts,norms,texcords assigned here -- Is currently hardcoded to turret coords
+			glVertexAttribPointer(vertexHandle, 3, GL_FLOAT, GL_FALSE, 0,
+								 (const GLvoid*) &tower_topVerts[0]);
+			glVertexAttribPointer(normalHandle, 3, GL_FLOAT, GL_FALSE, 0,
+								  (const GLvoid*) &tower_topNormals[0]);
+			glVertexAttribPointer(textureCoordHandle, 2, GL_FLOAT, GL_FALSE, 0,
+								  (const GLvoid*) &tower_topTexCoords[0]);
+
+		
+			//Open GL initialization
+			glEnableVertexAttribArray(vertexHandle);
+			glEnableVertexAttribArray(normalHandle);
+			glEnableVertexAttribArray(textureCoordHandle);
+
+
+			//Begin Transforms
+			SampleUtils::translatePoseMatrix(100.0f*(-1*i), 50.0f, kObjectScale,
+										&modelViewMatrix.data[0]);
+			SampleUtils::rotatePoseMatrix(0.0, 0.0f, 0.0f, 1.0f,
+                        						&modelViewMatrix.data[0]);
+			// So the tower_top appears upright
+			SampleUtils::rotatePoseMatrix(90.0f, 1.0f, 0.0f, 0.0f,
+                        				&modelViewMatrix.data[0]);
+			SampleUtils::scalePoseMatrix(kObjectScale, kObjectScale, kObjectScale,
+										&modelViewMatrix.data[0]);
+			//Combine projectionMatrix and modelViewMatrix to create final modelViewProejctionMatrix
+			SampleUtils::multiplyMatrix(&projectionMatrix.data[0],
+										&modelViewMatrix.data[0] ,
+										&modelViewProjection.data[0]);
+
+			
+			//attempt to use stored transform matrix
+			//SampleUtils::multiplyMatrix(&modelViewMatrix.data[0], transform, &objectMatrix.data[0]);
+			//SampleUtils::multiplyMatrix(&projectionMatrix.data[0], &objectMatrix.data[0], &modelViewProjection.data[0]);
+			//glUniformMatrix4fv(mvpMatrixHandle, 1, GL_FALSE, (GLfloat*)&modelViewProjection.data[0]);
+
+			//Assign and bind texture -- once again this is hard coded to turrets
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, tower_topTexture->mTextureID);
+
+			//apply modelViewProjectionMatrix
+			glUniformMatrix4fv(mvpMatrixHandle, 1, GL_FALSE,
+							   (GLfloat*)&modelViewProjection.data[0] );
+			//Draw -- hardcoded to turret
+			glDrawArrays(GL_TRIANGLES, 0, tower_topNumVerts);
+			
+			//Unused method that previous attempted to draw.
+			//renderModel(&model->transform.data[0]);
 			}
 
+		//Output given after every frame is fully rendered
+		LOG("Render Frame Complete");
+		 
         SampleUtils::checkGlError("ImageTargets renderFrame");
 
 #endif
@@ -568,11 +660,12 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
     glDisableClientState(GL_NORMAL_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 #else
+	//Deinit Open GL
     glDisableVertexAttribArray(vertexHandle);
     glDisableVertexAttribArray(normalHandle);
     glDisableVertexAttribArray(textureCoordHandle);
 #endif
-
+	//END
     QCAR::Renderer::getInstance().end();
 }
 
