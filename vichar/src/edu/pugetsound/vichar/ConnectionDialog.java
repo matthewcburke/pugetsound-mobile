@@ -46,6 +46,7 @@ public class ConnectionDialog  {
 	 * @param c Application context
 	 */
 	private void connectToWifi(Context c)	{
+		ad.dismiss();
 		c.startActivity(new Intent(WifiManager.ACTION_PICK_WIFI_NETWORK));
 	}
 	

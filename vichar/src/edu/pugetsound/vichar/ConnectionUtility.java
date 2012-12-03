@@ -15,8 +15,8 @@ import android.util.Log;
  * @author Nathan P
  *
  */
-public class ConnectionUtility {
-
+public class ConnectionUtility
+{	
 	/**
 	 * Checks network connectivity of device
 	 * @param c application context
@@ -27,7 +27,8 @@ public class ConnectionUtility {
 	public int checkConnection(Context c)  {
 		int result = 0;
 		ConnectivityManager cm = (ConnectivityManager) c.getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo ni = cm.getActiveNetworkInfo();
+		//NetworkInfo ni = cm.getActiveNetworkInfo();
+		NetworkInfo ni = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 		//if there is no active connection...
 		if(ni==null)
 		{

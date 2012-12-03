@@ -1,8 +1,11 @@
 package edu.pugetsound.vichar;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -17,9 +20,10 @@ import android.widget.Button;
  * @version 10/16/12
  */
 public class MainActivity extends Activity
-							
+	implements ConnectivityReceiver.ConnectivityListener
 {
     final Context context = this;
+    private ConnectivityReceiver connectivityReceiver = new ConnectivityReceiver(this);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -33,21 +37,43 @@ public class MainActivity extends Activity
         	Button button = (Button)findViewById(R.id.login_with_twitter);
         	button.setText("Continue with Twitter");
         }
-        checkConnection(); //check network connectivity
         Boolean firstLaunch = checkFirstLaunch(); //check if this the first app launch
         if(firstLaunch) firstLaunch();	//if so, executed appropriate instructions
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_main, menu);
-        return true;
     }
     
     @Override
     protected void onResume()  {
     	super.onResume();
-    	checkConnection();
+    	IntentFilter filter = connectivityReceiver.getIntentFilter();
+		registerReceiver(connectivityReceiver, filter);
+    }
+    
+    /**
+     * Called whenever the Activity becomes visible
+     */
+    @Override
+    public void onStart() {
+    	super.onStart();
+    	checkConnection(); //check network connectivity
+    }
+
+    @Override
+    protected void onPause()  {
+    	super.onPause();
+    	unregisterReceiver(connectivityReceiver);
+    }
+    
+    public void onConnectivityChange(boolean isConnected) {
+    	if(!isConnected) {
+    		ConnectionDialog cd = new ConnectionDialog(this);
+        	cd.show();
+    	}
+    }
+    
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_main, menu);
+        return true;
     }
     
     public void createButtons() {
