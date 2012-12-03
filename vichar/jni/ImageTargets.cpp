@@ -661,6 +661,7 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 			//Test Prints to ensure data was being stored correctly
 			//LOG("OBJECT ID:");
 			//LOG("%i",model->id);
+			int id = model->id;
 
 			if(id==1 || id !=2){
 				model->modelTex=tower_topTexture;
