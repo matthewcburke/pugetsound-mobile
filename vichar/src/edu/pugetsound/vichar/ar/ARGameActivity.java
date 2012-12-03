@@ -1511,8 +1511,8 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     	JSONObject position = new JSONObject();
     	
     	position.put("x", "" + x);
-    	position.put("y", "" + y);
-    	position.put("z", "" + z);
+    	position.put("y", "" + z);
+    	position.put("z", "" + (-y));
     	
     	return position; 	
     }
