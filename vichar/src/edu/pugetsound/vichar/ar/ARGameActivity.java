@@ -1393,6 +1393,9 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     		long time = System.currentTimeMillis();
     		deviceState.put("lastUpdated", time);
     		deviceState.put("lastUpdatedByDevice", time);
+    		
+    		//put username in JSON
+    		deviceState.put("screenname", getScreenname());
 
     		JSONObject sendState = new JSONObject().put(deviceUUID, deviceState);
     		sendState = new JSONObject().put(DEVICES_NAMESPACE, sendState);
@@ -1401,6 +1404,11 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     		
     	}
     		
+    }
+    
+    private String getScreenname() {
+    	PreferenceUtility pu = new PreferenceUtility();
+    	return pu.returnSavedString(getString(R.string.screenname_key), getString(R.string.prefs_error), this);    	
     }
     
     /**
