@@ -32,6 +32,7 @@ import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.format.Time;
 // import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -525,6 +526,11 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     	}
     }
     
+    private boolean checkTwitterLogin() {
+    	PreferenceUtility pu = new PreferenceUtility();
+    	return pu.returnBoolean(getString(R.string.tw_login_key), false, this);
+    }
+    
     /**
      * Initializes twitter view for new twitter vote
      */
@@ -917,10 +923,18 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
                             // Start the camera:
                             updateApplicationStatus(APPSTATUS_CAMERA_RUNNING);
                             
-                            //make ui visible
+                            //make UI visible
                     	    addContentView(gui, new LayoutParams(
                                     LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));                    	    
                     	    Log.d("UI", "add ui");
+                    	    //check if user is logged into twitter
+                    	    Boolean twLogin = checkTwitterLogin();
+                    	    //if not, don't render twitter container
+                    	    if(!twLogin) {
+                    	    	View twContainer = findViewById(R.id.tweet_container);
+                    	    	twContainer.setVisibility(View.GONE);
+                    	    }
+                    	    
                     	    //tweet handle touch listener
                             Button tweetHandle = (Button) findViewById(R.id.tweet_frag_button);
                             tweetHandle.setOnTouchListener(tweetHandleListener);
@@ -1213,10 +1227,14 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     		// get camera's location and rotation from the native code, format it and put it in the JSON object
     		float[] cameraLoc = getCameraLocation();
     		deviceState.put("position", makePositionJSON(cameraLoc[0], cameraLoc[1], cameraLoc[2]));
-    		deviceState.put("rotation", makeRotationJSON(cameraLoc[3], cameraLoc[4], cameraLoc[5]));
-    		
+    		deviceState.put("rotation", makeRotationJSON(cameraLoc[3], cameraLoc[4], cameraLoc[5]));    		
     		// Log the position for testing.
     		DebugLog.LOGI("pushDeviceState:" + deviceState.toString());
+    		
+    		//put current time in JSON
+    		long time = System.currentTimeMillis();
+    		deviceState.put("lastUpdated", time);
+    		deviceState.put("lastUpdatedByDevice", time);
 
     		JSONObject sendState = new JSONObject().put(deviceUUID, deviceState);
     		sendState = new JSONObject().put(DEVICES_NAMESPACE, sendState);
@@ -1235,6 +1253,14 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
      */
     private void pushGameState(JSONObject sendState) {
     	if(isBoundToNetworkingService) {
+    		//put in current time
+    		try {
+	    		long time = System.currentTimeMillis();
+	    		sendState.put("lastModified", time);
+    		} catch (JSONException ex) {
+    			//TODO:probably nothing to do in this case
+    		}   
+    		
     		Bundle b = new Bundle();
     		b.putString("" + NetworkingService.MSG_QUEUE_OUTBOUND_J_STRING, 
     				sendState.toString());

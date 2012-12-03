@@ -3,22 +3,17 @@ package edu.pugetsound.vichar;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.os.Bundle;
-import android.app.Activity;
-import android.content.Intent;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.content.Context;
 
 /**
  * Activity for the "Settings" screen
- * @author Davis Shurbert
- * @version 10/13/12 
+ * @author Davis Shurbert & Nathan Pastor
+ * @version 12/2/12 
  */
 public class SettingsActivity extends Activity {
 
@@ -64,8 +59,7 @@ public class SettingsActivity extends Activity {
           }
       };
       private OnClickListener twitterListener = new OnClickListener() {
-    	  public void onClick(View v)  {
-    		  
+    	  public void onClick(View v)  {    		  
     		  logoutTwitter();  //initiate twitter "logout"
     	  }
       };
@@ -106,31 +100,25 @@ public class SettingsActivity extends Activity {
     
     /**
      * "logs out" twitter, by setting logged in flag to false
-     *  No real logging out happens
+     *  No "real" logging out happens (all OAuth info remains)
      */
     private void logoutTwitter() {
     	PreferenceUtility pu = new PreferenceUtility();
     	pu.saveString(getString(R.string.tw_login_key), "false", this);
+    	startActivity(new Intent(this, MainActivity.class)); //redirect to login screen    	
     }
     
+    /**
+     * Toggle sound setting on/off
+     */
     private void toggleSound() {    	
     	PreferenceUtility pu = new PreferenceUtility();
     	Boolean soundEnabled = pu.returnBoolean(getString(R.string.toggle_sound_key), true, this);
-    	
-    	Log.d("SoundToggle", "sound enabled pre-set? " + soundEnabled);
     	
     	if(soundEnabled==null || !soundEnabled)  {
     		pu.saveBoolean(getString(R.string.toggle_sound_key), true, this);
     	} else {
     		pu.saveBoolean(getString(R.string.toggle_sound_key), false, this);
-    	}
-    	
-    	pu = new PreferenceUtility();
-    	try {
-    		Boolean toggleResult = pu.returnBoolean(getString(R.string.toggle_sound_key), true, this);
-    		System.out.println("sound enabled post-set? " + toggleResult);
-    	} catch (NullPointerException ex) 	{ 
-    		System.out.println("null pointer");
     	}    	
     }
 }
