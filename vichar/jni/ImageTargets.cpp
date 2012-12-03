@@ -370,42 +370,10 @@ updateDrawList()
 
 //this method pulls substantially from updateDominoTransform in Dominoes.cpp
 
-//arbitratily hardcoded lengths of both list and sublist size
-
-/*
-float interpList[3][7];
-
-int interpLength=3;
-
-for(int w=0; w<3;w++){
-
-	for(int k=0; k<7;k++){
-		interpList[w][k]=0.0f;
-	}
-}
-*/
-
-//sublist is of composition ID, x,y,z trans, x,y,z,ang
-
-
-//HARDCODING INTERP LIST CONTENTS -- TEMP
-
-/*
-interpList[0][1] = 50.0;
-interpList[0][2] = 50.0;
-interpList[0][6]=90;
-
-interpList[1][1] = -50.0;
-interpList[1][2] = -50.0;
-
-interpList[2][6]=180;
-interpList[2][5]= 90.0;
-*/
-
 
 for(int i = 0; i<interpLength; i++)
 {
-	LOG("dsa;fjasdkjfs;kafjds;kfj;sahdfkjsdfhisfhksafj");
+
 	Model* current= &drawList[i];
 	current->transform=SampleMath::Matrix44FIdentity();
     float* transformPtr = &current->transform.data[0];
@@ -463,19 +431,15 @@ renderModel(float* transform)
     glMultMatrixf(transform);
     glDrawElements(GL_TRIANGLES, NUM_CUBE_INDEX, GL_UNSIGNED_SHORT, (const GLvoid*) &cubeIndices[0]);
     glPopMatrix(); 
-	LOG("NOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPENOPE");
 #else
 
     QCAR::Matrix44F modelViewProjection;
 	QCAR::Matrix44F objectMatrix;
-    
-
 	/*
 	SampleUtils::multiplyMatrix(&modelViewMatrix.data[0], transform, &objectMatrix.data[0]);
     SampleUtils::multiplyMatrix(&projectionMatrix.data[0], &objectMatrix.data[0], &modelViewProjection.data[0]);
     glUniformMatrix4fv(mvpMatrixHandle, 1, GL_FALSE, (GLfloat*)&modelViewProjection.data[0]);
 	*/
-	
 
     //glDrawElements(GL_TRIANGLES, NUM_CUBE_INDEX, GL_UNSIGNED_SHORT, (const GLvoid*) &cubeIndices[0]);
 
@@ -527,7 +491,7 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 			i++;
 		}
 		interpLength=(i)/7;
-		LOG("%i", interpLength);
+		//LOG("%i", interpLength);
 		env->ReleaseFloatArrayElements(test, posData, 0); //release memory
 	}
 
@@ -699,7 +663,7 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 			float* position=&model->pos[0];
 			float* angle=&model->ang[0];
 
-			LOG("%f%f%f",position[0],position[1],position[2]);
+			//LOG("%f%f%f",position[0],position[1],position[2]);
 
 			//Begin Transforms
 			//BE WARY OF GETTING RID OR ADDING KObject SCALE
