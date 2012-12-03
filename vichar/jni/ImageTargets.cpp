@@ -454,11 +454,44 @@ renderModel(float* transform)
 #endif
 }
 
-JNIEXPORT void JNICALL
-Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
-{
-    //LOG("Java_edu_pugetsound_vichar_ar_GLRenderer_renderFrame");
+/** The native render function.
+ *
+ *  update = true if the array has been updated by the JSON object
+ *  test = an array of location and rotation information: see format below.
+ *
+ * format of the jfloatArray:
+ * 	array of floats[type, posX, posY, posZ, rotX, rotY, rotZ], numobjects (each object is 7 long),
+ * 	turret = 1
+ * 	turret bullets = 2
+ * 	fireballs = 3
+ * 	minions = 4
+ * 	batteries = 5
+ *	player = 6
+ *	eyeballs = 7
+ *	platforms = 8
+ * */
 
+JNIEXPORT void JNICALL
+Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject obj, jboolean updated, jfloatArray test)
+{
+	bool update;
+	update = (bool) updated; //so we know whether or not to update the drawlist.
+
+	// here is an example of how to pull the elements out of the jfloatArray. I think c++ will implicitly handle the type casting of jfloats as floats,
+	// but if you are getting errors, you can always explicitly type cast them like so (assuming you have jfloats in the array):
+	// float x;
+	// x = (float) posData[i];
+	if(update){
+		int i = 0;
+		jsize len = env->GetArrayLength(test);
+		jfloat* posData = env->GetFloatArrayElements(test, 0);
+		for(i=0; i<len; i++){
+			LOG("JSON to JNI test. Pos. %d : %f", i, posData[i]); //print the elements of the array.
+		}
+		env->ReleaseFloatArrayElements(test, posData, 0); //release memory
+	}
+
+    //LOG("Java_edu_pugetsound_vichar_ar_GLRenderer_renderFrame");
     // Clear color and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
