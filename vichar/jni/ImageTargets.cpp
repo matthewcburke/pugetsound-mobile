@@ -100,7 +100,7 @@ QCAR::Matrix44F projectionMatrix;
 // Constants:
 static const float kObjectScale = 120.f; // UPDATE:: increased the scale to properly display our models. It was 3 for the teapots.
 
-QCAR::DataSet* dataSetVichar    = 0;
+QCAR::DataSet* dataSetStonesAndChips    = 0;
 QCAR::DataSet* dataSetFlakesBox = 0;
 
 bool switchDataSetAsap          = false;
@@ -118,22 +118,22 @@ class ImageTargets_UpdateCallback : public QCAR::UpdateCallback
             QCAR::TrackerManager& trackerManager = QCAR::TrackerManager::getInstance();
             QCAR::ImageTracker* imageTracker = static_cast<QCAR::ImageTracker*>(
                 trackerManager.getTracker(QCAR::Tracker::IMAGE_TRACKER));
-            if (imageTracker == 0 || dataSetVichar == 0 || dataSetFlakesBox == 0 ||
+            if (imageTracker == 0 || dataSetStonesAndChips == 0 || dataSetFlakesBox == 0 ||
                 imageTracker->getActiveDataSet() == 0)
             {
                 LOG("Failed to switch data set.");
                 return;
             }
             
-            if (imageTracker->getActiveDataSet() == dataSetVichar)
+            if (imageTracker->getActiveDataSet() == dataSetStonesAndChips)
             {
-                imageTracker->deactivateDataSet(dataSetVichar);
+                imageTracker->deactivateDataSet(dataSetStonesAndChips);
                 imageTracker->activateDataSet(dataSetFlakesBox);
             }
             else
             {
                 imageTracker->deactivateDataSet(dataSetFlakesBox);
-                imageTracker->activateDataSet(dataSetVichar);
+                imageTracker->activateDataSet(dataSetStonesAndChips);
             }
         }
     }
@@ -214,8 +214,8 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_loadTrackerData(JNIEnv *, jobject)
     }
 
     // Create the data sets:
-    dataSetVichar = imageTracker->createDataSet();
-    if (dataSetVichar == 0)
+    dataSetStonesAndChips = imageTracker->createDataSet();
+    if (dataSetStonesAndChips == 0)
     {
         LOG("Failed to create a new tracking data.");
         return 0;
@@ -229,7 +229,7 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_loadTrackerData(JNIEnv *, jobject)
     }
 
     // Load the data sets:
-    if (!dataSetVichar->load("vichar.xml", QCAR::DataSet::STORAGE_APPRESOURCE))
+    if (!dataSetStonesAndChips->load("StonesAndChips.xml", QCAR::DataSet::STORAGE_APPRESOURCE))
     {
         LOG("Failed to load data set.");
         return 0;
@@ -242,7 +242,7 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_loadTrackerData(JNIEnv *, jobject)
     }
 
     // Activate the data set:
-    if (!imageTracker->activateDataSet(dataSetVichar))
+    if (!imageTracker->activateDataSet(dataSetStonesAndChips))
     {
         LOG("Failed to activate data set.");
         return 0;
@@ -269,24 +269,24 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_destroyTrackerData(JNIEnv *, jobjec
         return 0;
     }
     
-    if (dataSetVichar != 0)
+    if (dataSetStonesAndChips != 0)
     {
-        if (imageTracker->getActiveDataSet() == dataSetVichar &&
-            !imageTracker->deactivateDataSet(dataSetVichar))
+        if (imageTracker->getActiveDataSet() == dataSetStonesAndChips &&
+            !imageTracker->deactivateDataSet(dataSetStonesAndChips))
         {
-            LOG("Failed to destroy the tracking data set vichar because the data set "
+            LOG("Failed to destroy the tracking data set StonesAndChips because the data set "
                 "could not be deactivated.");
             return 0;
         }
 
-        if (!imageTracker->destroyDataSet(dataSetVichar))
+        if (!imageTracker->destroyDataSet(dataSetStonesAndChips))
         {
-            LOG("Failed to destroy the tracking data set vichar.");
+            LOG("Failed to destroy the tracking data set stonesAndChips.");
             return 0;
         }
 
-        LOG("Successfully destroyed the data set vichar.");
-        dataSetVichar = 0;
+        LOG("Successfully destroyed the data set stonesAndChips.");
+        dataSetStonesAndChips = 0;
     }
 
     if (dataSetFlakesBox != 0)
@@ -365,11 +365,15 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
 
         //Begin additions by Erin================================================================================
         if (state.getNumActiveTrackables() > 1) {
-        	const QCAR::Trackable* object2 = state.getActiveTrackable(tIdx+1);
+        	const QCAR::Trackable* trackable2 = state.getActiveTrackable(tIdx+1);
 
-        	//Get position of target (center image) and new target (tower)
-        	QCAR::Matrix34F posObject1 = SampleMath::phoneCoorMatrix(trackable->getPose());
-        	QCAR::Matrix34F posObject2 = object2->getPose();
+        	//Get pos of target1 (center of image) and target2 (tower target)
+        	QCAR::Matrix34F target1 = trackable->getPose();
+        	QCAR::Matrix34F target2 = trackable2->getPose();
+
+        	//Get phone's position of target1 (center image) and new target2 (tower)
+        	QCAR::Matrix34F posObject1 = SampleMath::phoneCoorMatrix(&target1);
+        	QCAR::Matrix34F posObject2 = SampleMath::calcSecondPos(&target1, &target2);
 
         	//Get position of object2 relative to object 1
         	QCAR::Matrix34F posRelative = SampleMath::vectorAdd(&posObject1, &posObject2);
@@ -384,7 +388,8 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
         pos = trackable->getPose();
 
         //Get inverse
-        test = SampleMath::phoneCoorMatrix(trackable->getPose());
+        QCAR::Matrix34F temp;
+        test = SampleMath::phoneCoorMatrix(&temp);
 
         /*
         //Get phones distance

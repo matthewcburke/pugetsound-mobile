@@ -223,19 +223,19 @@ SampleMath::Matrix44FTranspose(QCAR::Matrix44F m)
 //i = rows
 //j = columns
 QCAR::Matrix34F
-SampleMath::phoneCoorMatrix(QCAR::Matrix34F m) {
+SampleMath::phoneCoorMatrix(QCAR::Matrix34F *m) {
     QCAR::Matrix34F r;
     //transpose 3x3 rotation matrix
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
-            r.data[i*4+j] = m.data[i+4*j];
+            r.data[i*4+j] = m->data[i+4*j];
         }
     }
 
     //Transfer position coords to r
-    r.data[3] = m.data[3];
-    r.data[7] = m.data[7];
-    r.data[11] = m.data[11];
+    r.data[3] = m->data[3];
+    r.data[7] = m->data[7];
+    r.data[11] = m->data[11];
 
     //get new pos coords
     matrxVecMult(&r);
@@ -269,21 +269,32 @@ SampleMath::matrxVecMult(QCAR::Matrix34F *m) {
     m->data[11] = posTemp[2];
 }
 
-void
-SampleMath::swapRotPos(QCAR::Matrix34F m, QCAR::Matrix34F *n) {
+QCAR::Matrix34F
+SampleMath::calcSecondPos(QCAR::Matrix34F *m, QCAR::Matrix34F *n) {
     //i = rows
     //j = columns
+	QCAR::Matrix34F temp;
+
+	//Fill in rotational data from m
     for (int i=0; i<3; i++) {
         for (int j=0;j<3; j++) {
-            n->data[3*i+j] = m.data[3*i+j];
+            temp.data[4*i+j] = m->data[4*i+j];
         }
     }
+
+    //Fill in translational info from n
+    temp.data[3] = n->data[3];
+    temp.data[7] = n->data[7];
+    temp.data[11] = n->data[11];
+
+    //pass posMatrix in form [R1|T2]
+    return phoneCoorMatrix(&temp);
 }
 
 QCAR::Matrix34F
-vectorAdd(QCAR::Matrix34F *m, QCAR::Matrix34F *n) {
-	float temp[3] = {m->data[3] + n->data[3], m->data[7] + n->data[7], //position m-n
-			m->data[11] + n->data[11]};
+SampleMath::vectorAdd(QCAR::Matrix34F *m, QCAR::Matrix34F *n) {
+	float temp[3] = {m->data[3] - n->data[3], m->data[7] - n->data[7], //position m-n
+			m->data[11] - n->data[11]};
 	QCAR::Matrix34F newPos;
 
 	//Copy over rotational data
@@ -302,7 +313,7 @@ vectorAdd(QCAR::Matrix34F *m, QCAR::Matrix34F *n) {
 }
 
 float
-getDistance(QCAR::Matrix34F *phone) {
+SampleMath::getDistance(QCAR::Matrix34F *phone) {
         float temp = pow(phone->data[3],2) + pow(phone->data[7], 2) +   //First calc for dist
                 pow(phone->data[11],2);
 

@@ -61,7 +61,7 @@ public:
      * param m posMatrix in form [R|T]
      * return posMatrix in form [R^-1|-R^-1*T]
      */
-    static QCAR::Matrix34F phoneCoorMatrix(QCAR::Matrix34F m);
+    static QCAR::Matrix34F phoneCoorMatrix(QCAR::Matrix34F *m);
 
     /**
      * Helper method: Calculates -R^-1*T
@@ -70,11 +70,12 @@ public:
     static void matrxVecMult(QCAR::Matrix34F *m);
 
     /**
-     * Calculates [R1^-1|T2] given [R1^-1|T1] and [R2|T2]
-     * param m posMatrix [R1^-1|T1]
-     * param n pointer to posMatrix [R2|T2]
+     * Calculates [R1^-1|-R1^-1*T2] given [R1^-1|T1] and [R2|T2]
+     * param m pointer to posMatrix [R1|T1]
+     * param n posMatrix [R2|T2]
+     * return pos matrix in form [R1^-1|-R1^-1*T2]
      */
-    static void swapRotPos(QCAR::Matrix34F m, QCAR::Matrix34F *n);
+    static QCAR::Matrix34F calcSecondPos(QCAR::Matrix34F *m, QCAR::Matrix34F *n);
 
     /**
      * Gets the relative position between two objects with pos matrices & [R1^-1|T2]
