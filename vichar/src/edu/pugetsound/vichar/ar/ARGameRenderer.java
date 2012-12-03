@@ -40,7 +40,6 @@ public class ARGameRenderer implements GLSurfaceView.Renderer
 	public float[] myTest = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   	// turret at the origin
 							 1.0f, 50.0f, 50.0f, 0.0f, 0.0f, 0.0f, 0.0f, 	// turret offset 50 in the x and y directions
 							 1.0f, -50.0f, 50.0f, 0.0f, 0.0f, 0.0f, 0.0f};  // turret offset -50 x and 50 y
-	public static boolean updated = true;
     public boolean mIsActive = false;
     
     /** Native function for initializing the renderer. */
@@ -94,7 +93,8 @@ public class ARGameRenderer implements GLSurfaceView.Renderer
             return;
 
         // Call our native function to render content
-        renderFrame(updated, myTest, ARGameActivity.OBJ_SIZE);
-//        updated = false;
+//        renderFrame(updated, myTest, ARGameActivity.OBJ_SIZE);
+        renderFrame(ARGameActivity.updated, ARGameActivity.poseData, ARGameActivity.OBJ_SIZE);
+        ARGameActivity.updated = false;
     }
 }

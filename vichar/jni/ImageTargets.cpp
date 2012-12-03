@@ -474,6 +474,7 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 {
 	bool update;
 	update = (bool) updated; //so we know whether or not to update the drawlist.
+	float testScale = 15.0f;
 
 	// here is an example of how to pull the elements out of the jfloatArray. I think c++ will implicitly handle the type casting of jfloats as floats,
 	// but if you are getting errors, you can always explicitly type cast them like so (assuming you have jfloats in the array):
@@ -486,8 +487,8 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 		jsize len = env->GetArrayLength(test);
 		jfloat* posData = env->GetFloatArrayElements(test, 0);
 		while(i<len && posData[(i/objSize)*objSize] != 0){
-			//LOG("JSON to JNI test. Pos. %d : %f", i, posData[i]); //print the elements of the array.
-			interpList[i/objSize][i%objSize]= (float) posData[i];
+			LOG("JSON to JNI test. Pos. %d : %f", i, posData[i]); //print the elements of the array.
+			interpList[i/objSize][i%objSize]= (float) posData[i] * testScale;
 			i++;
 		}
 		interpLength=(i)/objSize;

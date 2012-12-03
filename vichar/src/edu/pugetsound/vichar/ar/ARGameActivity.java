@@ -22,6 +22,7 @@
 package edu.pugetsound.vichar.ar;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Vector;
 
 import org.json.JSONException;
@@ -154,6 +155,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     
     //JSON parsing
     public static float[] poseData = new float[70];
+    public static boolean updated = false;
     public static final int OBJ_SIZE = 7; 	// the number of array positions to use to represent a game object.
     private int arrayLen = 70;
     
@@ -535,7 +537,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     	} else {
     		//if a vote has just begun
     		if(activeTwitter==false) {    			
-    			startTwitter();
+//    			startTwitter(); // @BUG causing a crash when not logged in
     		}
     	}
     }
@@ -728,9 +730,9 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     private void onGameStateChange(String stateStr) {
     	
     	pushDeviceState(obtainDeviceState());
-    	DebugLog.LOGI("onGameStateChange:" + stateStr);
+    	//DebugLog.LOGI("onGameStateChange:" + stateStr);
     	
-    	System.out.println(stateStr);
+    	//System.out.println(stateStr);
     	
     	try {
     		JSONObject gameState = new JSONObject(stateStr);
@@ -787,6 +789,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     	// load player 
     	if(player != null)
     	{
+    		DebugLog.LOGI(player.toString());
     	   	if( count + OBJ_SIZE >= arrayLen)
     	   	{
     	   		int newLen = arrayLen * 2;
@@ -796,7 +799,8 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     	   	poseData[count++] = 1.0f; // TODO use enums to represent the types of gameobjects.
     		count = parsePosition(player.getJSONObject(POSITION_NAMESPACE), count);
     		count = parseRotaion(player.getJSONObject(ROTATION_NAMESPACE), count);
-    		ARGameRenderer.updated = true;
+    		updated = true;
+//    		DebugLog.LOGI( "Parse:" + player.toString());
     	}
     	else DebugLog.LOGI("No Player");
 
@@ -817,11 +821,10 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
      */
     private int loadObject(JSONObject type, float typeIndex, int i) throws JSONException
     {
-    	String key = "";
-    	key = type.getString("key?"); //TODO deal with null?
-    	if(key != null)
+    	Iterator<String> objItr = type.keys();
+    	while( objItr.hasNext())
     	{
-    		JSONObject obj = type.getJSONObject(key);
+    		JSONObject obj = type.getJSONObject(objItr.next());
     		if( i + OBJ_SIZE >= arrayLen)
     		{
     			int newLen = arrayLen * 2;
@@ -831,7 +834,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     		poseData[i++] = typeIndex; // TODO use enums to represent the types of gameobjects.
     		i = parsePosition(obj.getJSONObject(POSITION_NAMESPACE), i);
     		i = parseRotaion(obj.getJSONObject(ROTATION_NAMESPACE), i);
-    		ARGameRenderer.updated = true;
+    		updated = true;
     	}
     	return i;
     }
@@ -844,9 +847,9 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
      */
     private int parsePosition(JSONObject xyz, int i) throws JSONException
     {
-    	poseData[i++] = (float) xyz.getLong("x");
-    	poseData[i++] = (float) xyz.getLong("y");
-    	poseData[i++] = (float) xyz.getLong("z");
+    	poseData[i++] = Float.parseFloat(xyz.getString("x"));
+    	poseData[i++] = Float.parseFloat(xyz.getString("y"));
+    	poseData[i++] = Float.parseFloat(xyz.getString("z"));
     	return i;
     }
     
@@ -858,9 +861,9 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
      */
     private int parseRotaion(JSONObject xyz, int i) throws JSONException
     {
-    	poseData[i++] = (float) xyz.getLong("x");
-    	poseData[i++] = (float) xyz.getLong("y");
-    	poseData[i++] = (float) xyz.getLong("z");
+    	poseData[i++] = Float.parseFloat(xyz.getString("x"));
+    	poseData[i++] = Float.parseFloat(xyz.getString("y"));
+    	poseData[i++] = Float.parseFloat(xyz.getString("z"));
     	return i;
     }
 
@@ -1388,7 +1391,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     				NetworkingService.MSG_QUEUE_OUTBOUND_J_STRING);
     		msg.setData(b);
     		try {
-    			networkingServiceMessenger.send(msg);
+    			networkingServiceMessenger.send(msg); //@BUG caught a null pointer exception by pressing the home button from game activity.
     		} catch (RemoteException e) {
                 //TODO handle RemoteException
     			Log.i(this.toString(), "updateRemoteGameState: RemoteException");
@@ -1448,7 +1451,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
 	            case NetworkingService.MSG_RET_JSON_STRING_FROM_SERVER:
 	            	Log.d(this.toString(), "Got something from NetworkingService");
 	            	String str = msg.getData().getString("" + NetworkingService.MSG_RET_JSON_STRING_FROM_SERVER);
-	            	Log.d(this.toString(), str);
+	            	//Log.d(this.toString(), str);
 	            	if(str != null) {
 	            		isConnectedToGameServer = true;
 	            		onGameStateChange(str);
