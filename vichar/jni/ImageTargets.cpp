@@ -85,7 +85,10 @@ GLint mvpMatrixHandle           = 0;
 
 // UPDATE:: added this variable to assist animating rotations for demo.
 float turAng = 0.0;  //UNUSED
-float phoneLoc[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+
+// An array used to pass camera pose information. The first entry is used as a flag to indicate whether or not a target is in sight.
+// the next three are x, y, and z locations respectively, and the last three are degrees of rotation around the x, y, and z axis respectively.
+float phoneLoc[7] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
 int drawCount = 0.0;
 
@@ -112,7 +115,14 @@ QCAR::DataSet* dataSetFlakesBox = 0;
 
 bool switchDataSetAsap          = false;
 
-
+static const int turretId = 1;
+static const int turretBulletId = 2;
+static const int fireballId = 3;
+static const int minionId = 4;
+static const int batteryId = 5;
+static const int playerId = 6;
+static const int eyeballId = 6;
+static const int platformId = 7;
 
 typedef struct _Model {
 	int id;
@@ -474,7 +484,7 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 {
 	bool update;
 	update = (bool) updated; //so we know whether or not to update the drawlist.
-	float testScale = 15.0f;
+	float testScale = 30.0f;
 
 	// here is an example of how to pull the elements out of the jfloatArray. I think c++ will implicitly handle the type casting of jfloats as floats,
 	// but if you are getting errors, you can always explicitly type cast them like so (assuming you have jfloats in the array):
@@ -492,7 +502,7 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 			i++;
 		}
 		interpLength=(i)/objSize;
-		//LOG("%i", interpLength);
+		LOG("%i", interpLength);
 		env->ReleaseFloatArrayElements(test, posData, 0); //release memory
 	}
 
@@ -546,9 +556,10 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 //        LOG("%f %f %f %f",test.data[4], test.data[5], test.data[6], test.data[7]);
 //        LOG("%f %f %f %f",test.data[8], test.data[9], test.data[10], test.data[11]);
 //        LOG("=========================");
-        phoneLoc[0] = test.data[3];
-        phoneLoc[1] = test.data[7];
-        phoneLoc[2] = test.data[11];
+        phoneLoc[0] = 1.0f;
+        phoneLoc[1] = test.data[3];
+        phoneLoc[2] = test.data[7];
+        phoneLoc[3] = test.data[11];
 //End============================================================================================
 
         // Assign Textures according in the texture indices defined at the beginning of the file, and based
@@ -744,30 +755,11 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_getCameraLocation(JNIEnv * env, job
 {
 
 	jfloatArray cameraLocation;
-	cameraLocation = env->NewFloatArray(6);
-
-	// Set an array full of zeros to test my use of the jni. Replace the values in coordArray with the
+	cameraLocation = env->NewFloatArray(7);
 	// phone location and rotation.
-	jfloat coordArray[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-
-//	//find a better way to get the state object
-//	QCAR::State& state = new QCAR::State();
-//	if(state.getNumActiveTrackables() > 0){
-//		int tIdx=0;
-//		const QCAR::Trackable* trackable = state.getActiveTrackable(tIdx);
-//
-//		// assign the location vector of the array to the coord array.
-//		coordArray[0]=pos.data[3];
-//		coordArray[1]=pos.data[7];
-//		coordArray[2]=pos.data[11];
-//		LOG("C++ Position: %f %f %f", coordArray[0], coordArray[1], coordArray[2]);
-//	}else
-//	{
-//		LOG("Skipped the if statement in getCameraLocation.");
-//	}
-
-	env->SetFloatArrayRegion(cameraLocation, 0, 6, phoneLoc);
-	//delete state;
+	jfloat coordArray[7] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+	env->SetFloatArrayRegion(cameraLocation, 0, 7, phoneLoc);
+	phoneLoc[0] = 0.0f; // reset flag to no target in sight
 	return cameraLocation;
 }
 

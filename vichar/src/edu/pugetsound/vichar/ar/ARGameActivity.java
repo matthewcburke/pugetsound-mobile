@@ -1361,8 +1361,17 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     		
     		// get camera's location and rotation from the native code, format it and put it in the JSON object
     		float[] cameraLoc = getCameraLocation();
-    		deviceState.put("position", makePositionJSON(cameraLoc[0], cameraLoc[1], cameraLoc[2]));
-    		deviceState.put("rotation", makeRotationJSON(cameraLoc[3], cameraLoc[4], cameraLoc[5]));
+    		if (cameraLoc[0] == 1.0)
+    		{
+    			deviceState.put("position", makePositionJSON(cameraLoc[0], cameraLoc[1], cameraLoc[2]));
+        		deviceState.put("rotation", makeRotationJSON(cameraLoc[3], cameraLoc[4], cameraLoc[5]));
+    		}
+    		else
+    		{
+    			deviceState.put("position", null);
+    			deviceState.put("rotation", null);
+    		}
+    		
     		
     		// Log the position for testing.
     		DebugLog.LOGI("pushDeviceState:" + deviceState.toString());
