@@ -712,7 +712,7 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 			}
 
 		//Output given after every frame is fully rendered
-		LOG("Render Frame Complete");
+//		LOG("Render Frame Complete");
 		 
         SampleUtils::checkGlError("ImageTargets renderFrame");
 
