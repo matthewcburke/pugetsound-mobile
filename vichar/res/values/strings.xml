@@ -79,6 +79,7 @@
 
     <string name="guest_name">guest name</string>
     <color name="game_blue">#268bd2</color>
+    <string name="desc">button filling animation</string>
 
 
 </resources>

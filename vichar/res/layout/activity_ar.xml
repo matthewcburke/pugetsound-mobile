@@ -29,7 +29,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/game_container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">              
+    android:layout_height="wrap_content" >
 
    	<LinearLayout
    	    xmlns:android="http://schemas.android.com/apk/res/android"
@@ -37,23 +37,42 @@
    	    android:id="@+id/tweet_container"
    	    android:layout_width="wrap_content"
    	    android:layout_height="wrap_content"
-   	    android:layout_gravity="left|top"
-   	    android:orientation="horizontal"
-   	    android:layout_marginLeft="-300dp" >
+   	    android:layout_marginLeft="-300dp"
+   	    android:orientation="horizontal" >
 
-   	    <fragment 
-		    android:name="edu.pugetsound.vichar.TweetFragment"
-          	android:id="@+id/twitter_fragment"
-          	android:layout_width="wrap_content"
-          	android:layout_height="wrap_content" />
+   	    <fragment
+   	        android:id="@+id/twitter_fragment"
+   	        android:name="edu.pugetsound.vichar.TweetFragment"
+   	        android:layout_width="wrap_content"
+   	        android:layout_height="wrap_content" />
+
+   	    <Button
+   	        android:id="@+id/tweet_frag_button"
+   	        android:layout_width="60dp"
+   	        android:layout_height="60dp"
+   	        android:background="@drawable/twitter_logo"
+   	        android:contentDescription="@string/tweet_icon" />
+
    	    
-   		<Button
-   		    android:id="@+id/tweet_frag_button"
-   		    android:layout_width="60dp"
-   		    android:layout_height="60dp"
-   		    android:background="@drawable/twitter_logo"
-   		    android:contentDescription="@string/tweet_icon"   />
-   		   	
    	</LinearLayout>
+   	
+   	<RelativeLayout 
+   	xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fireball_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+   	    <Button
+   	        android:id="@+id/fireball_button"
+   	        android:layout_width="200dp"
+   	        android:layout_height="151dp"
+   	        android:layout_alignParentBottom="true"
+   	        android:layout_alignParentRight="true"
+   	        android:background="@drawable/fireball_button" />
+
+   	    
+   	</RelativeLayout>
     
 </FrameLayout>

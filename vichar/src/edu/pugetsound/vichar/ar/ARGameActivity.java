@@ -21,6 +21,8 @@
 
 package edu.pugetsound.vichar.ar;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
 
 import org.json.JSONException;
@@ -53,12 +55,18 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.drawable.ClipDrawable;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.animation.AlphaAnimation;
 //Import Fragment dependencies
@@ -73,7 +81,7 @@ import edu.pugetsound.vichar.*;
 
 
 /** The main activity for the ARGameActivity. */
-public class ARGameActivity extends FragmentActivity implements OnTouchListener 
+public class ARGameActivity extends FragmentActivity implements OnTouchListener
 {
     // Application status constants:
     private static final int APPSTATUS_UNINITED         = -1;
@@ -156,6 +164,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     private View gui;
     
     private float touchX, touchY;
+    private Button fireb;
     
     /** Static initializer block to load native libraries on start-up. */
     static
@@ -330,7 +339,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     {
     	DebugLog.LOGD("ARGameActivity::onCreate");
     	super.onCreate(savedInstanceState);
-
+    	
     	
     	// Get the UUID we generated when this app was installed
     	deviceUUID = Installation.id(this);
@@ -342,7 +351,8 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
         //Bind to the networking service
     	doBindNetworkingService();
     	
-        // Set the splash screen image to display during initialization:
+        
+    	// Set the splash screen image to display during initialization:
     	mSplashScreenImageResource = edu.pugetsound.vichar.R.drawable.splash;
 
     	// Load any sample specific textures:  
@@ -361,11 +371,53 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     	
     }
     
+    private void makeFireballButton() {
+    	fireb = (Button)findViewById(R.id.fireball_button); //declaring the button
+        fireb.setOnClickListener(fireListener);
+    }
+    
     private OnTouchListener tweetHandleListener = new OnTouchListener() {
 		public boolean onTouch(View v, MotionEvent me) { 
 			return tweetContainerTouch(v, me);
 		}
        };
+       
+    private OnClickListener fireListener = new OnClickListener() { 
+   		public void onClick(View v) { 
+   			JSONObject send = new JSONObject();
+          	long seconds = System.currentTimeMillis();
+          	float[] cameraLoc = getCameraLocation();
+          	try {
+          		send.put("timeCreated", seconds);
+          		send.put("position", makePositionJSON(cameraLoc[0], cameraLoc[1], cameraLoc[2]));
+          		send.put("rotation", makeRotationJSON(cameraLoc[3], cameraLoc[4], cameraLoc[5]));//is this really necessary?
+          		send.put("Unique ID of request", send);
+          		send.put("fireballs", send);
+          		send.put("requests", send);
+          		} 
+          	catch (JSONException e1) {
+          		// TODO Auto-generated catch block
+          		e1.printStackTrace();
+          		}
+          	pushDeviceState(send);
+  	        fireb.setEnabled(false);
+          	//ImageView imageview = (ImageView) findViewById(R.id.fill);
+          	//ClipDrawable drawable = (ClipDrawable) imageview.getDrawable();
+          	//drawable.scheduleDrawable(drawable, , );
+  	        final Handler handler = new Handler();
+  	        Timer timer = new Timer();
+          	TimerTask task = new TimerTask() {
+          		public void run() {
+          			handler.post(new Runnable() {
+          				public void run() {
+          					fireb.setEnabled(true);
+          					}
+          				});
+          			}
+          		};
+          		timer.schedule(task, 5000);
+          		}
+   		};
     
     private boolean tweetContainerTouch(View v, MotionEvent me)  {
     	View tweetContainer = (View) findViewById(edu.pugetsound.vichar.R.id.tweet_container);
@@ -525,6 +577,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     		tweetFrag.sendTweet(view);	
     	}
     }
+    
 
     
     /** We want to load specific textures from the APK, which we will later
@@ -864,6 +917,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
                             Button tweetHandle = (Button) findViewById(R.id.tweet_frag_button);
                             tweetHandle.setOnTouchListener(tweetHandleListener);
                             endTwitter();
+                            makeFireballButton();
                         }
                 };
 
@@ -1167,9 +1221,9 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     	try {
     		
     		// get camera's location and rotation from the native code, format it and put it in the JSON object
-    		//float[] cameraLoc = getCameraLocation();
-    		//deviceState.put("position", makePositionJSON(cameraLoc[0], cameraLoc[1], cameraLoc[2]));
-    		//deviceState.put("rotation", makeRotationJSON(cameraLoc[3], cameraLoc[4], cameraLoc[5]));
+    		float[] cameraLoc = getCameraLocation();
+    		deviceState.put("position", makePositionJSON(cameraLoc[0], cameraLoc[1], cameraLoc[2]));
+    		deviceState.put("rotation", makeRotationJSON(cameraLoc[3], cameraLoc[4], cameraLoc[5]));
     		
     		// Log the position for testing.
     		DebugLog.LOGI("pushDeviceState:" + deviceState.toString());
@@ -1335,6 +1389,8 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     	
         unbindService(networkingServiceConnection);
     }
+
+
 }
 
 
