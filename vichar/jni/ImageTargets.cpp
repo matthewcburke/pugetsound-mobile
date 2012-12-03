@@ -61,6 +61,10 @@
 #include "banana.h"
 #include "tower_top.h"
 #include "tower_shell.h"
+#include "eyeObj.h"
+#include "minionObj.h"
+#include "robotObj.h"
+
 
 #ifdef __cplusplus
 extern "C"
@@ -566,8 +570,11 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
         // on the loadTextures() method in ARGameActivity.java.
 
 
-        const Texture* const tower_shellTexture = textures[tower_shellIndex];
-        const Texture* const tower_topTexture = textures[tower_topIndex];
+        const Texture* const tower_shellTexture = textures[turretBulletId];
+        const Texture* const tower_topTexture = textures[turretId];
+        const Texture* const playerTexture = textures[playerId];
+        const Texture* const eyballTexture = textures[eyeballId];
+        const Texture* const minionTexture = textures[minionId];
         const Texture* const bananaTexture = textures[banana180Index];
 
 #ifdef USE_OPENGL_ES_1_1
