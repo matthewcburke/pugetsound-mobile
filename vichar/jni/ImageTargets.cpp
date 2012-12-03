@@ -121,6 +121,13 @@ typedef struct _Model {
 	float* normPointer;
     float* texPointer;
 
+	unsigned int  * numVerts;
+
+	Texture* modelTex;
+
+	float pos[3];
+	float ang[3];
+
     //QCAR::Vec2F position;
 
 	QCAR::Matrix44F transform;
@@ -360,12 +367,14 @@ updateDrawList()
 //this method pulls substantially from updateDominoTransform in Dominoes.cpp
 
 //arbitratily hardcoded lengths of both list and sublist size
-float interpList[2][7];
+float interpList[3][7];
 
-for(int w; w<2;w++){
+int interpLength=3;
 
-	for(int l; l<7;l++){
-		interpList[w][l]=0.0f;
+for(int w=0; w<3;w++){
+
+	for(int k=0; k<7;k++){
+		interpList[w][k]=0.0f;
 	}
 }
 
@@ -374,10 +383,18 @@ for(int w; w<2;w++){
 
 //HARDCODING INTERP LIST CONTENTS -- TEMP
 
-interpList[0][1] = 25.0;
-interpList[1][1] = -25.0;
+interpList[0][1] = 50.0;
+interpList[0][2] = 50.0;
+interpList[0][6]=90;
 
-for(int i; i<2; i++)
+interpList[1][1] = -50.0;
+interpList[1][2] = -50.0;
+
+interpList[2][6]=180;
+interpList[2][5]= 90.0;
+
+
+for(int i; i<interpLength; i++)
 {
 	Model* current= &drawList[i];
 	current->transform=SampleMath::Matrix44FIdentity();
@@ -390,24 +407,30 @@ for(int i; i<2; i++)
 	current->texPointer=&tower_topTexCoords[0];
 
 
-	float position[3];
-	position[0]=interpList[i][2];
-	position[1]=interpList[i][3];
-	position[2]=interpList[i][4];
+	float* position = &current->pos[0];
+	float* angle = &current->ang[0];
 
-	float angle[3];
-	angle[0]=interpList[i][5];
-	angle[1]=interpList[i][6];
-	angle[2]=interpList[i][7];
 
-	current->id=2*(i+1);
+	//float position[3];
+	position[0]=interpList[i][1];
+	position[1]=interpList[i][2];
+	position[2]=interpList[i][3];
+
+	//float angle[3];
+	angle[0]=interpList[i][4];
+	angle[1]=interpList[i][5];
+	angle[2]=interpList[i][6];
+
+	//current->id=2*(i+1);
 
 	/*
 	SampleUtils::translatePoseMatrix(position[0],position[1], position[2], transformPtr);
     SampleUtils::rotatePoseMatrix(angle[0], 0, 0, 1, transformPtr);
 	SampleUtils::rotatePoseMatrix(angle[1], 0, 0, 1, transformPtr);
 	SampleUtils::rotatePoseMatrix(angle[2], 0, 0, 1, transformPtr);
+
     //SampleUtils::translatePoseMatrix(-kObjectScale, 0.0f, kObjectScale, transformPtr);
+
     SampleUtils::scalePoseMatrix(kObjectScale, kObjectScale, kObjectScale, transformPtr);
 	*/
 
@@ -548,6 +571,8 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 
         // Assign Textures according in the texture indices defined at the beginning of the file, and based
         // on the loadTextures() method in ARGameActivity.java.
+
+
         const Texture* const tower_shellTexture = textures[tower_shellIndex];
         const Texture* const tower_topTexture = textures[tower_topIndex];
         const Texture* const bananaTexture = textures[banana180Index];
@@ -616,6 +641,8 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 			//Loads the current model from the drawList
 			Model* model = &drawList[i];
 
+			//LOG("%i%i",i,drawCount);
+
 
 			//These Lines used only for prefab transforms
 			//QCAR::Matrix44F transform;
@@ -634,6 +661,16 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 			glVertexAttribPointer(textureCoordHandle, 2, GL_FLOAT, GL_FALSE, 0,
 								  (const GLvoid*) &tower_topTexCoords[0]);
 
+
+			//NON-HARDCODED VERSION
+			/*
+			glVertexAttribPointer(vertexHandle, 3, GL_FLOAT, GL_FALSE, 0,
+								 (const GLvoid*) &model->&vertPointer);
+			glVertexAttribPointer(normalHandle, 3, GL_FLOAT, GL_FALSE, 0,
+								  (const GLvoid*) &model->&normalPointer);
+			glVertexAttribPointer(textureCoordHandle, 2, GL_FLOAT, GL_FALSE, 0,
+								  (const GLvoid*) &model->&texPointer);
+			*/
 		
 			//Open GL initialization
 			glEnableVertexAttribArray(vertexHandle);
@@ -641,16 +678,24 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 			glEnableVertexAttribArray(textureCoordHandle);
 
 
+			//Prep Transforms
+			float* position=&model->pos[0];
+			float* angle=&model->ang[0];
+
 			//Begin Transforms
-			SampleUtils::translatePoseMatrix(100.0f*(-1*i), 50.0f, kObjectScale,
+			//BE WARY OF GETTING RID OR ADDING KObject SCALE
+			SampleUtils::translatePoseMatrix(position[0], position[1], kObjectScale + position[2],
 										&modelViewMatrix.data[0]);
-			SampleUtils::rotatePoseMatrix(0.0, 0.0f, 0.0f, 1.0f,
-                        						&modelViewMatrix.data[0]);
 			// So the tower_top appears upright
-			SampleUtils::rotatePoseMatrix(90.0f, 1.0f, 0.0f, 0.0f,
+			SampleUtils::rotatePoseMatrix(90.0f + angle[0], 1.0f, 0.0f, 0.0f,
                         				&modelViewMatrix.data[0]);
+			SampleUtils::rotatePoseMatrix(angle[1], 0.0f, 1.0f, 0.0f,
+                        				&modelViewMatrix.data[0]);
+			SampleUtils::rotatePoseMatrix(angle[2], 0.0f, 0.0f, 1.0f,
+										&modelViewMatrix.data[0]);
 			SampleUtils::scalePoseMatrix(kObjectScale, kObjectScale, kObjectScale,
 										&modelViewMatrix.data[0]);
+
 			//Combine projectionMatrix and modelViewMatrix to create final modelViewProejctionMatrix
 			SampleUtils::multiplyMatrix(&projectionMatrix.data[0],
 										&modelViewMatrix.data[0] ,
@@ -666,11 +711,18 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, tower_topTexture->mTextureID);
 
+
+			//un-hardcoding
+			//glBindTexture(GL_TEXTURE_2D, model->&texturePointer->mTextureID);
+
 			//apply modelViewProjectionMatrix
 			glUniformMatrix4fv(mvpMatrixHandle, 1, GL_FALSE,
 							   (GLfloat*)&modelViewProjection.data[0] );
 			//Draw -- hardcoded to turret
 			glDrawArrays(GL_TRIANGLES, 0, tower_topNumVerts);
+
+			//Un-hardcoding
+			//glDrawArrays(GL_TRIANGLES, 0, model->&NumVerts);
 			
 			//Unused method that previous attempted to draw.
 			//renderModel(&model->transform.data[0]);
