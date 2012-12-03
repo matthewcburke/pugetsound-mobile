@@ -300,7 +300,7 @@ SampleMath::vectorAdd(QCAR::Matrix34F *m, QCAR::Matrix34F *n) {
 	//Copy over rotational data
 	for (int i=0; i<3; i++) {
 		for (int j=0; j<3; j++) {
-			newPos.data[3*i+j] = m->data[3*i+j];
+			newPos.data[4*i+j] = m->data[4*i+j];
 		}
 	}
 
