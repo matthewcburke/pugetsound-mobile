@@ -154,7 +154,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     
     //JSON parsing
     public static float[] poseData = new float[70];
-    private static final int OBJ_SIZE = 7; 	// the number of array positions to use to represent a game object.
+    public static final int OBJ_SIZE = 7; 	// the number of array positions to use to represent a game object.
     private int arrayLen = 70;
     
     	

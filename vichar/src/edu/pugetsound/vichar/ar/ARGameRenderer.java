@@ -84,7 +84,7 @@ public class ARGameRenderer implements GLSurfaceView.Renderer
      *  test = an array of location and rotation information: see format in above definition.
      * 
      * */    
-    public native void renderFrame(boolean update, float[] test);
+    public native void renderFrame(boolean update, float[] test, int objSize);
     
     
     /** Called to draw the current frame. */
@@ -94,7 +94,7 @@ public class ARGameRenderer implements GLSurfaceView.Renderer
             return;
 
         // Call our native function to render content
-        renderFrame(updated, myTest);
+        renderFrame(updated, myTest, ARGameActivity.OBJ_SIZE);
 //        updated = false;
     }
 }

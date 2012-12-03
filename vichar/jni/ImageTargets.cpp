@@ -470,7 +470,7 @@ renderModel(float* transform)
  * */
 
 JNIEXPORT void JNICALL
-Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject obj, jboolean updated, jfloatArray test)
+Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject obj, jboolean updated, jfloatArray test, jint objSize)
 {
 	bool update;
 	update = (bool) updated; //so we know whether or not to update the drawlist.
@@ -485,12 +485,12 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 		int j = 0;
 		jsize len = env->GetArrayLength(test);
 		jfloat* posData = env->GetFloatArrayElements(test, 0);
-		while(i<len && posData[(i/7)*7] != 0){
+		while(i<len && posData[(i/objSize)*objSize] != 0){
 			//LOG("JSON to JNI test. Pos. %d : %f", i, posData[i]); //print the elements of the array.
-			interpList[i/7][i%7]= (float) posData[i];
+			interpList[i/objSize][i%objSize]= (float) posData[i];
 			i++;
 		}
-		interpLength=(i)/7;
+		interpLength=(i)/objSize;
 		//LOG("%i", interpLength);
 		env->ReleaseFloatArrayElements(test, posData, 0); //release memory
 	}
