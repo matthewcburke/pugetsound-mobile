@@ -749,23 +749,41 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     
     /**
      * Parse the engineState JSONObject into a float array in ARGameRender.
+     * 
+     * @throws JSONException
      */
     private void parseEngineState(JSONObject engineState) throws JSONException
     {
     	poseData = new float[arrayLen];
     	int count = 0; 
-    	
+
+    	//will opt returning null clear the objects?
     	JSONObject turrets = engineState.optJSONObject(TURRET_NAMESPACE);
+    	if(turrets != null){
+    		count = loadObject(turrets, 1.0f, count);
+    	}
+    	// TODO change type indices
     	JSONObject turretBullets = engineState.optJSONObject(TURRETBULLET_NAMESPACE);
+    	if(turretBullets != null){
+    		count = loadObject(turretBullets, 1.0f, count);
+    	}
+
     	JSONObject fireballs = engineState.optJSONObject(FIREBALL_NAMESPACE);
+    	if(fireballs != null){
+    		count = loadObject(fireballs, 1.0f, count);
+    	}
+
     	JSONObject minions = engineState.optJSONObject(MINION_NAMESPACE);
+    	if(minions != null){
+    		count = loadObject(minions, 1.0f, count);
+    	}
+
     	JSONObject batteries = engineState.optJSONObject(BATTERY_NAMESPACE);
+    	if(batteries != null){
+    		count = loadObject(batteries, 1.0f, count);
+    	}
+
     	JSONObject player = engineState.optJSONObject(PLAYER_NAMESPACE);
-    	JSONObject eyeballs = engineState.optJSONObject(EYEBALL_NAMESPACE);
-    	JSONObject platforms = engineState.optJSONObject(PLATFORM_NAMESPACE);
-    	
-//    	TODO load other game objects. Write a helper method?
-    	
     	// load player 
     	if(player != null)
     	{
@@ -775,12 +793,47 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
         		resizeArray(poseData, newLen);
         		arrayLen = newLen;
         	}
-    	   	poseData[count++] = 6.0f; // TODO use enums to represent the types of gameobjects.
+    	   	poseData[count++] = 1.0f; // TODO use enums to represent the types of gameobjects.
     		count = parsePosition(player.getJSONObject(POSITION_NAMESPACE), count);
     		count = parseRotaion(player.getJSONObject(ROTATION_NAMESPACE), count);
     		ARGameRenderer.updated = true;
     	}
     	else DebugLog.LOGI("No Player");
+
+    	JSONObject eyeballs = engineState.optJSONObject(EYEBALL_NAMESPACE);
+		count = loadObject(eyeballs, 1.0f, count);
+
+    	JSONObject platforms = engineState.optJSONObject(PLATFORM_NAMESPACE);
+    	// TODO do something with the platforms
+    }
+
+    /**
+     * A helper method to load the object in the array
+     * @param type
+     * @param typeIndex
+     * @param i
+     * @return
+     * @throws JSONException
+     */
+    private int loadObject(JSONObject type, float typeIndex, int i) throws JSONException
+    {
+    	String key = "";
+    	key = type.getString("key?"); //TODO deal with null?
+    	if(key != null)
+    	{
+    		JSONObject obj = type.getJSONObject(key);
+    		if( i + OBJ_SIZE >= arrayLen)
+    		{
+    			int newLen = arrayLen * 2;
+    			resizeArray(poseData, newLen);
+    			arrayLen = newLen;
+    		}
+    		poseData[i++] = typeIndex; // TODO use enums to represent the types of gameobjects.
+    		i = parsePosition(obj.getJSONObject(POSITION_NAMESPACE), i);
+    		i = parseRotaion(obj.getJSONObject(ROTATION_NAMESPACE), i);
+    		ARGameRenderer.updated = true;
+    	}
+    	return i;
     }
     
     /**
