@@ -24,6 +24,8 @@ package edu.pugetsound.vichar.ar;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Vector;
 
 import org.json.JSONException;
@@ -35,6 +37,7 @@ import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.format.Time;
 // import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -148,7 +151,24 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     private static final String GAME_ENGINE_NAMESPACE = "engine";
     private static final String DEVICES_NAMESPACE = "phones";
     private static final String WEB_NAMESPACE = "web";
+    private static final String TURRET_NAMESPACE = "turrets";
+    private static final String TURRETBULLET_NAMESPACE = "turretsBullets";
+    private static final String FIREBALL_NAMESPACE = "fireballs";
+    private static final String MINION_NAMESPACE = "minions";
+    private static final String BATTERY_NAMESPACE = "batteries";
+    private static final String PLAYER_NAMESPACE = "player";
+    private static final String EYEBALL_NAMESPACE = "eyeballs";
+    private static final String PLATFORM_NAMESPACE = "platforms";
+    private static final String POSITION_NAMESPACE = "position";
+    private static final String ROTATION_NAMESPACE = "rotation";
     private String deviceUUID; // Device namespace
+    
+    //JSON parsing
+    public static float[] poseData = new float[70];
+    public static boolean updated = false;
+    public static final int OBJ_SIZE = 7; 	// the number of array positions to use to represent a game object.
+    private int arrayLen = 70;
+    
     	
 	// Service Stuff
     private Messenger networkingServiceMessenger = null;
@@ -575,9 +595,14 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     	} else {
     		//if a vote has just begun
     		if(activeTwitter==false) {    			
-    			startTwitter();
+//    			startTwitter(); // @BUG causing a crash when not logged in
     		}
     	}
+    }
+    
+    private boolean checkTwitterLogin() {
+    	PreferenceUtility pu = new PreferenceUtility();
+    	return pu.returnBoolean(getString(R.string.tw_login_key), false, this);
     }
     
     /**
@@ -769,9 +794,9 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     private void onGameStateChange(String stateStr) {
     	
     	pushDeviceState(obtainDeviceState());
-    	DebugLog.LOGI("onGameStateChange:" + stateStr);
+    	//DebugLog.LOGI("onGameStateChange:" + stateStr);
     	
-    	System.out.println(stateStr);
+    	//System.out.println(stateStr);
     	
     	try {
     		JSONObject gameState = new JSONObject(stateStr);
@@ -780,6 +805,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     		JSONObject engineState = (JSONObject) gameState.get(GAME_ENGINE_NAMESPACE);
     		JSONObject webState = (JSONObject) gameState.get(WEB_NAMESPACE);
     		updateTwitterState(gameState);
+    		parseEngineState(engineState);
     		// TODO: Pass the engineState to functions that need to render it
     	} catch(JSONException e) {
     		//shit!
@@ -787,6 +813,123 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     	}
     }
     
+    /**
+     * Parse the engineState JSONObject into a float array in ARGameRender.
+     * 
+     * @throws JSONException
+     */
+    private void parseEngineState(JSONObject engineState) throws JSONException
+    {
+    	poseData = new float[arrayLen];
+    	int count = 0; 
+
+    	//will opt returning null clear the objects?
+    	JSONObject turrets = engineState.optJSONObject(TURRET_NAMESPACE);
+    	if(turrets != null){
+    		count = loadObject(turrets, 1.0f, count);
+    	}
+    	// TODO change type indices
+    	JSONObject turretBullets = engineState.optJSONObject(TURRETBULLET_NAMESPACE);
+    	if(turretBullets != null){
+    		count = loadObject(turretBullets, 1.0f, count);
+    	}
+
+    	JSONObject fireballs = engineState.optJSONObject(FIREBALL_NAMESPACE);
+    	if(fireballs != null){
+    		count = loadObject(fireballs, 1.0f, count);
+    	}
+
+    	JSONObject minions = engineState.optJSONObject(MINION_NAMESPACE);
+    	if(minions != null){
+    		count = loadObject(minions, 1.0f, count);
+    	}
+
+    	JSONObject batteries = engineState.optJSONObject(BATTERY_NAMESPACE);
+    	if(batteries != null){
+    		count = loadObject(batteries, 1.0f, count);
+    	}
+
+    	JSONObject player = engineState.optJSONObject(PLAYER_NAMESPACE);
+    	// load player 
+    	if(player != null)
+    	{
+    		DebugLog.LOGI(player.toString());
+    	   	if( count + OBJ_SIZE >= arrayLen)
+    	   	{
+    	   		int newLen = arrayLen * 2;
+        		resizeArray(poseData, newLen);
+        		arrayLen = newLen;
+        	}
+    	   	poseData[count++] = 1.0f; // TODO use enums to represent the types of gameobjects.
+    		count = parsePosition(player.getJSONObject(POSITION_NAMESPACE), count);
+    		count = parseRotaion(player.getJSONObject(ROTATION_NAMESPACE), count);
+    		updated = true;
+//    		DebugLog.LOGI( "Parse:" + player.toString());
+    	}
+    	else DebugLog.LOGI("No Player");
+
+    	JSONObject eyeballs = engineState.optJSONObject(EYEBALL_NAMESPACE);
+		count = loadObject(eyeballs, 1.0f, count);
+
+    	JSONObject platforms = engineState.optJSONObject(PLATFORM_NAMESPACE);
+    	// TODO do something with the platforms
+    }
+
+    /**
+     * A helper method to load the object in the array
+     * @param type
+     * @param typeIndex
+     * @param i
+     * @return
+     * @throws JSONException
+     */
+    private int loadObject(JSONObject type, float typeIndex, int i) throws JSONException
+    {
+    	Iterator<String> objItr = type.keys();
+    	while( objItr.hasNext())
+    	{
+    		JSONObject obj = type.getJSONObject(objItr.next());
+    		if( i + OBJ_SIZE >= arrayLen)
+    		{
+    			int newLen = arrayLen * 2;
+    			resizeArray(poseData, newLen);
+    			arrayLen = newLen;
+    		}
+    		poseData[i++] = typeIndex; // TODO use enums to represent the types of gameobjects.
+    		i = parsePosition(obj.getJSONObject(POSITION_NAMESPACE), i);
+    		i = parseRotaion(obj.getJSONObject(ROTATION_NAMESPACE), i);
+    		updated = true;
+    	}
+    	return i;
+    }
+    
+    /**
+     * loads position JSON data into poseData array.
+     * @param xyz
+     * @param i
+     * @throws JSONException
+     */
+    private int parsePosition(JSONObject xyz, int i) throws JSONException
+    {
+    	poseData[i++] = Float.parseFloat(xyz.getString("x"));
+    	poseData[i++] = Float.parseFloat(xyz.getString("y"));
+    	poseData[i++] = Float.parseFloat(xyz.getString("z"));
+    	return i;
+    }
+    
+    /**
+     * loads rotation JSON data into poseData array. Designed to be called immediately after parsePosition.
+     * @param xyz
+     * @param i
+     * @throws JSONException
+     */
+    private int parseRotaion(JSONObject xyz, int i) throws JSONException
+    {
+    	poseData[i++] = Float.parseFloat(xyz.getString("x"));
+    	poseData[i++] = Float.parseFloat(xyz.getString("y"));
+    	poseData[i++] = Float.parseFloat(xyz.getString("z"));
+    	return i;
+    }
 
     /** Called when the system is about to start resuming a previous activity.*/
     protected void onPause()
@@ -987,10 +1130,18 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
                             // Start the camera:
                             updateApplicationStatus(APPSTATUS_CAMERA_RUNNING);
                             
-                            //make ui visible
+                            //make UI visible
                     	    addContentView(gui, new LayoutParams(
                                     LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));                    	    
                     	    Log.d("UI", "add ui");
+                    	    //check if user is logged into twitter
+                    	    Boolean twLogin = checkTwitterLogin();
+                    	    //if not, don't render twitter container
+                    	    if(!twLogin) {
+                    	    	View twContainer = findViewById(R.id.tweet_container);
+                    	    	twContainer.setVisibility(View.GONE);
+                    	    }
+                    	    
                     	    //tweet handle touch listener
                             Button tweetHandle = (Button) findViewById(R.id.tweet_frag_button);
                             tweetHandle.setOnTouchListener(tweetHandleListener);
@@ -1283,11 +1434,24 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     		
     		// get camera's location and rotation from the native code, format it and put it in the JSON object
     		float[] cameraLoc = getCameraLocation();
-    		deviceState.put("position", makePositionJSON(cameraLoc[0], cameraLoc[1], cameraLoc[2]));
-    		deviceState.put("rotation", makeRotationJSON(cameraLoc[3], cameraLoc[4], cameraLoc[5]));
+    		if (cameraLoc[0] == 1.0)
+    		{
+    			deviceState.put("position", makePositionJSON(cameraLoc[0], cameraLoc[1], cameraLoc[2]));
+        		deviceState.put("rotation", makeRotationJSON(cameraLoc[3], cameraLoc[4], cameraLoc[5]));
+    		}
+    		else
+    		{
+    			deviceState.put("position", null);
+    			deviceState.put("rotation", null);
+    		}
     		
     		// Log the position for testing.
     		DebugLog.LOGI("pushDeviceState:" + deviceState.toString());
+    		
+    		//put current time in JSON
+    		long time = System.currentTimeMillis();
+    		deviceState.put("lastUpdated", time);
+    		deviceState.put("lastUpdatedByDevice", time);
 
     		JSONObject sendState = new JSONObject().put(deviceUUID, deviceState);
     		sendState = new JSONObject().put(DEVICES_NAMESPACE, sendState);
@@ -1306,6 +1470,14 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
      */
     private void pushGameState(JSONObject sendState) {
     	if(isBoundToNetworkingService) {
+    		//put in current time
+    		try {
+	    		long time = System.currentTimeMillis();
+	    		sendState.put("lastModified", time);
+    		} catch (JSONException ex) {
+    			//TODO:probably nothing to do in this case
+    		}   
+    		
     		Bundle b = new Bundle();
     		b.putString("" + NetworkingService.MSG_QUEUE_OUTBOUND_J_STRING, 
     				sendState.toString());
@@ -1313,7 +1485,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     				NetworkingService.MSG_QUEUE_OUTBOUND_J_STRING);
     		msg.setData(b);
     		try {
-    			networkingServiceMessenger.send(msg);
+    			networkingServiceMessenger.send(msg); //@BUG caught a null pointer exception by pressing the home button from game activity.
     		} catch (RemoteException e) {
                 //TODO handle RemoteException
     			Log.i(this.toString(), "updateRemoteGameState: RemoteException");
@@ -1373,7 +1545,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
 	            case NetworkingService.MSG_RET_JSON_STRING_FROM_SERVER:
 	            	Log.d(this.toString(), "Got something from NetworkingService");
 	            	String str = msg.getData().getString("" + NetworkingService.MSG_RET_JSON_STRING_FROM_SERVER);
-	            	Log.d(this.toString(), str);
+	            	//Log.d(this.toString(), str);
 	            	if(str != null) {
 	            		isConnectedToGameServer = true;
 	            		onGameStateChange(str);
@@ -1460,7 +1632,16 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
         unbindService(networkingServiceConnection);
     }
 
-
+    
+    private static float[] resizeArray (float[] oldArray, int newSize) {
+    	int oldSize = oldArray.length;
+    	float[] newArray = new float[newSize];
+    	int preserveSize = Math.min(oldSize, newSize);
+    	for(int i=0; i<preserveSize; i++){
+    		newArray[i] = oldArray[i];
+    	}
+    	return newArray; 
+    }
 }
 
 

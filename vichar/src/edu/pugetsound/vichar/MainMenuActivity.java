@@ -29,8 +29,8 @@ public class MainMenuActivity extends Activity {
         //help with banding on gradients
         getWindow().setFormat(PixelFormat.RGBA_8888);
         setContentView(R.layout.activity_main_menu);
-        //custom title
-        setTitle("dwsprout");
+        //set title to screenname
+        setTitle(getScreenname());
         createButtons();
         
     }
@@ -92,6 +92,15 @@ public class MainMenuActivity extends Activity {
        public boolean onCreateOptionsMenu(Menu menu) {
            getMenuInflater().inflate(R.menu.activity_main_menu, menu);
            return true;
+       }
+       
+       /**
+        * Returns current user's screenname
+        * @return Username of current user
+        */
+       private String getScreenname() {
+    	   PreferenceUtility pu = new PreferenceUtility();
+    	   return pu.returnSavedString(getString(R.string.screenname_key), getString(R.string.prefs_error), this);
        }
 
     }
