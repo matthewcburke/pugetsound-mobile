@@ -595,7 +595,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     	} else {
     		//if a vote has just begun
     		if(activeTwitter==false) {    			
-//    			startTwitter(); // @BUG causing a crash when not logged in
+//    			startTwitter();
     		}
     	}
     }
