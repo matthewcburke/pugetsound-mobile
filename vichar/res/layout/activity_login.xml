@@ -2,24 +2,30 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/vi_char_robot" >
+    android:background="@drawable/settings_portrait" >
+
     <EditText
-        android:id="@+id/editText1"
+        android:id="@+id/sn_entry"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+		android:layout_above="@+id/enter_guest"
+        android:ems="10"
+        android:inputType="text"
+        android:maxLength="15" />
+
+    <Button
+        android:id="@+id/enter_guest"
+        style="@style/ShadowTextStyle"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:ems="10"
-        android:inputType="text" />
-    
-    <Button
-        android:id="@+id/button1"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/editText1"
-        android:text="@string/login" />
+        android:layout_height="wrap_content"    
+        android:background="@drawable/grayscale_button_bg"
+        android:text="@string/choose_username"
+        android:textColor="@drawable/game_button_txt" />
+
 
 </RelativeLayout>

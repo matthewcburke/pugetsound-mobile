@@ -1,13 +1,37 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/game_container"
+    android:id="@+id/game_container_old"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <fragment android:name="edu.pugetsound.vichar.fragments.PlaceholderFragment"
               android:id="@+id/augmented_reality_fragment"
               android:layout_width="match_parent"
-              android:layout_height="match_parent" />
+              android:layout_height="match_parent" />                
+   	<LinearLayout
+   	    xmlns:android="http://schemas.android.com/apk/res/android"
+   	    xmlns:tools="http://schemas.android.com/tools"
+   	    android:id="@+id/tweet_container"
+   	    android:layout_width="wrap_content"
+   	    android:layout_height="wrap_content"
+   	    android:layout_gravity="right|top"
+   	    android:orientation="horizontal"
+   	    android:layout_marginRight="-200dp" >
+
+   		<Button
+   		    android:id="@+id/tweet_frag_button_old"
+   		    android:layout_width="60dp"
+   		    android:layout_height="60dp"
+   		    android:contentDescription="@string/tweet_icon"
+   		     />
+   	
+   		<fragment 
+		    android:name="edu.pugetsound.vichar.TweetFragment"
+          	android:id="@+id/tweet_fragment_old"
+          	android:layout_width="200dp"
+          	android:layout_height="100dp" />
+   	
+   	</LinearLayout>
     
     <TextView
         android:id="@+id/game_view_text"
@@ -15,6 +39,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="@string/test_activity_game"
-        tools:context=".GameActivity" />
-
+        tools:context=".GameActivity" />    
+    
 </FrameLayout>

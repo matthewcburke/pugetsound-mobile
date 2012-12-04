@@ -1,37 +1,51 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-     android:layout_height="match_parent"
-    android:background="@drawable/vi_char_robot" >
+    android:layout_height="match_parent"
+    android:background="@drawable/settings_portrait" 
+    android:orientation="vertical" 
+    android:weightSum="6.5">
+    >
 
     <Button
         android:id="@+id/login_with_twitter"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:onClick="authorizeTwitter"
-        android:text="@string/login_with_twitter" />
-
+        android:text="@string/login_with_twitter"
+        android:includeFontPadding="true"
+        android:textColor="@drawable/game_button_txt"
+        style="@style/ShadowTextStyle"
+        android:textSize="28sp"
+        android:background="@drawable/grayscale_button_bg"
+		android:layout_margin="5dp"
+		android:layout_weight="1.61803398875"
+             	   android:paddingTop="5dp"
+                   android:paddingBottom="5dp"
+                   android:gravity="center|left" />
+
     <Button
         android:id="@+id/login_with_vichar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/login_with_twitter"
-        android:layout_alignLeft="@+id/login_with_twitter"
-        android:layout_marginBottom="63dp"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:textColor="@drawable/grayscale_button_txt"
+        style="@style/ShadowTextStyle"
+        android:background="@drawable/grayscale_button_bg"
         android:onClick="authorizeLoginwithVichar"
-        android:text="@string/login_with_vichar" />
+        android:text="@string/play_as_guest"
+		android:layout_margin="5dp"
+             	   android:paddingTop="5dp"
+                   android:paddingBottom="5dp"
+                   android:gravity="center|left"
+                   android:layout_weight="1" />
     
-    <Button
+	<Button
         android:id="@+id/main_menu_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
         android:layout_marginRight="25dp"
         android:layout_marginTop="25dp"
         android:text="@string/enter_main_menu" />
 
 
-</RelativeLayout>
+</LinearLayout>

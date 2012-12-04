@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  
+    In FrameLayout children are drawn in a stack, with the most recently 
+    added child on top.
+    
+    Due to a strange bug in Android, the z-order of the views does not seem to 
+    be guaranteed. For example, if we add the camera preview layer and the 
+    GLView here, first of all GLView has to be added to the layout BEFORE 
+    CameraPreview to be on top instead of vice versa due to a strange reason.    
+    This works upon a fresh start, and the camera view sits underneath
+    the GL view. However, upon pressing the HOME button and returning,
+    the order of the layers gets swapped and stays wrong (or vice versa: if
+    started with a wrong order, it gets correct).
+    
+    Apparently the current version of the framework makes no guarantees about 
+    what order the 2 SurfaceViews would be placed in the window manager, it is 
+    just happenstance, and could change based on various conditions that may or 
+    may not have the same result in the future...
+    
+    Calling the functions (available after Android 2.0)
+    glView.setZOrderMediaOverlay(true) or using glView.bringToFront() 
+    doesn't seem to fix the problem either.
+    
+    To overcome this problem, we just construct the views dynamically upon
+    calling onResume to guarantee the correct order and therefore leave the 
+    layout empty now.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/game_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" >
+
+        <ImageView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/eyelid_top_right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|right"
+        android:src="@drawable/eyelid_top_right_img" />
+
+    <ImageView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/eyelid_top_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|left"
+        android:src="@drawable/eyelid_top_left_img" />
+
+    <ImageView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/eyelid_bottom_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|left"
+        android:src="@drawable/eyelid_bottom_left_img" />
+
+    <ImageView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/eyelid_bottom_right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:src="@drawable/eyelid_bottom_right_img" />
+
+    <ImageView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|center_vertical"
+        android:src="@drawable/crosshair" />
+
+    <!--
+    <scale xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/eyelid_top_right"
+    android:scaleGravity="top|right"
+    android:scaleHeight="100%"
+    android:scaleWidth="100%" />
+    -->
+    
+   	<LinearLayout
+   	    xmlns:android="http://schemas.android.com/apk/res/android"
+   	    xmlns:tools="http://schemas.android.com/tools"
+   	    android:id="@+id/tweet_container"
+   	    android:layout_width="wrap_content"
+   	    android:layout_height="wrap_content"
+   	    android:layout_marginLeft="-300dp"
+   	    android:orientation="horizontal" >
+
+   	    <fragment
+   	        android:id="@+id/twitter_fragment"
+   	        android:name="edu.pugetsound.vichar.TweetFragment"
+   	        android:layout_width="wrap_content"
+   	        android:layout_height="wrap_content" />
+
+   	    <Button
+   	        android:id="@+id/tweet_frag_button"
+   	        android:layout_width="60dp"
+   	        android:layout_height="60dp"
+   	        android:background="@drawable/twitter_logo"
+   	        android:contentDescription="@string/tweet_icon" />
+
+   	    
+   	</LinearLayout>
+   	
+   	<RelativeLayout 
+   	xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fireball_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+   	    <Button
+   	        android:id="@+id/fireball_button"
+   	        android:layout_width="wrap_content"
+   	        android:layout_height="wrap_content"
+   	        android:layout_alignParentBottom="true"
+   	        android:layout_alignParentRight="true"
+   	        android:background="@drawable/fireball_button" />
+
+   	    
+   	</RelativeLayout>
+    
+
+</FrameLayout>

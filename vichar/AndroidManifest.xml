@@ -8,10 +8,10 @@
         android:targetSdkVersion="15" />
 
     <!--
-    	Explicitly use this camera feature so as to support cameras 
-    	without support for other features. (If we request the camera
-    	permission but no features, Android assumes we need all of 
-    	them.)
+    	Explicitly use this camera feature so as to support cameras
+	without support for other features. (If we request the camera
+	permission but no features, Android assumes we need all of
+	them.)
     -->
     <uses-feature android:name="android.hardware.camera" />
 
@@ -43,8 +43,7 @@
             android:label="MainVichar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
-                 <category android:name="android.intent.category.LAUNCHER" />
+		    	<category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
@@ -56,6 +55,12 @@
 <!--                 <category android:name="android.intent.category.LAUNCHER" />
  -->            </intent-filter>
         </activity>
+    	<activity
+	        android:name="edu.pugetsound.vichar.ar.ARGameActivity"
+	        android:label="@string/ar_name"
+	        android:configChanges="orientation|keyboardHidden"
+	        android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+		</activity>
         <activity
             android:name=".GameActivity"
             android:label="@string/app_name"
@@ -71,13 +76,12 @@
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".TestActivity"
-            android:label="@string/title_activity_test" >
+            android:label="+@string/title_activity_test" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.pugetsound.vichar.MainActivity" />

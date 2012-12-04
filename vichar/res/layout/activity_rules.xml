@@ -2,15 +2,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="65dp"
-        android:text="No Cheating!"
-        tools:context=".RulesActivity" />
     <Button
         android:id="@+id/main_menu_button"
         android:layout_width="wrap_content"
@@ -20,5 +11,14 @@
         android:layout_marginRight="25dp"
         android:layout_marginTop="25dp"
         android:text="@string/enter_main_menu" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/main_menu_button"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="33dp"
+        android:text="No Cheating!"
+        tools:context=".RulesActivity" />
 
 </RelativeLayout>
