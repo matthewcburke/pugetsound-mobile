@@ -390,9 +390,11 @@ for(int i = 0; i<interpLength; i++)
 
 	//Must translate communication into
 
+	/*
 	current->vertPointer=&tower_topVerts[0];
 	current->normPointer=&tower_topNormals[0];
 	current->texPointer=&tower_topTexCoords[0];
+	*/
 
 
 	float* position = &current->pos[0];
@@ -453,11 +455,12 @@ renderModel(float* transform)
 
     //glDrawElements(GL_TRIANGLES, NUM_CUBE_INDEX, GL_UNSIGNED_SHORT, (const GLvoid*) &cubeIndices[0]);
 
-
+	/*
 	LOG("drawing");
 	glUniformMatrix4fv(mvpMatrixHandle, 1, GL_FALSE, (GLfloat*)&modelViewProjection.data[0]);
 	glDrawArrays(GL_TRIANGLES, 0, tower_topNumVerts);
 	SampleUtils::checkGlError("ImageTargets renderFrame");
+	*/
 
 #endif
 }
@@ -648,11 +651,11 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 
 			//Verts,norms,texcords assigned here -- Is currently hardcoded to turret coords
 			glVertexAttribPointer(vertexHandle, 3, GL_FLOAT, GL_FALSE, 0,
-								 (const GLvoid*) &tower_topVerts[0]);
+								 (const GLvoid*) &tower_shellVerts[0]);
 			glVertexAttribPointer(normalHandle, 3, GL_FLOAT, GL_FALSE, 0,
-								  (const GLvoid*) &tower_topNormals[0]);
+								  (const GLvoid*) &tower_shellNormals[0]);
 			glVertexAttribPointer(textureCoordHandle, 2, GL_FLOAT, GL_FALSE, 0,
-								  (const GLvoid*) &tower_topTexCoords[0]);
+								  (const GLvoid*) &tower_shellTexCoords[0]);
 
 
 			//NON-HARDCODED VERSION
@@ -704,7 +707,7 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 
 			//Assign and bind texture -- once again this is hard coded to turrets
 			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, tower_topTexture->mTextureID);
+			glBindTexture(GL_TEXTURE_2D, tower_shellTexture->mTextureID);
 
 
 			//un-hardcoding
@@ -714,7 +717,7 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 			glUniformMatrix4fv(mvpMatrixHandle, 1, GL_FALSE,
 							   (GLfloat*)&modelViewProjection.data[0] );
 			//Draw -- hardcoded to turret
-			glDrawArrays(GL_TRIANGLES, 0, tower_topNumVerts);
+			glDrawArrays(GL_TRIANGLES, 0, tower_shellNumVerts);
 
 			//Un-hardcoding
 			//glDrawArrays(GL_TRIANGLES, 0, model->&NumVerts);
