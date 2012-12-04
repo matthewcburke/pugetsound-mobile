@@ -91,6 +91,14 @@ public:
      * return The distance between the phone and a target
      */
     static float getDistance(QCAR::Matrix34F *phone);
+
+    /**
+    * Calculates three Euler angles (theta_x, theta_y, theta_z) from a 3x3 rotation
+    * matrix nested inside a posMatrix of the form [R^-1|-R^-1*T]
+    * param m pointer to posMatrix in form [R^-1|-R^-1*T]
+    * return pointer to a float array containing the three Euler angles (theta_x, theta_y, theta_z)
+    */
+    static QCAR::Vec3F getEulerAngles(QCAR::Matrix34F *m);
   //End===============================================================================================================
     
 };

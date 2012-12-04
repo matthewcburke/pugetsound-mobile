@@ -721,7 +721,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     		//Pull out official namespaces
     		JSONObject engineState = (JSONObject) gameState.get(GAME_ENGINE_NAMESPACE);
     		JSONObject webState = (JSONObject) gameState.get(WEB_NAMESPACE);
-    		updateTwitterState(gameState);
+    		//updateTwitterState(gameState);
     		// TODO: Pass the engineState to functions that need to render it
     	} catch(JSONException e) {
     		//shit!

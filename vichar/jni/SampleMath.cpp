@@ -12,9 +12,13 @@
 ==============================================================================*/
 
 #include "SampleMath.h"
+#define _USE_MATH_DEFINES
 
 #include <math.h>
 #include <stdlib.h>
+#include <android/log.h>
+#include <QCAR/UpdateCallback.h>
+#include <jni.h>
 
 
 QCAR::Vec2F
@@ -239,6 +243,8 @@ SampleMath::phoneCoorMatrix(QCAR::Matrix34F *m) {
 
     //get new pos coords
     matrxVecMult(&r);
+    //LOG("PhoneCoorMatrix: (%f,%f,%f)",r.data[3], r.data[7], r.data[11]);
+    //LOG("============================");
 
     return r;
 }
@@ -267,6 +273,8 @@ SampleMath::matrxVecMult(QCAR::Matrix34F *m) {
     m->data[3] = posTemp[0];
     m->data[7] = posTemp[1];
     m->data[11] = posTemp[2];
+
+    //LOG("matrxVecMult: (%f, %f, %f)", m->data[3], m->data[7], m->data[11]);
 }
 
 QCAR::Matrix34F
@@ -288,6 +296,8 @@ SampleMath::calcSecondPos(QCAR::Matrix34F *m, QCAR::Matrix34F *n) {
     temp.data[11] = n->data[11];
 
     //pass posMatrix in form [R1|T2]
+   // LOG("calcSecondPos: (%f, %f, %f)", temp.data[3], temp.data[7], temp.data[11]);
+   // LOG("=====================================")
     return phoneCoorMatrix(&temp);
 }
 
@@ -309,6 +319,9 @@ SampleMath::vectorAdd(QCAR::Matrix34F *m, QCAR::Matrix34F *n) {
 	newPos.data[7] = temp[1];
 	newPos.data[11] = temp[2];
 
+	//LOG("vectorAdd: (%f, %f, %f)", newPos.data[3], newPos.data[7], newPos.data[11]);
+
+
 	return newPos;
 }
 
@@ -320,6 +333,25 @@ SampleMath::getDistance(QCAR::Matrix34F *phone) {
         float dist = sqrt(temp);    //Second calc for dist
 
         return dist;
+}
+
+QCAR::Vec3F
+SampleMath::getEulerAngles(QCAR::Matrix34F *m) {
+        float theta_x, theta_y, theta_z;        //Gets Euler angles
+        QCAR::Vec3F temp;   //Gets thetas
+        double correction = 180/M_PI;   //180/pi to convert between radians and degrees
+
+        //Calculate Euler angles as radians
+        theta_x = atan2(m->data[9], m->data[10]);
+        theta_y = atan2(-1*m->data[8], sqrt(pow(m->data[9],2)+pow(m->data[10],2)));
+        theta_z = atan2(m->data[9], m->data[0]);
+
+        //Fill vector with Euler angles converted to degrees
+        temp.data[0] = theta_x * correction;
+        temp.data[1] = theta_y * correction;
+        temp.data[2] = theta_z * correction;
+
+        return temp;
 }
 //End==============================================================================================================
 
