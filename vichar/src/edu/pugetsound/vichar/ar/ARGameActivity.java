@@ -867,12 +867,18 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
 //    		DebugLog.LOGI( "Parse:" + player.toString());
     	}
     	else DebugLog.LOGI("No Player");
-
-    	JSONObject eyeballs = engineState.optJSONObject(EYEBALL_NAMESPACE);
-		count = loadObject(eyeballs, 1.0f, count, false);
+    	
+		JSONObject eyeballs = engineState.optJSONObject(EYEBALL_NAMESPACE);
+    	if(eyeballs != null)
+    	{
+    		count = loadObject(eyeballs, 1.0f, count, false);
+    	}
 
     	JSONObject platforms = engineState.optJSONObject(PLATFORM_NAMESPACE);
-    	// TODO do something with the platforms
+    	if(platforms != null)
+    	{
+    		// TODO do something with the platforms
+    	}
     }
 
     /**
@@ -886,22 +892,31 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     private int loadObject(JSONObject type, float typeIndex, int i, boolean isBattery) throws JSONException
     {
     	Iterator<String> objItr = type.keys();
+
     	while( objItr.hasNext())
     	{
-    		JSONObject obj = type.getJSONObject(objItr.next());
+    		String thisEye = objItr.next();
+    		JSONObject obj = type.getJSONObject(thisEye);
     		if( i + OBJ_SIZE >= arrayLen)
     		{
     			int newLen = arrayLen * 2;
     			resizeArray(poseData, newLen);
     			arrayLen = newLen;
     		}
-    		poseData[i++] = typeIndex; // TODO use enums to represent the types of gameobjects.
-    		i = parsePosition(obj.getJSONObject(POSITION_NAMESPACE), i);
-    		if(!isBattery)
+    		if (deviceUUID.equals(thisEye))
     		{
-        		i = parseRotaion(obj.getJSONObject(ROTATION_NAMESPACE), i);
+    			return i;
     		}
-    		updated = true;
+    		else
+    		{
+    			poseData[i++] = typeIndex; // TODO use enums to represent the types of gameobjects.
+    			i = parsePosition(obj.getJSONObject(POSITION_NAMESPACE), i);
+    			if(!isBattery)
+    			{
+    				i = parseRotaion(obj.getJSONObject(ROTATION_NAMESPACE), i);
+    			}
+    			updated = true;
+    		}
     	}
     	return i;
     }
