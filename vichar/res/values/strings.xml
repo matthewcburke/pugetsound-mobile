@@ -76,6 +76,7 @@
     <string name="play_as_guest">Play as Guest</string>
     <string name="guest_name">guest name</string>
     <color name="game_blue">#268bd2</color>
+    <color name="twitt_blue">#4099FF</color>
 
 
 </resources>
