@@ -93,8 +93,8 @@ public class ARGameRenderer implements GLSurfaceView.Renderer
             return;
 
         // Call our native function to render content
-//        renderFrame(updated, myTest, ARGameActivity.OBJ_SIZE);
-        renderFrame(ARGameActivity.updated, ARGameActivity.poseData, ARGameActivity.OBJ_SIZE);
-        ARGameActivity.updated = false;
+//        renderFrame(updated, myTest, GameParser.OBJ_SIZE);
+        renderFrame(GameParser.updated, GameParser.poseData, GameParser.OBJ_SIZE);
+        GameParser.updated = false;
     }
 }
