@@ -152,7 +152,10 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     private static final String DEVICES_NAMESPACE = "phones";
     private static final String WEB_NAMESPACE = "web";
     private String deviceUUID; // Device namespace
-        	
+    
+
+    private static final String STATIC_GAME_STATE = "{engine:{gameRunning:false,player:{energy:100,position:{x:0.0,y:0.0,z:0.0},rotation:{x:0.0,y:0.0,z:0.0}}}}"; // for use when not connected to the network
+
 	// Service Stuff
     private Messenger networkingServiceMessenger = null;
     boolean isBoundToNetworkingService = false;
@@ -786,10 +789,10 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
 
     		//Pull out official namespaces
     		JSONObject engineState = (JSONObject) gameState.get(GAME_ENGINE_NAMESPACE);
+    		GameParser.parseEngineState(engineState, deviceUUID);
     		JSONObject webState = (JSONObject) gameState.get(WEB_NAMESPACE);
     		updateTwitterState(gameState);
-    		GameParser.parseEngineState(engineState, deviceUUID);
-    		// TODO: Pass the engineState to functions that need to render it
+    		
     	} catch(JSONException e) {
     		//shit!
     		e.printStackTrace();
@@ -1428,6 +1431,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
 	            case NetworkingService.MSG_NETWORKING_FAILURE:
 	            	isConnectedToGameServer = false;
 	            	Log.d(this.toString(), "Networking Failure");
+	            	onGameStateChange(STATIC_GAME_STATE);
 	            	break;
 	            default:
 	                super.handleMessage(msg);
