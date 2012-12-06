@@ -154,7 +154,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     private String deviceUUID; // Device namespace
     
 
-    private static final String STATIC_GAME_STATE = "{engine:{gameRunning:false,player:{energy:100,position:{x:0.0,y:0.0,z:0.0},rotation:{x:0.0,y:0.0,z:0.0}}}}"; // for use when not connected to the network
+    private static final String STATIC_GAME_STATE = "{engine:{gameRunning:false,player:{energy:100,position:{x:0.0,y:0.0,z:0.0},rotation:{x:0.0,y:90.0,z:0.0}}}}"; // for use when not connected to the network
 
 	// Service Stuff
     private Messenger networkingServiceMessenger = null;
@@ -1305,8 +1305,8 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     		float[] cameraLoc = getCameraLocation();
     		if (cameraLoc[0] == 1.0)
     		{
-    			deviceState.put("position", makePositionJSON(cameraLoc[0], cameraLoc[1], cameraLoc[2]));
-        		deviceState.put("rotation", makeRotationJSON(cameraLoc[3], cameraLoc[4], cameraLoc[5]));
+    			deviceState.put("position", makePositionJSON(cameraLoc[1], cameraLoc[2], cameraLoc[3]));
+        		deviceState.put("rotation", makeRotationJSON(cameraLoc[4], cameraLoc[5], cameraLoc[6]));
     		}
     		else
     		{
@@ -1404,8 +1404,8 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     	JSONObject rotation = new JSONObject();
     	
     	rotation.put("x", "" + xRot);
-    	rotation.put("y", "" + yRot);
-    	rotation.put("z", "" + zRot);
+    	rotation.put("y", "" + zRot);
+    	rotation.put("z", "" + (-yRot));
     	
     	return rotation; 	
     }

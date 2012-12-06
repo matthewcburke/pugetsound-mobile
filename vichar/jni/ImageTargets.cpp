@@ -108,7 +108,7 @@ bool isActivityInPortraitMode   = false;
 QCAR::Matrix44F projectionMatrix;
 
 // Constants:
-static const float kObjectScale = 120.f; // UPDATE:: increased the scale to properly display our models. It was 3 for the teapots.
+static const float kObjectScale = 20.f; // UPDATE:: increased the scale to properly display our models. It was 3 for the teapots.
 
 QCAR::DataSet* dataSetVichar    = 0;
 QCAR::DataSet* dataSetFlakesBox = 0;
@@ -137,6 +137,7 @@ typedef struct _Model {
 
 	float pos[3];
 	float ang[3];
+	//TODO float scale[3];
 
     //QCAR::Vec2F position;
 
@@ -487,7 +488,7 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 {
 	bool update;
 	update = (bool) updated; //so we know whether or not to update the drawlist.
-	float testScale = 1.0f;
+	float testScale = 0.1f; // don't set to 0. 1/testScale is used to scale the phone location going to the game engine.
 
 	// here is an example of how to pull the elements out of the jfloatArray. I think c++ will implicitly handle the type casting of jfloats as floats,
 	// but if you are getting errors, you can always explicitly type cast them like so (assuming you have jfloats in the array):
@@ -500,8 +501,8 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 		jsize len = env->GetArrayLength(test);
 		jfloat* posData = env->GetFloatArrayElements(test, 0);
 		while(i<len && posData[(i/objSize)*objSize] != 0){
-			//LOG("JSON to JNI test. Pos. %d : %f", i, posData[i]); //print the elements of the array.
-			interpList[i/objSize][i%objSize]= (float) posData[i] * testScale;
+			LOG("JSON to JNI test. Pos. %d : %f", i, posData[i]); //print the elements of the array.
+			interpList[i/objSize][i%objSize]= (float) posData[i] * testScale; //TODO can't scale here, it screw up the angles
 			i++;
 		}
 		interpLength=(i)/objSize;
@@ -560,9 +561,9 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 //        LOG("%f %f %f %f",test.data[8], test.data[9], test.data[10], test.data[11]);
 //        LOG("=========================");
         phoneLoc[0] = 1.0f;
-        phoneLoc[1] = test.data[3];
-        phoneLoc[2] = test.data[7];
-        phoneLoc[3] = test.data[11];
+        phoneLoc[1] = test.data[3] * 1/testScale;
+        phoneLoc[2] = test.data[7] * 1/testScale;
+        phoneLoc[3] = test.data[11] * 1/testScale;
 //End============================================================================================
 
         // Assign Textures according in the texture indices defined at the beginning of the file, and based
@@ -762,7 +763,7 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_getCameraLocation(JNIEnv * env, job
 	// phone location and rotation.
 	jfloat coordArray[7] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 	env->SetFloatArrayRegion(cameraLocation, 0, 7, phoneLoc);
-	phoneLoc[0] = 0.0f; // reset flag to no target in sight
+	phoneLoc[0] = 0.0f; // reset flag to no target in sight ?? Bad idea?
 	return cameraLocation;
 }
 

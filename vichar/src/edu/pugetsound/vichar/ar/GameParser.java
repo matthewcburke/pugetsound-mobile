@@ -19,10 +19,17 @@ public class GameParser {
     private static final String ROTATION_NAMESPACE = "rotation";
     
   //JSON parsing
-    protected static float[] poseData = new float[70];
+    
     protected static boolean updated = false;
     protected static final int OBJ_SIZE = 7; 	// the number of array positions to use to represent a game object.
-    private static int arrayLen = 70;
+    protected static float[] poseData;
+    
+    //Game Board
+    static int xTiles = 9; //number of board tiles in the x direction // don't enter zeros!!!
+    static int yTiles = 9;// number of tiles in the y direction // don't enter zeros!!!
+    static boolean[][] board = new boolean[xTiles][yTiles];
+    static int[] tileCoordinate = new int[2];
+    private static final float[] THEIR_BOARD_DIMENSIONS = {2000.0f, 2000.0f}; // don't enter zeros!!!
     
     /**
      * Parse the engineState JSONObject into a float array in ARGameRender.
@@ -31,8 +38,9 @@ public class GameParser {
      */
     protected static void parseEngineState(JSONObject engineState, String deviceUUID) throws JSONException
     {
-    	poseData = new float[arrayLen];
+    	poseData = new float[(xTiles * yTiles + 0)* OBJ_SIZE]; // ZERO IS IN THERE FOR TESTING.
     	int count = 0; 
+    	generateBoard();
 
     	//will opt returning null clear the objects?
     	JSONObject turrets = engineState.optJSONObject(TURRET_NAMESPACE);
@@ -65,11 +73,10 @@ public class GameParser {
     	if(player != null)
     	{
     		DebugLog.LOGI(player.toString());
-    	   	if( count + OBJ_SIZE >= arrayLen)
+    	   	if( count + OBJ_SIZE >= poseData.length)
     	   	{
-    	   		int newLen = arrayLen * 2;
-        		resizeArray(poseData, newLen);
-        		arrayLen = newLen;
+    	   		int newLen = poseData.length * 2;
+        		resizeArray(newLen);
         	}
     	   	poseData[count++] = 1.0f; // TODO use enums to represent the types of gameobjects.
     		count = parsePosition(player.getJSONObject(POSITION_NAMESPACE), count);
@@ -89,10 +96,59 @@ public class GameParser {
     	if(platforms != null)
     	{
     		// TODO do something with the platforms
+    		// like delete them from board.
+    		count = loadBoard(board, count);
+    	}
+    	else
+    	{
+    		count = loadBoard(board, count);
     	}
     }
 
-    /**
+    private static int loadBoard(boolean[][] board2, int count) {
+		// TODO Auto-generated method stub
+		float tilesX = THEIR_BOARD_DIMENSIONS[0]/xTiles;
+		float tilesY = THEIR_BOARD_DIMENSIONS[1]/yTiles;
+		float xPos = (THEIR_BOARD_DIMENSIONS[0]/2) - tilesX / 2;
+		float yPos = (THEIR_BOARD_DIMENSIONS[1]/2) - tilesY / 2;
+		float tempY = yPos;
+		
+		if(count + (xTiles*yTiles*OBJ_SIZE) >= poseData.length)
+		{
+			int newLen = poseData.length * 2 + (xTiles*yTiles*OBJ_SIZE);
+			resizeArray(newLen);
+		}
+		for(int i=0; i < xTiles; i++)
+		{
+			for(int j = 0; j < yTiles; j++)
+			{
+				poseData[count++] = 1.0f; //TODO use enums or change the hard coded id's
+				poseData[count++] = xPos;
+				poseData[count++] = tempY;
+				tempY -= tilesY;
+				poseData[count++] = 0.0f; // z position
+				poseData[count++] = 0.0f; // x rotation
+				poseData[count++] = 0.0f; // y rotation
+				poseData[count++] = 0.0f; // z rotation
+			}
+			xPos -= tilesX;
+			tempY = yPos;
+		}
+		return count;
+	}
+
+	private static void generateBoard() {
+		for(int i = 0; i < xTiles; i++)
+		{
+			for(int j = 0; j < yTiles; j++)
+			{
+				board[i][j] = true;
+			}
+		}
+		updated = true;
+	}
+
+	/**
      * A helper method to load the object in the array
      * @param type
      * @param typeIndex
@@ -108,15 +164,15 @@ public class GameParser {
     	{
     		String thisEye = objItr.next();
     		JSONObject obj = type.getJSONObject(thisEye);
-    		if( i + OBJ_SIZE >= arrayLen)
-    		{
-    			int newLen = arrayLen * 2;
-    			resizeArray(poseData, newLen);
-    			arrayLen = newLen;
-    		}
     		if (deviceUUID.equals(thisEye))
     		{
     			return i;
+    		}
+    		if( i + OBJ_SIZE >= poseData.length)
+    		{
+    			int newLen = poseData.length * 2;
+    			//poseData = poseData.
+    			resizeArray(newLen);
     		}
     		else
     		{
@@ -160,13 +216,18 @@ public class GameParser {
     	return i;
     }
 
-    private static float[] resizeArray (float[] oldArray, int newSize) {
-    	int oldSize = oldArray.length;
-    	float[] newArray = new float[newSize];
-    	int preserveSize = Math.min(oldSize, newSize);
-    	for(int i=0; i<preserveSize; i++){
-    		newArray[i] = oldArray[i];
+    private static void resizeArray (int newSize) 
+    {
+    	float[] tempArray = new float[newSize];
+    	int preserveSize = Math.min(poseData.length, newSize);
+    	for(int i=0; i<preserveSize; i++)
+    	{
+    		tempArray[i] = poseData[i];
     	}
-    	return newArray; 
+    	poseData = new float[newSize];
+    	for(int i=0; i<preserveSize; i++)
+    	{
+    		poseData[i] = tempArray[i];
+    	} 
     }
 }
