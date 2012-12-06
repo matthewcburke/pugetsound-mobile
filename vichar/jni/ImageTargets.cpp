@@ -482,7 +482,6 @@ renderModel(float* transform)
  *	eyeballs = 7
  *	platforms = 8
  * */
-
 JNIEXPORT void JNICALL
 Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject obj, jboolean updated, jfloatArray test, jint objSize)
 {
@@ -502,7 +501,7 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 		jfloat* posData = env->GetFloatArrayElements(test, 0);
 		while(i<len && posData[(i/objSize)*objSize] != 0){
 			LOG("JSON to JNI test. Pos. %d : %f", i, posData[i]); //print the elements of the array.
-			interpList[i/objSize][i%objSize]= (float) posData[i] * testScale; //TODO can't scale here, it screw up the angles
+			interpList[i/objSize][i%objSize]= (float) posData[i]; //can't scale here, it screws up the angles
 			i++;
 		}
 		interpLength=(i)/objSize;
@@ -678,6 +677,10 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 			//Prep Transforms
 			float* position=&model->pos[0];
 			float* angle=&model->ang[0];
+			for(int i = 0; i < 3; i++)
+			{
+				position[i] = position[i] * testScale;
+			}
 
 			//LOG("%f%f%f",position[0],position[1],position[2]);
 
