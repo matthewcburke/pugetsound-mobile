@@ -364,7 +364,7 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
             QCAR::Tool::convertPose2GLMatrix(trackable->getPose());
 
         //Begin additions by Erin================================================================================
-        /* For multi target recognition
+        // For multi target recognition
         if (state.getNumActiveTrackables() > 1) {
         	const QCAR::Trackable* trackable2 = state.getActiveTrackable(tIdx+1);
 
@@ -380,10 +380,12 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
         	QCAR::Matrix34F posRelative = SampleMath::vectorAdd(&posObject1, &posObject2);
 
         	LOG("==========================");
-        	LOG("New target position: (%f,%f,%f)", posRelative.data[3], posRelative.data[7], posRelative.data[11]);
+        	LOG("Center target position:           (%f, %f, %f)", posObject1.data[3], posObject1.data[7], posObject1.data[11]);
+        	LOG("New target pos relative to phone: (%f, %f, %f)",posObject1.data[3], posObject1.data[7], posObject1.data[11]);
+        	LOG("New target position (x, y, z):    (%f, %f, %f)", posRelative.data[3], posRelative.data[7], posRelative.data[11]);
         	LOG("==========================");
         }
-        */
+
         QCAR::Matrix34F test;   //gets inverse pos matrix
         QCAR::Matrix34F pos;   //Gets positional data
         pos = trackable->getPose();
@@ -392,9 +394,11 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
         QCAR::Matrix34F temp;
         test = SampleMath::phoneCoorMatrix(&pos);
 
+        /*
         QCAR::Vec3F euler = SampleMath::getEulerAngles(&test);
         LOG("Euler angles are: (%f, %f, %f)", euler.data[0], euler.data[1], euler.data[2]);
         LOG("========================================");
+         */
 
         /*
         //Get phones distance
