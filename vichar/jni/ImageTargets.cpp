@@ -128,7 +128,7 @@ static const int batteryId = 5;
 float batteryScale[3] = {kObjectScale, kObjectScale, kObjectScale};
 
 static const int playerId = 6;
-float playerScale[3] = {kObjectScale, kObjectScale, kObjectScale};
+float playerScale[3] = {2 * kObjectScale, 2 * kObjectScale, 2 * kObjectScale};
 
 static const int eyeballId = 7;
 float eyeScale[3] = {kObjectScale, kObjectScale, kObjectScale};
