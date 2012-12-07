@@ -1351,7 +1351,7 @@ public class ARGameActivity extends WifiRequiredActivity
     		}
     		
     		// Log the position for testing.
-    		DebugLog.LOGI("pushDeviceState:" + deviceState.toString());
+//    		DebugLog.LOGI("pushDeviceState:: this phone's pose data" + deviceState.toString());
     		
     		//put current time in JSON
     		long time = System.currentTimeMillis();

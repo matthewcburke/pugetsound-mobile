@@ -60,7 +60,6 @@ public class GameParser {
 	 */
 	protected static void parseEngineState(JSONObject engineState, String deviceUUID) //throws JSONException
 	{    	
-		DebugLog.LOGI("Start parser: " + engineState.toString());
 		//    	available = false;
 		JSONObject platforms = engineState.optJSONObject(PLATFORM_NAMESPACE);
 		if(platforms != null)
@@ -107,12 +106,10 @@ public class GameParser {
 				loadObject(batteries, 5.0f, deviceUUID, true);
 			}
 
-			DebugLog.LOGI("Unload player: " + engineState.toString());
 			JSONObject player = engineState.optJSONObject(PLAYER_NAMESPACE);
 			// load player 
 			if(player != null)
 			{
-				DebugLog.LOGI(player.toString());
 				if( count + OBJ_SIZE >= poseData.length)
 				{
 					int newLen = poseData.length * 2;
