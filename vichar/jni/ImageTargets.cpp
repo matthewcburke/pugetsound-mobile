@@ -544,7 +544,10 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
         pos = trackable->getPose();
 
         //Get inverse
-        test = SampleMath::phoneCoorMatrix(trackable->getPose());
+        test = SampleMath::phoneCoorMatrix(&pos);
+
+        //Get Euler angles
+        QCAR::Vec3F euler = SampleMath::getEulerAngles(&test);
 
         //Print results
 //        LOG("Poisiton:");
@@ -560,6 +563,9 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
         phoneLoc[1] = test.data[3];
         phoneLoc[2] = test.data[7];
         phoneLoc[3] = test.data[11];
+        phoneLoc[4] = euler.data[0];
+		phoneLoc[5] = euler.data[1];
+	    phoneLoc[6] = euler.data[2];
 //End============================================================================================
 
         // Assign Textures according in the texture indices defined at the beginning of the file, and based
