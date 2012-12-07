@@ -158,12 +158,11 @@ typedef struct _Model {
 
 } Model;
 
-int MAX_MODELS = 100;
 int modelCount;
 Model drawList[100];
 
 int interpLength = 0;
-const int MAX_INTERPLENGTH=100; //TODO make resizable
+const int MAX_INTERPLENGTH=150; //TODO make resizable
 float interpList[MAX_INTERPLENGTH][7];
 
 // Object to receive update callbacks from QCAR SDK
