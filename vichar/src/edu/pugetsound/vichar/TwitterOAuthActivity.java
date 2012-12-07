@@ -123,14 +123,12 @@ implements RequestTokenCallback, AccessTokenCallback {
 			Log.d("Vichar", oAuthUrl);
 			webView.loadUrl(oAuthUrl);
 		} else {
-			ConnectionUtility cu = new ConnectionUtility();
+			ConnectionUtility cu = new ConnectionUtility(this);
+			cu.requireConnectivity();
 			int connected = cu.checkConnection(this);
 			//if connection, try again
 			if(connected == 2) {
 				new RetrieveAccessToken(this, wrapper);
-			} else { //if no network connection or poor connectivity, show connection dialog
-				ConnectionDialog cd = new ConnectionDialog(this);
-				cd.show();
 			}
 		}
 	}
@@ -180,14 +178,12 @@ implements RequestTokenCallback, AccessTokenCallback {
 			Intent mainActIntent = new Intent(this, MainMenuActivity.class);
 			startActivity(mainActIntent);
 		} else	{
-			ConnectionUtility cu = new ConnectionUtility();
+			ConnectionUtility cu = new ConnectionUtility(this);
+			cu.requireConnectivity();
 			int connected = cu.checkConnection(this);
 			//if connection, try again
 			if(connected == 2) {
 				new RetrieveAccessToken(this, wrapper);
-			} else { //if no network connection or poor connectivity, show connection dialog
-				ConnectionDialog cd = new ConnectionDialog(this);
-				cd.show();
 			}
 		}
 	}   

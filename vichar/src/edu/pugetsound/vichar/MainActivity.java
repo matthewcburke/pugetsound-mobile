@@ -19,11 +19,9 @@ import android.widget.Button;
  * @author Nathan P
  * @version 10/16/12
  */
-public class MainActivity extends Activity
-	implements ConnectivityReceiver.ConnectivityListener
+public class MainActivity extends WifiRequiredActivity
 {
     final Context context = this;
-    private ConnectivityReceiver connectivityReceiver = new ConnectivityReceiver(this);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -44,8 +42,6 @@ public class MainActivity extends Activity
     @Override
     protected void onResume()  {
     	super.onResume();
-    	IntentFilter filter = connectivityReceiver.getIntentFilter();
-		registerReceiver(connectivityReceiver, filter);
     }
     
     /**
@@ -54,20 +50,17 @@ public class MainActivity extends Activity
     @Override
     public void onStart() {
     	super.onStart();
-    	checkConnection(); //check network connectivity
     }
 
     @Override
     protected void onPause()  {
     	super.onPause();
-    	unregisterReceiver(connectivityReceiver);
+    	
     }
     
-    public void onConnectivityChange(boolean isConnected) {
-    	if(!isConnected) {
-    		ConnectionDialog cd = new ConnectionDialog(this);
-        	cd.show();
-    	}
+    @Override
+    protected void onStop()  {
+    	super.onStop();
     }
     
     @Override
@@ -119,19 +112,6 @@ public class MainActivity extends Activity
     	Intent twitterOAuthIntent = new Intent(this, TwitterOAuthActivity.class);
     	startActivity(twitterOAuthIntent);
     	}
-    }
-    
-    /**
-     * Checks network connection status, and prompts user to connect
-     * if there is no connection
-     */
-    private void checkConnection()  {
-        ConnectionUtility cu = new ConnectionUtility();
-        //if no connection, or connection with no connectivity
-        if(cu.checkConnection(this)!=2) {
-        	ConnectionDialog cd = new ConnectionDialog(this);
-        	cd.show();
-        }
     }
     
     /**

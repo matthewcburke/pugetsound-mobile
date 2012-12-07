@@ -22,19 +22,14 @@ class ConnectivityReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 	    final String action = intent.getAction();
-	    if (action.equals(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION)) {
-	        if (intent.getBooleanExtra(WifiManager.EXTRA_SUPPLICANT_CONNECTED, false)) {
-	        	callbackListener.onConnectivityChange(true);
-	        } else {
-	            // wifi connection was lost
-	        	callbackListener.onConnectivityChange(false);
-	        }
+	    if (action.equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
+	        callbackListener.onConnectivityChange(intent.getBooleanExtra(WifiManager.EXTRA_SUPPLICANT_CONNECTED, false));
 	    }
 	}
 	
 	public IntentFilter getIntentFilter() {
 		IntentFilter filter = new IntentFilter();
-		filter.addAction(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION);
+		filter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
 		return filter;
 	}
 
