@@ -26,7 +26,7 @@ import android.view.View.OnTouchListener;
  * @author Nathan Pastor & Michael Dubois
  * @version 10/15/12
  */
-public class TwitterOAuthActivity extends Activity
+public class TwitterOAuthActivity extends WifiRequiredActivity
 implements RequestTokenCallback, AccessTokenCallback {
 
 	Twitter twitter;
@@ -38,11 +38,11 @@ implements RequestTokenCallback, AccessTokenCallback {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_twitter_oauth);
-		
 		//hide title/action bar: let webview fill as much screen as possible
-		requestWindowFeature(Window.FEATURE_NO_TITLE);		
+		requestWindowFeature(Window.FEATURE_NO_TITLE);	
 		
+		setContentView(R.layout.activity_twitter_oauth);
+
 		this.webView = (WebView) findViewById(R.id.oauth_webview);			
 		this.webView.setWebViewClient(new WebViewClient() //set a couple properties of webview...
 		{

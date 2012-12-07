@@ -29,7 +29,7 @@ import android.graphics.drawable.Drawable;
  * @author Davis Shurbert
  * @version 10/23/12
  */
-public class LeaderboardActivity extends Activity {
+public class LeaderboardActivity extends WifiRequiredActivity {
 	
     public static JSONObject myJson = new JSONObject(); //JSON Object to be parsed
     public static ArrayList<String[]> names = new ArrayList<String[]>(); //ArrayList of String[]s 

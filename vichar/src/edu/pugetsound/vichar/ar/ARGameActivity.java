@@ -84,7 +84,7 @@ import edu.pugetsound.vichar.*;
 
 
 /** The main activity for the ARGameActivity. */
-public class ARGameActivity extends FragmentActivity
+public class ARGameActivity extends WifiRequiredActivity
 {
     // Application status constants:
     private static final int APPSTATUS_UNINITED         = -1;
