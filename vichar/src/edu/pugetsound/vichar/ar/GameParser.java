@@ -144,6 +144,7 @@ public class GameParser {
     		JSONObject obj = type.getJSONObject(thisEye);
     		if (deviceUUID.equals(thisEye))
     		{
+    			DebugLog.LOGI("Recognized own eye");
     			return i;
     		}
     		if( i + OBJ_SIZE >= poseData.length)
@@ -256,6 +257,7 @@ public class GameParser {
 	}
 
 	static void generateBoard() {
+    	poseData = new float[(xTiles * yTiles + 1)* OBJ_SIZE]; // the hoard coded digit is space for game objects.
 		for(int i = 0; i < xTiles; i++)
 		{
 			for(int j = 0; j < yTiles; j++)
