@@ -151,7 +151,7 @@ int modelCount;
 Model drawList[100];
 
 int interpLength = 0;
-const int MAX_INTERPLENGTH=100;
+const int MAX_INTERPLENGTH=100; //TODO make resizable
 float interpList[MAX_INTERPLENGTH][7];
 
 // Object to receive update callbacks from QCAR SDK
@@ -568,20 +568,24 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 {
 	bool update;
 	update = (bool) updated; //so we know whether or not to update the drawlist.
-	float testScale = 0.1f; // don't set to 0. 1/testScale is used to scale the phone location going to the game engine.
+	float testScale = 0.1f; // don't set to zero. 1/testScale is used to scale the phone location going to the game engine.
 
-	// here is an example of how to pull the elements out of the jfloatArray. I think c++ will implicitly handle the type casting of jfloats as floats,
-	// but if you are getting errors, you can always explicitly type cast them like so (assuming you have jfloats in the array):
-	// float x;
-	// x = (float) posData[i];
-	
+//	if(update)
+//		{
+//		LOG("Start RenderFrame. Updated: true");
+//		}
+//	else
+//	{
+//		LOG("Start RenderFrame. Updated: false");
+//	}
+
 	if(update){
 		int i = 0;
 		int j = 0;
 		jsize len = env->GetArrayLength(test);
 		jfloat* posData = env->GetFloatArrayElements(test, 0);
 		while(i<len && posData[(i/objSize)*objSize] != 0){
-			LOG("JSON to JNI test. Pos. %d : %f", i, posData[i]); //print the elements of the array.
+//			LOG("JSON to JNI test. Pos. %d : %f", i, posData[i]); //print the elements of the array.
 			interpList[i/objSize][i%objSize]= (float) posData[i]; //can't scale here, it screws up the angles
 			i++;
 		}

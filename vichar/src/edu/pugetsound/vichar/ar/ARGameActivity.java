@@ -15,7 +15,7 @@
  *
  * @version 2012.11.10
  *
- * @author Matt Burke
+ * @author Matt Burke,
  * 
  */
 
@@ -155,7 +155,7 @@ public class ARGameActivity extends WifiRequiredActivity
     private String deviceUUID; // Device namespace
     
 
-    private static final String STATIC_GAME_STATE = "{engine:{gameRunning:false,player:{energy:100,position:{x:0.0,y:0.0,z:0.0},rotation:{x:0.0,y:90.0,z:0.0}}}}"; // for use when not connected to the network
+    private static final String STATIC_ENGINE_STATE = "{gameRunning:false,player:{energy:100,position:{x:0.0,y:0.0,z:0.0},rotation:{x:0.0,y:90.0,z:0.0}}}"; // for use when not connected to the network
 
 	// Service Stuff
     private Messenger networkingServiceMessenger = null;
@@ -797,7 +797,10 @@ public class ARGameActivity extends WifiRequiredActivity
 
     		//Pull out official namespaces
     		JSONObject engineState = (JSONObject) gameState.get(GAME_ENGINE_NAMESPACE);
-    		GameParser.parseEngineState(engineState, deviceUUID);
+    		if(!GameParser.updated)
+    		{
+    			GameParser.parseEngineState(engineState, deviceUUID);
+    		}
     		JSONObject webState = (JSONObject) gameState.get(WEB_NAMESPACE);
 
     		updateTwitterState(webState);    		
@@ -1407,9 +1410,11 @@ public class ARGameActivity extends WifiRequiredActivity
     
     /**
      * Takes three floats and makes them into a JSON object formatted for position
-     * @param x
-     * @param y
-     * @param z
+     * this method currently converts to the standard graphics coordinate system which varies from the vuforia 
+     * coordinate system. 
+     * @param x: goes to 'x' in the JSON
+     * @param y: -y goes to 'z' in the JSON
+     * @param z: goes to 'y' in the JSON
      * @return returns the position JSONObject
      * @throws JSONException
      */
@@ -1426,9 +1431,11 @@ public class ARGameActivity extends WifiRequiredActivity
     
     /**
      * Takes three floats and makes them into a JSON object formatted for rotation (orientation based on Euler Angles).
-     * @param xRot
-     * @param yRot
-     * @param zRot
+     * this method currently converts to the standard graphics coordinate system which varies from the vuforia 
+     * coordinate system. 
+     * @param xRot: goes to 'x' in the JSON
+     * @param yRot: -yRot goes to 'z' in the JSON
+     * @param zRot: goes to 'y' in the JSON
      * @return 
      * @throws JSONException
      */
@@ -1464,7 +1471,20 @@ public class ARGameActivity extends WifiRequiredActivity
 	            case NetworkingService.MSG_NETWORKING_FAILURE:
 	            	isConnectedToGameServer = false;
 	            	Log.d(this.toString(), "Networking Failure");
-	            	onGameStateChange(STATIC_GAME_STATE);
+	            	
+	            	try
+	            	{
+	            		JSONObject staticState = new JSONObject(STATIC_ENGINE_STATE);
+	            		if(!GameParser.updated)
+	            		{
+		            		GameParser.parseEngineState(staticState, deviceUUID);
+	            		}
+	            	}
+	            	catch(JSONException e)
+	            	{
+	            		System.out.print(e);
+	            	}
+	            	
 	            	break;
 	            default:
 	                super.handleMessage(msg);
