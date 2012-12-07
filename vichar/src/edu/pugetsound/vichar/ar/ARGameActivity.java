@@ -1039,6 +1039,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
                 break;
                 
             case APPSTATUS_CAMERA_RUNNING:
+            	GameParser.generateBoard(); //generate the gameboard
                 // Call the native function to start the camera
                 startCamera();
                 setProjectionMatrix();

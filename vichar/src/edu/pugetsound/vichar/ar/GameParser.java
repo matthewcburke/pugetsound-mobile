@@ -30,6 +30,7 @@ public class GameParser {
     static boolean[][] board = new boolean[xTiles][yTiles];
     static int[] tileCoordinate = new int[2];
     private static final float[] THEIR_BOARD_DIMENSIONS = {2000.0f, 2000.0f}; // don't enter zeros!!!
+    private static boolean freshBoard = false;
     
     /**
      * Parse the engineState JSONObject into a float array in ARGameRender.
@@ -39,9 +40,32 @@ public class GameParser {
     protected static void parseEngineState(JSONObject engineState, String deviceUUID) throws JSONException
     {
     	poseData = new float[(xTiles * yTiles + 0)* OBJ_SIZE]; // ZERO IS IN THERE FOR TESTING.
-    	int count = 0; 
-    	generateBoard();
+    	int count;
+    	if(freshBoard)
+    	{
+    		count = xTiles * yTiles * OBJ_SIZE;
+    	}
+    	else
+    	{
+        	count = 0; 
+    	}
+//    	generateBoard();
 
+    	JSONObject platforms = engineState.optJSONObject(PLATFORM_NAMESPACE);
+    	if(platforms != null)
+    	{
+    		// TODO do something with the platforms
+    		// like delete them from board.
+    	}
+    	if(freshBoard)
+    	{
+    		freshBoard = false;
+    	}
+    	else
+    	{
+    		count = loadBoard(board, count);
+    	}
+    	
     	//will opt returning null clear the objects?
     	JSONObject turrets = engineState.optJSONObject(TURRET_NAMESPACE);
     	if(turrets != null){
@@ -80,74 +104,28 @@ public class GameParser {
         	}
     	   	poseData[count++] = 6.0f; // TODO use enums to represent the types of gameobjects.
     		count = parsePosition(player.getJSONObject(POSITION_NAMESPACE), count);
-    		count = parseRotaion(player.getJSONObject(ROTATION_NAMESPACE), count);
+    		try{
+        		count = parseRotaion(player.getJSONObject(ROTATION_NAMESPACE), count);
+    		}
+    		catch(JSONException e)
+    		{
+    			DebugLog.LOGI("Object has no rotation. setting to 0,0,0.");
+    			poseData[count++] = 0.0f;
+    			poseData[count++] = 0.0f;
+    			poseData[count ++] = 0.0f;    		}
     		updated = true;
 //    		DebugLog.LOGI( "Parse:" + player.toString());
     	}
-    	else DebugLog.LOGI("No Player");
+    	else DebugLog.LOGW("No Player");
     	
 		JSONObject eyeballs = engineState.optJSONObject(EYEBALL_NAMESPACE);
     	if(eyeballs != null)
     	{
     		count = loadObject(eyeballs, 7.0f, count, deviceUUID, false);
     	}
-
-    	JSONObject platforms = engineState.optJSONObject(PLATFORM_NAMESPACE);
-    	if(platforms != null)
-    	{
-    		// TODO do something with the platforms
-    		// like delete them from board.
-    		count = loadBoard(board, count);
-    	}
-    	else
-    	{
-    		count = loadBoard(board, count);
-    	}
     }
 
-    private static int loadBoard(boolean[][] board2, int count) {
-		// TODO Auto-generated method stub
-		float tilesX = THEIR_BOARD_DIMENSIONS[0]/xTiles;
-		float tilesY = THEIR_BOARD_DIMENSIONS[1]/yTiles;
-		float xPos = (THEIR_BOARD_DIMENSIONS[0]/2) - tilesX / 2;
-		float yPos = (THEIR_BOARD_DIMENSIONS[1]/2) - tilesY / 2;
-		float tempY = yPos;
-		
-		if(count + (xTiles*yTiles*OBJ_SIZE) >= poseData.length)
-		{
-			int newLen = poseData.length * 2 + (xTiles*yTiles*OBJ_SIZE);
-			resizeArray(newLen);
-		}
-		for(int i=0; i < xTiles; i++)
-		{
-			for(int j = 0; j < yTiles; j++)
-			{
-				poseData[count++] = 8.0f; //TODO use enums or change the hard coded id's
-				poseData[count++] = xPos;
-				poseData[count++] = tempY;
-				tempY -= tilesY;
-				poseData[count++] = 0.0f; // z position
-				poseData[count++] = 0.0f; // x rotation
-				poseData[count++] = 0.0f; // y rotation
-				poseData[count++] = 0.0f; // z rotation
-			}
-			xPos -= tilesX;
-			tempY = yPos;
-		}
-		return count;
-	}
-
-	private static void generateBoard() {
-		for(int i = 0; i < xTiles; i++)
-		{
-			for(int j = 0; j < yTiles; j++)
-			{
-				board[i][j] = true;
-			}
-		}
-		updated = true;
-	}
-
+    
 	/**
      * A helper method to load the object in the array
      * @param type
@@ -178,9 +156,16 @@ public class GameParser {
     		{
     			poseData[i++] = typeIndex; // TODO use enums to represent the types of gameobjects.
     			i = parsePosition(obj.getJSONObject(POSITION_NAMESPACE), i);
-    			if(!isBattery)
+    			try
     			{
     				i = parseRotaion(obj.getJSONObject(ROTATION_NAMESPACE), i);
+    			}
+    			catch(JSONException e)
+    			{
+    				DebugLog.LOGW("Object has no rotation. setting to 0,0,0.");
+        			poseData[i++] = 0.0f;
+        			poseData[i++] = 0.0f;
+        			poseData[i++] = 0.0f;
     			}
     			updated = true;
     		}
@@ -230,4 +215,57 @@ public class GameParser {
     		poseData[i] = tempArray[i];
     	} 
     }
+    
+    private static int loadBoard(boolean[][] currentBoard, int count) {
+		// TODO Auto-generated method stub
+		float tilesX = THEIR_BOARD_DIMENSIONS[0]/xTiles;
+		float tilesY = THEIR_BOARD_DIMENSIONS[1]/yTiles;
+		float xPos = (THEIR_BOARD_DIMENSIONS[0]/2) - tilesX / 2;
+		float yPos = (THEIR_BOARD_DIMENSIONS[1]/2) - tilesY / 2;
+		float tempY = yPos;
+		
+		if(count + (xTiles*yTiles*OBJ_SIZE) >= poseData.length)
+		{
+			int newLen = poseData.length * 2 + (xTiles*yTiles*OBJ_SIZE);
+			resizeArray(newLen);
+		}
+		for(int i=0; i < xTiles; i++)
+		{
+			for(int j = 0; j < yTiles; j++)
+			{
+				if(currentBoard[i][j])
+				{
+					poseData[count++] = 8.0f; //TODO use enums or change the hard coded id's
+					poseData[count++] = xPos;
+					poseData[count++] = tempY;
+					tempY -= tilesY;
+					poseData[count++] = 0.0f; // z position
+					poseData[count++] = 0.0f; // x rotation
+					poseData[count++] = 0.0f; // y rotation
+					poseData[count++] = 0.0f; // z rotation
+				}
+				else
+				{
+					tempY -= tilesY;
+				}
+			}
+			xPos -= tilesX;
+			tempY = yPos;
+		}
+		return count;
+	}
+
+	static void generateBoard() {
+		for(int i = 0; i < xTiles; i++)
+		{
+			for(int j = 0; j < yTiles; j++)
+			{
+				board[i][j] = true;
+			}
+		}
+		loadBoard(board, 0);
+		freshBoard = true;
+		updated = true;
+	}
+
 }
