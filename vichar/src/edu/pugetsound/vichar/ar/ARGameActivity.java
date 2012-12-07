@@ -51,6 +51,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -83,7 +84,7 @@ import edu.pugetsound.vichar.*;
 
 
 /** The main activity for the ARGameActivity. */
-public class ARGameActivity extends FragmentActivity implements OnTouchListener
+public class ARGameActivity extends FragmentActivity
 {
     // Application status constants:
     private static final int APPSTATUS_UNINITED         = -1;
@@ -181,12 +182,15 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     private float touchTwX;
     private int actionUp = 0;
     private TweetFragment twFrag;
+    
+    // UI 
+    private boolean uiInflated = false;
     private View gui;
     
     private static final double MAX_EYELID_TO_SCREEN_RATIO = .25;
     
-    private float touchX, touchY;
     private Button fireb;
+    private int energy = 500; //the robot's energy level (health)
     
     /** Static initializer block to load native libraries on start-up. */
     static
@@ -423,11 +427,6 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     	
     	// Get the UUID we generated when this app was installed
     	deviceUUID = Installation.id(this);
-
-    	//the whole screen becomes sensitive to touch
-//    	View gameContainer = (View) findViewById(R.id.game_container);
-//    	gameContainer.setOnTouchListener(this);
-    	
         
     	// Set the splash screen image to display during initialization:
     	mSplashScreenImageResource = edu.pugetsound.vichar.R.drawable.splash;
@@ -570,33 +569,35 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
        
     /**
      * Looks at current gamestate for twitter challenge
+     * @param webState Current web state of game, as represented by JSON
      * @return True if new challenge, false if not
      */
-    private void updateTwitterState(JSONObject newState)  {
+    private void updateTwitterState(JSONObject webState)  {
     	//TODO: based on web API as of 11/17, which is likely to change    	
-    	
-    	boolean isActive = false;
-    	try{
-    		JSONObject web = newState.getJSONObject("web");
-    		JSONObject twitter = web.getJSONObject("twitter");
-    		JSONObject activeVote = twitter.getJSONObject("activeVote");
-    		isActive = activeVote.getBoolean("isActive");
-    	} catch (JSONException ex) {
-    		//TODO:json exception procedures
-    		System.out.println(ex);
-    		return;
-    	}
-    	
-    	if(isActive==false) {
-    		//if a vote has just ended...
-    		if(activeTwitter==true)  {    			
-    			endTwitter();
-    		}
-    	} else {
-    		//if a vote has just begun
-    		if(activeTwitter==false) {    			
-//    			startTwitter();
-    		}
+    	Boolean twLogin = checkTwitterLogin();
+    	if(twLogin) {
+	    	boolean isActive = false;
+	    	try{	    		
+	    		JSONObject twitter = webState.getJSONObject("twitter");
+	    		JSONObject activeVote = twitter.getJSONObject("activeVote");
+	    		isActive = activeVote.getBoolean("isActive");
+	    	} catch (JSONException ex) {
+	    		//TODO:json exception procedures
+	    		System.out.println(ex);
+	    		return;
+	    	}
+	    	
+	    	if(isActive==false) {
+	    		//if a vote has just ended...
+	    		if(activeTwitter==true)  {    			
+	    			endTwitter();
+	    		}
+	    	} else {
+	    		//if a vote has just begun
+	    		if(activeTwitter==false) {    			
+	    			startTwitter();
+	    		}
+	    	}
     	}
     }
     
@@ -621,7 +622,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
         alpha.setFillAfter(true);
         tweetHandle.startAnimation(alpha);
         
-        
+        snapTwitterOff();
         //deal with deprecated methods calls, ugh     
 //        if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN) {
 //            tweetHandle.setBackgroundDrawable(getResources().getDrawable(edu.pugetsound.vichar.R.drawable.twitter_logo));
@@ -804,7 +805,8 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     		//Pull out official namespaces
     		JSONObject engineState = (JSONObject) gameState.get(GAME_ENGINE_NAMESPACE);
     		JSONObject webState = (JSONObject) gameState.get(WEB_NAMESPACE);
-    		updateTwitterState(gameState);
+    		updateTwitterState(webState);    		
+    		updateHealthBar(engineState);
     		parseEngineState(engineState);
     		// TODO: Pass the engineState to functions that need to render it
     	} catch(JSONException e) {
@@ -813,6 +815,27 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     	}
     }
     
+    /**
+     * Updates the robot health bar
+     * @engine State Current game engine state, as represented by JSON
+     */
+    private void updateHealthBar(JSONObject engineState) {
+    	if(uiInflated) {
+    		//    	try {
+    		//    		JSONObject player = engineState.getJSONObject("player");
+    		//    		energy = player.getInt("energy");
+    		//    	} catch (JSONException ex) {
+    		//    		return; //nothing to do here, just maintain same energy level
+    		//    	}
+
+    		if(energy==500) energy=0;
+    		ProgressBar healthBar = (ProgressBar) findViewById(R.id.health_bar);
+    		healthBar.setProgress(energy);
+    		Log.d("UI", "set health to " + energy);
+    		energy++;
+    	}
+    }
+
     /**
      * Parse the engineState JSONObject into a float array in ARGameRender.
      * 
@@ -1152,6 +1175,8 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
                             endTwitter();
                             makeFireballButton();
                             resizeEyelids();
+                            
+                            uiInflated = true;
                         }
                 };
 
@@ -1382,35 +1407,35 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
         return false;
     }
     
-    /**
-     * Capture touch events
-     * @param v
-     * @param event
-     * @return
-     */
-    public boolean onTouch(View v, MotionEvent ev)
-    {
-    	float dx = 0f;
-    	float dy = 0f;
-
-    	if(ev.getAction() == MotionEvent.ACTION_MOVE) {
-    		dx = ev.getX() - touchX;
-    		dy = ev.getY() - touchY;
-    	}
-    	if(ev.getAction() == MotionEvent.ACTION_DOWN 
-    			|| ev.getAction() == MotionEvent.ACTION_MOVE) {
-    		// Remember new touch coors
-    		touchX = ev.getX();
-    		touchY = ev.getY();
-    	} else if(ev.getAction() == MotionEvent.ACTION_UP) {
-    		// reset values
-    		touchX = 0f;
-    		touchY = 0f;
-    		dx = 0f;
-    		dy = 0f;
-    	}
-    	return true; //Must return true to get move events
-    }
+//    /**
+//     * Capture touch events
+//     * @param v
+//     * @param event
+//     * @return
+//     */
+//    public boolean onTouch(View v, MotionEvent ev)
+//    {
+//    	float dx = 0f;
+//    	float dy = 0f;
+//
+//    	if(ev.getAction() == MotionEvent.ACTION_MOVE) {
+//    		dx = ev.getX() - touchX;
+//    		dy = ev.getY() - touchY;
+//    	}
+//    	if(ev.getAction() == MotionEvent.ACTION_DOWN 
+//    			|| ev.getAction() == MotionEvent.ACTION_MOVE) {
+//    		// Remember new touch coors
+//    		touchX = ev.getX();
+//    		touchY = ev.getY();
+//    	} else if(ev.getAction() == MotionEvent.ACTION_UP) {
+//    		// reset values
+//    		touchX = 0f;
+//    		touchY = 0f;
+//    		dx = 0f;
+//    		dy = 0f;
+//    	}
+//    	return true; //Must return true to get move events
+//    }
     
     /**
      * Returns a blank device state JSONObject
@@ -1634,6 +1659,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
                 msg.replyTo = mMessenger;
                 networkingServiceMessenger.send(msg);
                 networkingServiceMessenger = null;
+                isBoundToNetworkingService = false;
             } catch (RemoteException e) {
                 // There is nothing special we need to do if the service has crashed.
             }

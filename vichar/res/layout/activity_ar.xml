@@ -110,7 +110,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
    	    <Button
    	        android:id="@+id/fireball_button"
    	        android:layout_width="wrap_content"
@@ -118,9 +117,19 @@
    	        android:layout_alignParentBottom="true"
    	        android:layout_alignParentRight="true"
    	        android:background="@drawable/fireball_button" />
-
    	    
    	</RelativeLayout>
-    
-
+   	
+  <ProgressBar
+      style="@android:style/Widget.ProgressBar.Horizontal"
+      android:id="@+id/health_bar" 
+      android:max="500"
+      android:layout_gravity="top|center_horizontal"
+      android:layout_marginTop="5dp"
+      android:layout_width="160dp"
+      android:layout_height="30dp"
+      android:progress="500"
+      android:background="@drawable/health_bar_background"
+      android:progressDrawable="@drawable/health_bar_clip"
+      />
 </FrameLayout>
