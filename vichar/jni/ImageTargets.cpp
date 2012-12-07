@@ -111,24 +111,28 @@ QCAR::DataSet* dataSetVichar    = 0;
 QCAR::DataSet* dataSetFlakesBox = 0;
 
 bool switchDataSetAsap          = false;
-
+//Known scale values entered, unkown values remain as kObjectScale
 static const int turretId = 1;
-float turretScale[3] = {kObjectScale, kObjectScale, kObjectScale};
+float turretScale[3] = {20.0, 20.0, 20.0};
 
 static const int turretBulletId = 2;
-float turretBulletScale[3] = {kObjectScale, kObjectScale, kObjectScale};
+float turretBulletScale[3] = {5.0, 5.0, 5.0};
+
+//Turrent Base unimplemented thus far
+//static const int turretBaseId=*****;
+//float turretBaseScale[3]={20,20,40};
 
 static const int fireballId = 3;
-float fireballScale[3] = {kObjectScale, kObjectScale, kObjectScale};
+float fireballScale[3] = {20.0, 20.0, 20.0};   //These values assigned before fireball model created -- could need adjustment
 
 static const int minionId = 4;
 float minionScale[3] = {kObjectScale, kObjectScale, kObjectScale};
 
 static const int batteryId = 5;
-float batteryScale[3] = {kObjectScale, kObjectScale, kObjectScale};
+float batteryScale[3] = {15.0, 15.0, 15.0};
 
 static const int playerId = 6;
-float playerScale[3] = {2 * kObjectScale, 2 * kObjectScale, 2 * kObjectScale};
+float playerScale[3] = {2 * 20.0, 2 * 20.0, 2 * 20.0};
 
 static const int eyeballId = 7;
 float eyeScale[3] = {kObjectScale, kObjectScale, kObjectScale};
