@@ -21,7 +21,7 @@ import android.content.Context;
  * @version 10/13/12
  */
 
-public class AboutActivity extends Activity {
+public class AboutActivity extends WifiRequiredActivity {
     
 	private WebView webView;
 	 

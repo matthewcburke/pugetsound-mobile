@@ -19,7 +19,7 @@ import android.content.Context;
  * @author Davis Shurbert 
  * @version 10/16/12
  */
-public class RulesActivity extends Activity {
+public class RulesActivity extends WifiRequiredActivity {
     
     final Context context = this;
 

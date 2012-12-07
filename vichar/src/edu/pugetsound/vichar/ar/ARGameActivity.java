@@ -84,7 +84,7 @@ import edu.pugetsound.vichar.*;
 
 
 /** The main activity for the ARGameActivity. */
-public class ARGameActivity extends FragmentActivity
+public class ARGameActivity extends WifiRequiredActivity
 {
     // Application status constants:
     private static final int APPSTATUS_UNINITED         = -1;
@@ -152,25 +152,11 @@ public class ARGameActivity extends FragmentActivity
     private static final String GAME_ENGINE_NAMESPACE = "engine";
     private static final String DEVICES_NAMESPACE = "phones";
     private static final String WEB_NAMESPACE = "web";
-    private static final String TURRET_NAMESPACE = "turrets";
-    private static final String TURRETBULLET_NAMESPACE = "turretsBullets";
-    private static final String FIREBALL_NAMESPACE = "fireballs";
-    private static final String MINION_NAMESPACE = "minions";
-    private static final String BATTERY_NAMESPACE = "batteries";
-    private static final String PLAYER_NAMESPACE = "player";
-    private static final String EYEBALL_NAMESPACE = "eyeballs";
-    private static final String PLATFORM_NAMESPACE = "platforms";
-    private static final String POSITION_NAMESPACE = "position";
-    private static final String ROTATION_NAMESPACE = "rotation";
     private String deviceUUID; // Device namespace
     
-    //JSON parsing
-    public static float[] poseData = new float[70];
-    public static boolean updated = false;
-    public static final int OBJ_SIZE = 7; 	// the number of array positions to use to represent a game object.
-    private int arrayLen = 70;
-    
-    	
+
+    private static final String STATIC_GAME_STATE = "{engine:{gameRunning:false,player:{energy:100,position:{x:0.0,y:0.0,z:0.0},rotation:{x:0.0,y:90.0,z:0.0}}}}"; // for use when not connected to the network
+
 	// Service Stuff
     private Messenger networkingServiceMessenger = null;
     boolean isBoundToNetworkingService = false;
@@ -674,9 +660,16 @@ public class ARGameActivity extends FragmentActivity
     private void loadTextures()
     {
     	// UPDATE:: We added these textures for the demo.
-    	mTextures.add(Texture.loadTextureFromApk("tower_shell.png", getAssets()));
+    	mTextures.add(Texture.loadTextureFromApk("banana180.jpg", getAssets()));
     	mTextures.add(Texture.loadTextureFromApk("tower_top.png", getAssets()));
-    	mTextures.add(Texture.loadTextureFromApk("banana180.jpg", getAssets())); 
+    	mTextures.add(Texture.loadTextureFromApk("tower_shell.png", getAssets()));
+    	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));
+    	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));
+    	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));
+    	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));
+    	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));
+    	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));
+
     }
     
     
@@ -804,11 +797,12 @@ public class ARGameActivity extends FragmentActivity
 
     		//Pull out official namespaces
     		JSONObject engineState = (JSONObject) gameState.get(GAME_ENGINE_NAMESPACE);
+    		GameParser.parseEngineState(engineState, deviceUUID);
     		JSONObject webState = (JSONObject) gameState.get(WEB_NAMESPACE);
+
     		updateTwitterState(webState);    		
     		updateHealthBar(engineState);
-    		parseEngineState(engineState);
-    		// TODO: Pass the engineState to functions that need to render it
+
     	} catch(JSONException e) {
     		//shit!
     		e.printStackTrace();
@@ -835,128 +829,7 @@ public class ARGameActivity extends FragmentActivity
     		energy++;
     	}
     }
-
-    /**
-     * Parse the engineState JSONObject into a float array in ARGameRender.
-     * 
-     * @throws JSONException
-     */
-    private void parseEngineState(JSONObject engineState) throws JSONException
-    {
-    	poseData = new float[arrayLen];
-    	int count = 0; 
-
-    	//will opt returning null clear the objects?
-    	JSONObject turrets = engineState.optJSONObject(TURRET_NAMESPACE);
-    	if(turrets != null){
-    		count = loadObject(turrets, 1.0f, count, false);
-    	}
-    	// TODO change type indices
-    	JSONObject turretBullets = engineState.optJSONObject(TURRETBULLET_NAMESPACE);
-    	if(turretBullets != null){
-    		count = loadObject(turretBullets, 1.0f, count, false);
-    	}
-
-    	JSONObject fireballs = engineState.optJSONObject(FIREBALL_NAMESPACE);
-    	if(fireballs != null){
-    		count = loadObject(fireballs, 1.0f, count, false);
-    	}
-
-    	JSONObject minions = engineState.optJSONObject(MINION_NAMESPACE);
-    	if(minions != null){
-    		count = loadObject(minions, 1.0f, count, false);
-    	}
-
-    	JSONObject batteries = engineState.optJSONObject(BATTERY_NAMESPACE);
-    	if(batteries != null){
-    		count = loadObject(batteries, 1.0f, count, true);
-    	}
-
-    	JSONObject player = engineState.optJSONObject(PLAYER_NAMESPACE);
-    	// load player 
-    	if(player != null)
-    	{
-    		DebugLog.LOGI(player.toString());
-    	   	if( count + OBJ_SIZE >= arrayLen)
-    	   	{
-    	   		int newLen = arrayLen * 2;
-        		resizeArray(poseData, newLen);
-        		arrayLen = newLen;
-        	}
-    	   	poseData[count++] = 1.0f; // TODO use enums to represent the types of gameobjects.
-    		count = parsePosition(player.getJSONObject(POSITION_NAMESPACE), count);
-    		count = parseRotaion(player.getJSONObject(ROTATION_NAMESPACE), count);
-    		updated = true;
-//    		DebugLog.LOGI( "Parse:" + player.toString());
-    	}
-    	else DebugLog.LOGI("No Player");
-
-    	JSONObject eyeballs = engineState.optJSONObject(EYEBALL_NAMESPACE);
-		count = loadObject(eyeballs, 1.0f, count, false);
-
-    	JSONObject platforms = engineState.optJSONObject(PLATFORM_NAMESPACE);
-    	// TODO do something with the platforms
-    }
-
-    /**
-     * A helper method to load the object in the array
-     * @param type
-     * @param typeIndex
-     * @param i
-     * @return
-     * @throws JSONException
-     */
-    private int loadObject(JSONObject type, float typeIndex, int i, boolean isBattery) throws JSONException
-    {
-    	Iterator<String> objItr = type.keys();
-    	while( objItr.hasNext())
-    	{
-    		JSONObject obj = type.getJSONObject(objItr.next());
-    		if( i + OBJ_SIZE >= arrayLen)
-    		{
-    			int newLen = arrayLen * 2;
-    			resizeArray(poseData, newLen);
-    			arrayLen = newLen;
-    		}
-    		poseData[i++] = typeIndex; // TODO use enums to represent the types of gameobjects.
-    		i = parsePosition(obj.getJSONObject(POSITION_NAMESPACE), i);
-    		if(!isBattery)
-    		{
-        		i = parseRotaion(obj.getJSONObject(ROTATION_NAMESPACE), i);
-    		}
-    		updated = true;
-    	}
-    	return i;
-    }
     
-    /**
-     * loads position JSON data into poseData array.
-     * @param xyz
-     * @param i
-     * @throws JSONException
-     */
-    private int parsePosition(JSONObject xyz, int i) throws JSONException
-    {
-    	poseData[i++] = Float.parseFloat(xyz.getString("x"));
-    	poseData[i++] = Float.parseFloat(xyz.getString("y"));
-    	poseData[i++] = Float.parseFloat(xyz.getString("z"));
-    	return i;
-    }
-    
-    /**
-     * loads rotation JSON data into poseData array. Designed to be called immediately after parsePosition.
-     * @param xyz
-     * @param i
-     * @throws JSONException
-     */
-    private int parseRotaion(JSONObject xyz, int i) throws JSONException
-    {
-    	poseData[i++] = Float.parseFloat(xyz.getString("x"));
-    	poseData[i++] = Float.parseFloat(xyz.getString("y"));
-    	poseData[i++] = Float.parseFloat(xyz.getString("z"));
-    	return i;
-    }
-
     /** Called when the system is about to start resuming a previous activity.*/
     protected void onPause()
     {
@@ -1036,7 +909,7 @@ public class ARGameActivity extends FragmentActivity
         System.gc();
     }
 
-    
+   
     /** NOTE: this method is synchronized because of a potential concurrent
      * access by ARGameActivity::onResume() and InitQCARTask::onPostExecute(). */
     private synchronized void updateApplicationStatus(int appStatus)
@@ -1191,6 +1064,7 @@ public class ARGameActivity extends FragmentActivity
                 break;
                 
             case APPSTATUS_CAMERA_RUNNING:
+            	GameParser.generateBoard(); //generate the gameboard
                 // Call the native function to start the camera
                 startCamera();
                 setProjectionMatrix();
@@ -1464,8 +1338,8 @@ public class ARGameActivity extends FragmentActivity
     		float[] cameraLoc = getCameraLocation();
     		if (cameraLoc[0] == 1.0)
     		{
-    			deviceState.put("position", makePositionJSON(cameraLoc[0], cameraLoc[1], cameraLoc[2]));
-        		deviceState.put("rotation", makeRotationJSON(cameraLoc[3], cameraLoc[4], cameraLoc[5]));
+    			deviceState.put("position", makePositionJSON(cameraLoc[1], cameraLoc[2], cameraLoc[3]));
+        		deviceState.put("rotation", makeRotationJSON(cameraLoc[4], cameraLoc[5], cameraLoc[6]));
     		}
     		else
     		{
@@ -1563,8 +1437,8 @@ public class ARGameActivity extends FragmentActivity
     	JSONObject rotation = new JSONObject();
     	
     	rotation.put("x", "" + xRot);
-    	rotation.put("y", "" + yRot);
-    	rotation.put("z", "" + zRot);
+    	rotation.put("y", "" + zRot);
+    	rotation.put("z", "" + (-yRot));
     	
     	return rotation; 	
     }
@@ -1590,6 +1464,7 @@ public class ARGameActivity extends FragmentActivity
 	            case NetworkingService.MSG_NETWORKING_FAILURE:
 	            	isConnectedToGameServer = false;
 	            	Log.d(this.toString(), "Networking Failure");
+	            	onGameStateChange(STATIC_GAME_STATE);
 	            	break;
 	            default:
 	                super.handleMessage(msg);
@@ -1667,17 +1542,6 @@ public class ARGameActivity extends FragmentActivity
     	// Detach our existing connection.
     	
         unbindService(networkingServiceConnection);
-    }
-
-    
-    private static float[] resizeArray (float[] oldArray, int newSize) {
-    	int oldSize = oldArray.length;
-    	float[] newArray = new float[newSize];
-    	int preserveSize = Math.min(oldSize, newSize);
-    	for(int i=0; i<preserveSize; i++){
-    		newArray[i] = oldArray[i];
-    	}
-    	return newArray; 
     }
 }
 

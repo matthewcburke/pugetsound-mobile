@@ -61,6 +61,7 @@
 #include "banana.h"
 #include "tower_top.h"
 #include "tower_shell.h"
+#include "cube.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -108,7 +109,7 @@ bool isActivityInPortraitMode   = false;
 QCAR::Matrix44F projectionMatrix;
 
 // Constants:
-static const float kObjectScale = 120.f; // UPDATE:: increased the scale to properly display our models. It was 3 for the teapots.
+static const float kObjectScale = 20.f; // UPDATE:: increased the scale to properly display our models. It was 3 for the teapots.
 
 QCAR::DataSet* dataSetVichar    = 0;
 QCAR::DataSet* dataSetFlakesBox = 0;
@@ -121,22 +122,24 @@ static const int fireballId = 3;
 static const int minionId = 4;
 static const int batteryId = 5;
 static const int playerId = 6;
-static const int eyeballId = 6;
-static const int platformId = 7;
+static const int eyeballId = 7;
+static const int platformId = 8;
 
 typedef struct _Model {
 	int id;
 
+	// memory addresses
 	float* vertPointer;
 	float* normPointer;
     float* texPointer;
 
-	unsigned int  * numVerts;
+	unsigned int numVerts;
 
 	Texture* modelTex;
 
 	float pos[3];
 	float ang[3];
+	//TODO float scale[3];
 
     //QCAR::Vec2F position;
 
@@ -390,15 +393,96 @@ for(int i = 0; i<interpLength; i++)
 
 	//Must translate communication into
 
+	/*
 	current->vertPointer=&tower_topVerts[0];
 	current->normPointer=&tower_topNormals[0];
 	current->texPointer=&tower_topTexCoords[0];
+	*/
 
 
 	float* position = &current->pos[0];
 	float* angle = &current->ang[0];
 
-	current->id=interpList[i][0];
+	current->id= (int) interpList[i][0];
+	int id = (int) interpList[i][0];
+
+	switch (id)
+	    {
+	        case 1:
+	        	current->vertPointer=&tower_topVerts[0];
+	        	current->normPointer=&tower_topNormals[0];
+	        	current->texPointer=&tower_topTexCoords[0];
+
+	        	current->modelTex= textures[1];
+	        	break;
+
+	        case 2:
+	        	current->vertPointer=&tower_shellVerts[0];
+	        	current->normPointer=&tower_shellNormals[0];
+	        	current->texPointer=&tower_shellTexCoords[0];
+	        	current->numVerts=tower_shellNumVerts;
+
+	        	current->modelTex=textures[2];
+	            break;
+
+	        case 3:
+	        	current->vertPointer=&tower_shellVerts[0];
+	        	current->normPointer=&tower_shellNormals[0];
+	        	current->texPointer=&tower_shellTexCoords[0];
+	        	current->numVerts=tower_shellNumVerts;
+
+	        	current->modelTex=textures[2];
+
+	            break;
+
+	        case 4:
+	        	current->vertPointer=&tower_shellVerts[0];
+	        	current->normPointer=&tower_shellNormals[0];
+	        	current->texPointer=&tower_shellTexCoords[0];
+	        	current->numVerts=tower_shellNumVerts;
+
+	        	current->modelTex=textures[2];
+	        	break;
+
+	        case 5:
+	        	current->vertPointer=&tower_shellVerts[0];
+	        	current->normPointer=&tower_shellNormals[0];
+	        	current->texPointer=&tower_shellTexCoords[0];
+	        	current->numVerts=tower_shellNumVerts;
+
+	        	current->modelTex=textures[2];
+	        	break;
+
+	        case 6:
+	        	current->vertPointer=&tower_topVerts[0];
+	        	current->normPointer=&tower_topNormals[0];
+	        	current->texPointer=&tower_topTexCoords[0];
+	        	current->numVerts=tower_topNumVerts;
+
+	        	current->modelTex= textures[1];
+	        	break;
+
+	        case 7:
+	        	current->vertPointer=&tower_topVerts[0];
+	        	current->normPointer=&tower_topNormals[0];
+	        	current->texPointer=&tower_topTexCoords[0];
+	        	current->numVerts=tower_topNumVerts;
+
+	        	current->modelTex= textures[1];
+	        	break;
+
+	        case 8:
+	        	current->vertPointer=&tower_shellVerts[0];
+	        	current->normPointer=&tower_shellNormals[0];
+	        	current->texPointer=&tower_shellTexCoords[0];
+	        	current->numVerts=tower_shellNumVerts;
+
+	        	current->modelTex=textures[2];
+	        	break;
+
+	        default:
+	        	return;
+	    }
 
 	//float position[3];
 	position[0]=interpList[i][1];
@@ -453,11 +537,12 @@ renderModel(float* transform)
 
     //glDrawElements(GL_TRIANGLES, NUM_CUBE_INDEX, GL_UNSIGNED_SHORT, (const GLvoid*) &cubeIndices[0]);
 
-
+	/*
 	LOG("drawing");
 	glUniformMatrix4fv(mvpMatrixHandle, 1, GL_FALSE, (GLfloat*)&modelViewProjection.data[0]);
 	glDrawArrays(GL_TRIANGLES, 0, tower_topNumVerts);
 	SampleUtils::checkGlError("ImageTargets renderFrame");
+	*/
 
 #endif
 }
@@ -478,13 +563,12 @@ renderModel(float* transform)
  *	eyeballs = 7
  *	platforms = 8
  * */
-
 JNIEXPORT void JNICALL
 Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject obj, jboolean updated, jfloatArray test, jint objSize)
 {
 	bool update;
 	update = (bool) updated; //so we know whether or not to update the drawlist.
-	float testScale = 0.3f;
+	float testScale = 0.1f; // don't set to 0. 1/testScale is used to scale the phone location going to the game engine.
 
 	// here is an example of how to pull the elements out of the jfloatArray. I think c++ will implicitly handle the type casting of jfloats as floats,
 	// but if you are getting errors, you can always explicitly type cast them like so (assuming you have jfloats in the array):
@@ -498,11 +582,11 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 		jfloat* posData = env->GetFloatArrayElements(test, 0);
 		while(i<len && posData[(i/objSize)*objSize] != 0){
 			LOG("JSON to JNI test. Pos. %d : %f", i, posData[i]); //print the elements of the array.
-			interpList[i/objSize][i%objSize]= (float) posData[i] * testScale;
+			interpList[i/objSize][i%objSize]= (float) posData[i]; //can't scale here, it screws up the angles
 			i++;
 		}
 		interpLength=(i)/objSize;
-		LOG("%i", interpLength);
+		//LOG("%i", interpLength);
 		env->ReleaseFloatArrayElements(test, posData, 0); //release memory
 	}
 
@@ -574,7 +658,7 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 
         const Texture* const tower_shellTexture = textures[tower_shellIndex];
         const Texture* const tower_topTexture = textures[tower_topIndex];
-        const Texture* const bananaTexture = textures[banana180Index];
+        const Texture* const platformTexture = textures[8];
 
 #ifdef USE_OPENGL_ES_1_1
         // Load projection matrix:
@@ -653,23 +737,27 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 			
 
 			//Verts,norms,texcords assigned here -- Is currently hardcoded to turret coords
-			glVertexAttribPointer(vertexHandle, 3, GL_FLOAT, GL_FALSE, 0,
-								 (const GLvoid*) &tower_topVerts[0]);
-			glVertexAttribPointer(normalHandle, 3, GL_FLOAT, GL_FALSE, 0,
-								  (const GLvoid*) &tower_topNormals[0]);
-			glVertexAttribPointer(textureCoordHandle, 2, GL_FLOAT, GL_FALSE, 0,
-								  (const GLvoid*) &tower_topTexCoords[0]);
+//			glVertexAttribPointer(vertexHandle, 3, GL_FLOAT, GL_FALSE, 0,
+//								 (const GLvoid*) &tower_shellVerts[0]);
+//			glVertexAttribPointer(normalHandle, 3, GL_FLOAT, GL_FALSE, 0,
+//								  (const GLvoid*) &tower_shellNormals[0]);
+//			glVertexAttribPointer(textureCoordHandle, 2, GL_FLOAT, GL_FALSE, 0,
+//								  (const GLvoid*) &tower_shellTexCoords[0]);
 
 
 			//NON-HARDCODED VERSION
-			/*
+
+			float& vert = *model->vertPointer;
+			float& norm = *model->normPointer;
+			float& tex = *model->texPointer;
+
 			glVertexAttribPointer(vertexHandle, 3, GL_FLOAT, GL_FALSE, 0,
-								 (const GLvoid*) &model->&vertPointer);
+								 (const GLvoid*) &vert);
 			glVertexAttribPointer(normalHandle, 3, GL_FLOAT, GL_FALSE, 0,
-								  (const GLvoid*) &model->&normalPointer);
+								  (const GLvoid*) &norm);
 			glVertexAttribPointer(textureCoordHandle, 2, GL_FLOAT, GL_FALSE, 0,
-								  (const GLvoid*) &model->&texPointer);
-			*/
+								  (const GLvoid*) &tex);
+
 		
 			//Open GL initialization
 			glEnableVertexAttribArray(vertexHandle);
@@ -680,6 +768,10 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 			//Prep Transforms
 			float* position=&model->pos[0];
 			float* angle=&model->ang[0];
+			for(int i = 0; i < 3; i++)
+			{
+				position[i] = position[i] * testScale;
+			}
 
 			//LOG("%f%f%f",position[0],position[1],position[2]);
 
@@ -708,22 +800,23 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 			//SampleUtils::multiplyMatrix(&projectionMatrix.data[0], &objectMatrix.data[0], &modelViewProjection.data[0]);
 			//glUniformMatrix4fv(mvpMatrixHandle, 1, GL_FALSE, (GLfloat*)&modelViewProjection.data[0]);
 
+
 			//Assign and bind texture -- once again this is hard coded to turrets
 			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, tower_topTexture->mTextureID);
+//			glBindTexture(GL_TEXTURE_2D, tower_shellTexture->mTextureID);
 
 
 			//un-hardcoding
-			//glBindTexture(GL_TEXTURE_2D, model->&texturePointer->mTextureID);
+			glBindTexture(GL_TEXTURE_2D, model->modelTex->mTextureID);
 
 			//apply modelViewProjectionMatrix
 			glUniformMatrix4fv(mvpMatrixHandle, 1, GL_FALSE,
 							   (GLfloat*)&modelViewProjection.data[0] );
 			//Draw -- hardcoded to turret
-			glDrawArrays(GL_TRIANGLES, 0, tower_topNumVerts);
+//			glDrawArrays(GL_TRIANGLES, 0, tower_shellNumVerts);
 
 			//Un-hardcoding
-			//glDrawArrays(GL_TRIANGLES, 0, model->&NumVerts);
+			glDrawArrays(GL_TRIANGLES, 0, model->numVerts);
 			
 			//Unused method that previous attempted to draw.
 			//renderModel(&model->transform.data[0]);
@@ -765,7 +858,7 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_getCameraLocation(JNIEnv * env, job
 	// phone location and rotation.
 	jfloat coordArray[7] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 	env->SetFloatArrayRegion(cameraLocation, 0, 7, phoneLoc);
-	phoneLoc[0] = 0.0f; // reset flag to no target in sight
+	phoneLoc[0] = 0.0f; // reset flag to no target in sight ?? Bad idea?
 	return cameraLocation;
 }
 
