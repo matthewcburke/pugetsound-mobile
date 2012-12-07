@@ -1,7 +1,9 @@
 package edu.pugetsound.vichar;
 
 import android.os.Bundle;
+//Import Fragment dependencies
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 
 public class WifiRequiredActivity extends FragmentActivity {
 	

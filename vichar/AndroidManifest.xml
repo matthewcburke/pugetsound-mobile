@@ -39,21 +39,13 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".SplashScreen"
-            android:label="MainVichar" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-		    	<category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main" >
              <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
-<!--                 <category android:name="android.intent.category.LAUNCHER" />
- -->            </intent-filter>
+				<category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
     	<activity
 	        android:name="edu.pugetsound.vichar.ar.ARGameActivity"
@@ -62,11 +54,6 @@
 	        android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
 		</activity>
         <activity
-            android:name=".GameActivity"
-            android:label="@string/app_name"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
-        </activity>
-        <activity
             android:name=".LoginActivity"
             android:label="@string/app_name"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
@@ -74,10 +61,6 @@
         <activity
             android:name=".TwitterOAuthActivity"
             android:label="@string/app_name" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".TestActivity"
@@ -87,57 +70,26 @@
                 android:value="edu.pugetsound.vichar.MainActivity" />
         </activity>
         <activity
-            android:name=".TESTGameActivity"
-            android:label="@string/app_name"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
-        </activity>
-        <activity
             android:name=".LeaderboardActivity"
             android:label="@string/title_activity_leaderboard" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".MainMenuActivity"
             android:label="@string/title_activity_main_menu" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".RulesActivity"
             android:label="@string/title_activity_rules" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".AboutActivity"
             android:label="@string/title_activity_about" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
         </activity>
-        <activity
-            android:name=".TestGameActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:label="@string/title_activity_test_game"
-            android:screenOrientation="portrait" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <service android:name="SocketService" />
+        <!--<service android:name="SocketService" />-->
         <service android:name="HttpService" />
         <service android:name="NetworkingService" />
     </application>
