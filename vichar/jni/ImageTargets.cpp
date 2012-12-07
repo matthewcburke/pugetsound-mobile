@@ -61,6 +61,7 @@
 #include "banana.h"
 #include "tower_top.h"
 #include "tower_shell.h"
+#include "cube.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -121,17 +122,18 @@ static const int fireballId = 3;
 static const int minionId = 4;
 static const int batteryId = 5;
 static const int playerId = 6;
-static const int eyeballId = 6;
-static const int platformId = 7;
+static const int eyeballId = 7;
+static const int platformId = 8;
 
 typedef struct _Model {
 	int id;
 
+	// memory addresses
 	float* vertPointer;
 	float* normPointer;
     float* texPointer;
 
-	unsigned int  * numVerts;
+	unsigned int numVerts;
 
 	Texture* modelTex;
 
@@ -401,7 +403,86 @@ for(int i = 0; i<interpLength; i++)
 	float* position = &current->pos[0];
 	float* angle = &current->ang[0];
 
-	current->id=interpList[i][0];
+	current->id= (int) interpList[i][0];
+	int id = (int) interpList[i][0];
+
+	switch (id)
+	    {
+	        case 1:
+	        	current->vertPointer=&tower_topVerts[0];
+	        	current->normPointer=&tower_topNormals[0];
+	        	current->texPointer=&tower_topTexCoords[0];
+
+	        	current->modelTex= textures[1];
+	        	break;
+
+	        case 2:
+	        	current->vertPointer=&tower_shellVerts[0];
+	        	current->normPointer=&tower_shellNormals[0];
+	        	current->texPointer=&tower_shellTexCoords[0];
+	        	current->numVerts=tower_shellNumVerts;
+
+	        	current->modelTex=textures[2];
+	            break;
+
+	        case 3:
+	        	current->vertPointer=&tower_shellVerts[0];
+	        	current->normPointer=&tower_shellNormals[0];
+	        	current->texPointer=&tower_shellTexCoords[0];
+	        	current->numVerts=tower_shellNumVerts;
+
+	        	current->modelTex=textures[2];
+
+	            break;
+
+	        case 4:
+	        	current->vertPointer=&tower_shellVerts[0];
+	        	current->normPointer=&tower_shellNormals[0];
+	        	current->texPointer=&tower_shellTexCoords[0];
+	        	current->numVerts=tower_shellNumVerts;
+
+	        	current->modelTex=textures[2];
+	        	break;
+
+	        case 5:
+	        	current->vertPointer=&tower_shellVerts[0];
+	        	current->normPointer=&tower_shellNormals[0];
+	        	current->texPointer=&tower_shellTexCoords[0];
+	        	current->numVerts=tower_shellNumVerts;
+
+	        	current->modelTex=textures[2];
+	        	break;
+
+	        case 6:
+	        	current->vertPointer=&tower_topVerts[0];
+	        	current->normPointer=&tower_topNormals[0];
+	        	current->texPointer=&tower_topTexCoords[0];
+	        	current->numVerts=tower_topNumVerts;
+
+	        	current->modelTex= textures[1];
+	        	break;
+
+	        case 7:
+	        	current->vertPointer=&tower_topVerts[0];
+	        	current->normPointer=&tower_topNormals[0];
+	        	current->texPointer=&tower_topTexCoords[0];
+	        	current->numVerts=tower_topNumVerts;
+
+	        	current->modelTex= textures[1];
+	        	break;
+
+	        case 8:
+	        	current->vertPointer=&tower_shellVerts[0];
+	        	current->normPointer=&tower_shellNormals[0];
+	        	current->texPointer=&tower_shellTexCoords[0];
+	        	current->numVerts=tower_shellNumVerts;
+
+	        	current->modelTex=textures[2];
+	        	break;
+
+	        default:
+	        	return;
+	    }
 
 	//float position[3];
 	position[0]=interpList[i][1];
@@ -571,7 +652,7 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 
         const Texture* const tower_shellTexture = textures[tower_shellIndex];
         const Texture* const tower_topTexture = textures[tower_topIndex];
-        const Texture* const bananaTexture = textures[banana180Index];
+        const Texture* const platformTexture = textures[8];
 
 #ifdef USE_OPENGL_ES_1_1
         // Load projection matrix:
@@ -650,23 +731,27 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 			
 
 			//Verts,norms,texcords assigned here -- Is currently hardcoded to turret coords
-			glVertexAttribPointer(vertexHandle, 3, GL_FLOAT, GL_FALSE, 0,
-								 (const GLvoid*) &tower_shellVerts[0]);
-			glVertexAttribPointer(normalHandle, 3, GL_FLOAT, GL_FALSE, 0,
-								  (const GLvoid*) &tower_shellNormals[0]);
-			glVertexAttribPointer(textureCoordHandle, 2, GL_FLOAT, GL_FALSE, 0,
-								  (const GLvoid*) &tower_shellTexCoords[0]);
+//			glVertexAttribPointer(vertexHandle, 3, GL_FLOAT, GL_FALSE, 0,
+//								 (const GLvoid*) &tower_shellVerts[0]);
+//			glVertexAttribPointer(normalHandle, 3, GL_FLOAT, GL_FALSE, 0,
+//								  (const GLvoid*) &tower_shellNormals[0]);
+//			glVertexAttribPointer(textureCoordHandle, 2, GL_FLOAT, GL_FALSE, 0,
+//								  (const GLvoid*) &tower_shellTexCoords[0]);
 
 
 			//NON-HARDCODED VERSION
-			/*
+
+			float& vert = *model->vertPointer;
+			float& norm = *model->normPointer;
+			float& tex = *model->texPointer;
+
 			glVertexAttribPointer(vertexHandle, 3, GL_FLOAT, GL_FALSE, 0,
-								 (const GLvoid*) &model->&vertPointer);
+								 (const GLvoid*) &vert);
 			glVertexAttribPointer(normalHandle, 3, GL_FLOAT, GL_FALSE, 0,
-								  (const GLvoid*) &model->&normalPointer);
+								  (const GLvoid*) &norm);
 			glVertexAttribPointer(textureCoordHandle, 2, GL_FLOAT, GL_FALSE, 0,
-								  (const GLvoid*) &model->&texPointer);
-			*/
+								  (const GLvoid*) &tex);
+
 		
 			//Open GL initialization
 			glEnableVertexAttribArray(vertexHandle);
@@ -709,22 +794,23 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 			//SampleUtils::multiplyMatrix(&projectionMatrix.data[0], &objectMatrix.data[0], &modelViewProjection.data[0]);
 			//glUniformMatrix4fv(mvpMatrixHandle, 1, GL_FALSE, (GLfloat*)&modelViewProjection.data[0]);
 
+
 			//Assign and bind texture -- once again this is hard coded to turrets
 			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, tower_shellTexture->mTextureID);
+//			glBindTexture(GL_TEXTURE_2D, tower_shellTexture->mTextureID);
 
 
 			//un-hardcoding
-			//glBindTexture(GL_TEXTURE_2D, model->&texturePointer->mTextureID);
+			glBindTexture(GL_TEXTURE_2D, model->modelTex->mTextureID);
 
 			//apply modelViewProjectionMatrix
 			glUniformMatrix4fv(mvpMatrixHandle, 1, GL_FALSE,
 							   (GLfloat*)&modelViewProjection.data[0] );
 			//Draw -- hardcoded to turret
-			glDrawArrays(GL_TRIANGLES, 0, tower_shellNumVerts);
+//			glDrawArrays(GL_TRIANGLES, 0, tower_shellNumVerts);
 
 			//Un-hardcoding
-			//glDrawArrays(GL_TRIANGLES, 0, model->&NumVerts);
+			glDrawArrays(GL_TRIANGLES, 0, model->numVerts);
 			
 			//Unused method that previous attempted to draw.
 			//renderModel(&model->transform.data[0]);

@@ -50,22 +50,22 @@ public class GameParser {
     	// TODO change type indices
     	JSONObject turretBullets = engineState.optJSONObject(TURRETBULLET_NAMESPACE);
     	if(turretBullets != null){
-    		count = loadObject(turretBullets, 1.0f, count, deviceUUID, false);
+    		count = loadObject(turretBullets, 2.0f, count, deviceUUID, false);
     	}
 
     	JSONObject fireballs = engineState.optJSONObject(FIREBALL_NAMESPACE);
     	if(fireballs != null){
-    		count = loadObject(fireballs, 1.0f, count, deviceUUID, false);
+    		count = loadObject(fireballs, 3.0f, count, deviceUUID, false);
     	}
 
     	JSONObject minions = engineState.optJSONObject(MINION_NAMESPACE);
     	if(minions != null){
-    		count = loadObject(minions, 1.0f, count, deviceUUID, false);
+    		count = loadObject(minions, 4.0f, count, deviceUUID, false);
     	}
 
     	JSONObject batteries = engineState.optJSONObject(BATTERY_NAMESPACE);
     	if(batteries != null){
-    		count = loadObject(batteries, 1.0f, count, deviceUUID, true);
+    		count = loadObject(batteries, 5.0f, count, deviceUUID, true);
     	}
 
     	JSONObject player = engineState.optJSONObject(PLAYER_NAMESPACE);
@@ -78,7 +78,7 @@ public class GameParser {
     	   		int newLen = poseData.length * 2;
         		resizeArray(newLen);
         	}
-    	   	poseData[count++] = 1.0f; // TODO use enums to represent the types of gameobjects.
+    	   	poseData[count++] = 6.0f; // TODO use enums to represent the types of gameobjects.
     		count = parsePosition(player.getJSONObject(POSITION_NAMESPACE), count);
     		count = parseRotaion(player.getJSONObject(ROTATION_NAMESPACE), count);
     		updated = true;
@@ -89,7 +89,7 @@ public class GameParser {
 		JSONObject eyeballs = engineState.optJSONObject(EYEBALL_NAMESPACE);
     	if(eyeballs != null)
     	{
-    		count = loadObject(eyeballs, 1.0f, count, deviceUUID, false);
+    		count = loadObject(eyeballs, 7.0f, count, deviceUUID, false);
     	}
 
     	JSONObject platforms = engineState.optJSONObject(PLATFORM_NAMESPACE);
@@ -122,7 +122,7 @@ public class GameParser {
 		{
 			for(int j = 0; j < yTiles; j++)
 			{
-				poseData[count++] = 1.0f; //TODO use enums or change the hard coded id's
+				poseData[count++] = 8.0f; //TODO use enums or change the hard coded id's
 				poseData[count++] = xPos;
 				poseData[count++] = tempY;
 				tempY -= tilesY;

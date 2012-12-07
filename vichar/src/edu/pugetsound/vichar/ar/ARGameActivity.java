@@ -659,9 +659,16 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     private void loadTextures()
     {
     	// UPDATE:: We added these textures for the demo.
-    	mTextures.add(Texture.loadTextureFromApk("tower_shell.png", getAssets()));
+    	mTextures.add(Texture.loadTextureFromApk("banana180.jpg", getAssets()));
     	mTextures.add(Texture.loadTextureFromApk("tower_top.png", getAssets()));
-    	mTextures.add(Texture.loadTextureFromApk("banana180.jpg", getAssets())); 
+    	mTextures.add(Texture.loadTextureFromApk("tower_shell.png", getAssets()));
+    	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));
+    	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));
+    	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));
+    	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));
+    	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));
+    	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));
+
     }
     
     
