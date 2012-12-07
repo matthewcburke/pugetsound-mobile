@@ -21,6 +21,11 @@
 
 package edu.pugetsound.vichar.ar;
 
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.UUID;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Vector;
 
 import org.json.JSONException;
@@ -32,6 +37,7 @@ import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.format.Time;
 // import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -45,10 +51,15 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.drawable.ClipDrawable;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
@@ -56,8 +67,10 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.animation.AlphaAnimation;
 import android.graphics.drawable.BitmapDrawable;
@@ -71,7 +84,7 @@ import edu.pugetsound.vichar.*;
 
 
 /** The main activity for the ARGameActivity. */
-public class ARGameActivity extends FragmentActivity implements OnTouchListener 
+public class ARGameActivity extends FragmentActivity
 {
     // Application status constants:
     private static final int APPSTATUS_UNINITED         = -1;
@@ -140,7 +153,10 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     private static final String DEVICES_NAMESPACE = "phones";
     private static final String WEB_NAMESPACE = "web";
     private String deviceUUID; // Device namespace
-    	
+    
+
+    private static final String STATIC_GAME_STATE = "{engine:{gameRunning:false,player:{energy:100,position:{x:0.0,y:0.0,z:0.0},rotation:{x:0.0,y:90.0,z:0.0}}}}"; // for use when not connected to the network
+
 	// Service Stuff
     private Messenger networkingServiceMessenger = null;
     boolean isBoundToNetworkingService = false;
@@ -152,11 +168,15 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     private float touchTwX;
     private int actionUp = 0;
     private TweetFragment twFrag;
+    
+    // UI 
+    private boolean uiInflated = false;
     private View gui;
     
     private static final double MAX_EYELID_TO_SCREEN_RATIO = .25;
     
-    private float touchX, touchY;
+    private Button fireb;
+    private int energy = 500; //the robot's energy level (health)
     
     /** Static initializer block to load native libraries on start-up. */
     static
@@ -389,16 +409,12 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     {
     	DebugLog.LOGD("ARGameActivity::onCreate");
     	super.onCreate(savedInstanceState);
-
+    	
     	
     	// Get the UUID we generated when this app was installed
     	deviceUUID = Installation.id(this);
-
-    	//the whole screen becomes sensitive to touch
-//    	View gameContainer = (View) findViewById(R.id.game_container);
-//    	gameContainer.setOnTouchListener(this);
-    	
-        // Set the splash screen image to display during initialization:
+        
+    	// Set the splash screen image to display during initialization:
     	mSplashScreenImageResource = edu.pugetsound.vichar.R.drawable.splash;
 
     	// Load any sample specific textures:  
@@ -417,11 +433,57 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     	updateApplicationStatus(APPSTATUS_INIT_APP);    	
     }
     
+    private void makeFireballButton() {
+    	fireb = (Button)findViewById(R.id.fireball_button); //declaring the button
+        fireb.setOnClickListener(fireListener);
+    }
+    
     private OnTouchListener tweetHandleListener = new OnTouchListener() {
 		public boolean onTouch(View v, MotionEvent me) { 
 			return tweetContainerTouch(v, me);
 		}
        };
+       
+    private OnClickListener fireListener = new OnClickListener() { 
+   		public void onClick(View v) { 
+   			JSONObject req = new JSONObject();
+   			JSONObject id = new JSONObject();
+   			JSONObject fire = new JSONObject();
+   			JSONObject stuff = new JSONObject();
+          	long time = System.currentTimeMillis();
+          	float[] cameraLoc = getCameraLocation();
+          	//UUID uuid = UUID.randomUUID();
+          	//String nuuid = uuid.toString();
+          	try {
+          	stuff.put("timeCreated", time);
+      		stuff.put("position", makePositionJSON(cameraLoc[0], cameraLoc[1], cameraLoc[2]));
+      		stuff.put("rotation", makeRotationJSON(cameraLoc[3], cameraLoc[4], cameraLoc[5]));
+      		id.put("" + time, stuff);
+      		fire.put("fireballs", id);
+      		req.put("requests", fire);
+          	} catch (JSONException e1) {
+          	// TODO Auto-generated catch block
+          		e1.printStackTrace();
+          	}
+          	pushDeviceState(req);
+  	        fireb.setEnabled(false);
+          	//ImageView imageview = (ImageView) findViewById(R.id.fill);
+          	//ClipDrawable drawable = (ClipDrawable) imageview.getDrawable();
+          	//drawable.scheduleDrawable(drawable, , );
+  	        final Handler handler = new Handler();
+  	        Timer timer = new Timer();
+          	TimerTask task = new TimerTask() {
+          		public void run() {
+          			handler.post(new Runnable() {
+          				public void run() {
+          					fireb.setEnabled(true);
+          					}
+          				});
+          			}
+          		};
+          		timer.schedule(task, 5000);
+          		}
+   		};
     
     private boolean tweetContainerTouch(View v, MotionEvent me)  {
     	View tweetContainer = (View) findViewById(edu.pugetsound.vichar.R.id.tweet_container);
@@ -493,34 +555,41 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
        
     /**
      * Looks at current gamestate for twitter challenge
+     * @param webState Current web state of game, as represented by JSON
      * @return True if new challenge, false if not
      */
-    private void updateTwitterState(JSONObject newState)  {
+    private void updateTwitterState(JSONObject webState)  {
     	//TODO: based on web API as of 11/17, which is likely to change    	
-    	
-    	boolean isActive = false;
-    	try{
-    		JSONObject web = newState.getJSONObject("web");
-    		JSONObject twitter = web.getJSONObject("twitter");
-    		JSONObject activeVote = twitter.getJSONObject("activeVote");
-    		isActive = activeVote.getBoolean("isActive");
-    	} catch (JSONException ex) {
-    		//TODO:json exception procedures
-    		System.out.println(ex);
-    		return;
+    	Boolean twLogin = checkTwitterLogin();
+    	if(twLogin) {
+	    	boolean isActive = false;
+	    	try{	    		
+	    		JSONObject twitter = webState.getJSONObject("twitter");
+	    		JSONObject activeVote = twitter.getJSONObject("activeVote");
+	    		isActive = activeVote.getBoolean("isActive");
+	    	} catch (JSONException ex) {
+	    		//TODO:json exception procedures
+	    		System.out.println(ex);
+	    		return;
+	    	}
+	    	
+	    	if(isActive==false) {
+	    		//if a vote has just ended...
+	    		if(activeTwitter==true)  {    			
+	    			endTwitter();
+	    		}
+	    	} else {
+	    		//if a vote has just begun
+	    		if(activeTwitter==false) {    			
+	    			startTwitter();
+	    		}
+	    	}
     	}
-    	
-    	if(isActive==false) {
-    		//if a vote has just ended...
-    		if(activeTwitter==true)  {    			
-    			endTwitter();
-    		}
-    	} else {
-    		//if a vote has just begun
-    		if(activeTwitter==false) {    			
-    			startTwitter();
-    		}
-    	}
+    }
+    
+    private boolean checkTwitterLogin() {
+    	PreferenceUtility pu = new PreferenceUtility();
+    	return pu.returnBoolean(getString(R.string.tw_login_key), false, this);
     }
     
     /**
@@ -539,7 +608,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
         alpha.setFillAfter(true);
         tweetHandle.startAnimation(alpha);
         
-        
+        snapTwitterOff();
         //deal with deprecated methods calls, ugh     
 //        if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN) {
 //            tweetHandle.setBackgroundDrawable(getResources().getDrawable(edu.pugetsound.vichar.R.drawable.twitter_logo));
@@ -583,6 +652,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     		tweetFrag.sendTweet(view);	
     	}
     }
+    
 
     
     /** We want to load specific textures from the APK, which we will later
@@ -590,9 +660,16 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     private void loadTextures()
     {
     	// UPDATE:: We added these textures for the demo.
-    	mTextures.add(Texture.loadTextureFromApk("tower_shell.png", getAssets()));
+    	mTextures.add(Texture.loadTextureFromApk("banana180.jpg", getAssets()));
     	mTextures.add(Texture.loadTextureFromApk("tower_top.png", getAssets()));
-    	mTextures.add(Texture.loadTextureFromApk("banana180.jpg", getAssets())); 
+    	mTextures.add(Texture.loadTextureFromApk("tower_shell.png", getAssets()));
+    	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));
+    	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));
+    	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));
+    	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));
+    	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));
+    	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));
+
     }
     
     
@@ -711,7 +788,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     private void onGameStateChange(String stateStr) {
     	
     	pushDeviceState(obtainDeviceState());
-    	DebugLog.LOGI("onGameStateChange:" + stateStr);
+    	//DebugLog.LOGI("onGameStateChange:" + stateStr);
     	
     	System.out.println(stateStr);
     	
@@ -720,16 +797,39 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
 
     		//Pull out official namespaces
     		JSONObject engineState = (JSONObject) gameState.get(GAME_ENGINE_NAMESPACE);
+    		GameParser.parseEngineState(engineState, deviceUUID);
     		JSONObject webState = (JSONObject) gameState.get(WEB_NAMESPACE);
-    		updateTwitterState(gameState);
-    		// TODO: Pass the engineState to functions that need to render it
+
+    		updateTwitterState(webState);    		
+    		updateHealthBar(engineState);
+
     	} catch(JSONException e) {
     		//shit!
     		e.printStackTrace();
     	}
     }
     
+    /**
+     * Updates the robot health bar
+     * @engine State Current game engine state, as represented by JSON
+     */
+    private void updateHealthBar(JSONObject engineState) {
+    	if(uiInflated) {
+    		//    	try {
+    		//    		JSONObject player = engineState.getJSONObject("player");
+    		//    		energy = player.getInt("energy");
+    		//    	} catch (JSONException ex) {
+    		//    		return; //nothing to do here, just maintain same energy level
+    		//    	}
 
+    		if(energy==500) energy=0;
+    		ProgressBar healthBar = (ProgressBar) findViewById(R.id.health_bar);
+    		healthBar.setProgress(energy);
+    		Log.d("UI", "set health to " + energy);
+    		energy++;
+    	}
+    }
+    
     /** Called when the system is about to start resuming a previous activity.*/
     protected void onPause()
     {
@@ -809,7 +909,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
         System.gc();
     }
 
-    
+   
     /** NOTE: this method is synchronized because of a potential concurrent
      * access by ARGameActivity::onResume() and InitQCARTask::onPostExecute(). */
     private synchronized void updateApplicationStatus(int appStatus)
@@ -929,16 +1029,27 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
                             // Start the camera:
                             updateApplicationStatus(APPSTATUS_CAMERA_RUNNING);
                             
-                            //make ui visible
+                            //make UI visible
                     	    addContentView(gui, new LayoutParams(
                                     LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));                    	    
                     	    Log.d("UI", "add ui");
+                    	    //check if user is logged into twitter
+                    	    Boolean twLogin = checkTwitterLogin();
+                    	    //if not, don't render twitter container
+                    	    if(!twLogin) {
+                    	    	View twContainer = findViewById(R.id.tweet_container);
+                    	    	twContainer.setVisibility(View.GONE);
+                    	    }
+                    	    
                     	    //tweet handle touch listener
                             Button tweetHandle = (Button) findViewById(R.id.tweet_frag_button);
                             tweetHandle.setOnTouchListener(tweetHandleListener);
                     	    snapTwitterOff();
                             endTwitter();
+                            makeFireballButton();
                             resizeEyelids();
+                            
+                            uiInflated = true;
                         }
                 };
 
@@ -953,6 +1064,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
                 break;
                 
             case APPSTATUS_CAMERA_RUNNING:
+            	GameParser.generateBoard(); //generate the gameboard
                 // Call the native function to start the camera
                 startCamera();
                 setProjectionMatrix();
@@ -1169,35 +1281,35 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
         return false;
     }
     
-    /**
-     * Capture touch events
-     * @param v
-     * @param event
-     * @return
-     */
-    public boolean onTouch(View v, MotionEvent ev)
-    {
-    	float dx = 0f;
-    	float dy = 0f;
-
-    	if(ev.getAction() == MotionEvent.ACTION_MOVE) {
-    		dx = ev.getX() - touchX;
-    		dy = ev.getY() - touchY;
-    	}
-    	if(ev.getAction() == MotionEvent.ACTION_DOWN 
-    			|| ev.getAction() == MotionEvent.ACTION_MOVE) {
-    		// Remember new touch coors
-    		touchX = ev.getX();
-    		touchY = ev.getY();
-    	} else if(ev.getAction() == MotionEvent.ACTION_UP) {
-    		// reset values
-    		touchX = 0f;
-    		touchY = 0f;
-    		dx = 0f;
-    		dy = 0f;
-    	}
-    	return true; //Must return true to get move events
-    }
+//    /**
+//     * Capture touch events
+//     * @param v
+//     * @param event
+//     * @return
+//     */
+//    public boolean onTouch(View v, MotionEvent ev)
+//    {
+//    	float dx = 0f;
+//    	float dy = 0f;
+//
+//    	if(ev.getAction() == MotionEvent.ACTION_MOVE) {
+//    		dx = ev.getX() - touchX;
+//    		dy = ev.getY() - touchY;
+//    	}
+//    	if(ev.getAction() == MotionEvent.ACTION_DOWN 
+//    			|| ev.getAction() == MotionEvent.ACTION_MOVE) {
+//    		// Remember new touch coors
+//    		touchX = ev.getX();
+//    		touchY = ev.getY();
+//    	} else if(ev.getAction() == MotionEvent.ACTION_UP) {
+//    		// reset values
+//    		touchX = 0f;
+//    		touchY = 0f;
+//    		dx = 0f;
+//    		dy = 0f;
+//    	}
+//    	return true; //Must return true to get move events
+//    }
     
     /**
      * Returns a blank device state JSONObject
@@ -1224,11 +1336,27 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     		
     		// get camera's location and rotation from the native code, format it and put it in the JSON object
     		float[] cameraLoc = getCameraLocation();
-    		deviceState.put("position", makePositionJSON(cameraLoc[0], cameraLoc[1], cameraLoc[2]));
-    		deviceState.put("rotation", makeRotationJSON(cameraLoc[3], cameraLoc[4], cameraLoc[5]));
+    		if (cameraLoc[0] == 1.0)
+    		{
+    			deviceState.put("position", makePositionJSON(cameraLoc[1], cameraLoc[2], cameraLoc[3]));
+        		deviceState.put("rotation", makeRotationJSON(cameraLoc[4], cameraLoc[5], cameraLoc[6]));
+    		}
+    		else
+    		{
+    			deviceState.put("position", null);
+    			deviceState.put("rotation", null);
+    		}
     		
     		// Log the position for testing.
     		DebugLog.LOGI("pushDeviceState:" + deviceState.toString());
+    		
+    		//put current time in JSON
+    		long time = System.currentTimeMillis();
+    		deviceState.put("lastUpdated", time);
+    		deviceState.put("lastUpdatedByDevice", time);
+    		
+    		//put username in JSON
+    		deviceState.put("screenname", getScreenname());
 
     		JSONObject sendState = new JSONObject().put(deviceUUID, deviceState);
     		sendState = new JSONObject().put(DEVICES_NAMESPACE, sendState);
@@ -1239,6 +1367,11 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     		
     }
     
+    private String getScreenname() {
+    	PreferenceUtility pu = new PreferenceUtility();
+    	return pu.returnSavedString(getString(R.string.screenname_key), getString(R.string.prefs_error), this);    	
+    }
+    
     /**
      * Generally, use the pushDeviceState() function instead of this one.
      * Be careful with this function. It allows you to change anything in the
@@ -1247,6 +1380,14 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
      */
     private void pushGameState(JSONObject sendState) {
     	if(isBoundToNetworkingService) {
+    		//put in current time
+    		try {
+	    		long time = System.currentTimeMillis();
+	    		sendState.put("lastModified", time);
+    		} catch (JSONException ex) {
+    			//TODO:probably nothing to do in this case
+    		}   
+    		
     		Bundle b = new Bundle();
     		b.putString("" + NetworkingService.MSG_QUEUE_OUTBOUND_J_STRING, 
     				sendState.toString());
@@ -1254,7 +1395,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     				NetworkingService.MSG_QUEUE_OUTBOUND_J_STRING);
     		msg.setData(b);
     		try {
-    			networkingServiceMessenger.send(msg);
+    			networkingServiceMessenger.send(msg); //@BUG caught a null pointer exception by pressing the home button from game activity.
     		} catch (RemoteException e) {
                 //TODO handle RemoteException
     			Log.i(this.toString(), "updateRemoteGameState: RemoteException");
@@ -1277,8 +1418,8 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     	JSONObject position = new JSONObject();
     	
     	position.put("x", "" + x);
-    	position.put("y", "" + y);
-    	position.put("z", "" + z);
+    	position.put("y", "" + z);
+    	position.put("z", "" + (-y));
     	
     	return position; 	
     }
@@ -1296,8 +1437,8 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
     	JSONObject rotation = new JSONObject();
     	
     	rotation.put("x", "" + xRot);
-    	rotation.put("y", "" + yRot);
-    	rotation.put("z", "" + zRot);
+    	rotation.put("y", "" + zRot);
+    	rotation.put("z", "" + (-yRot));
     	
     	return rotation; 	
     }
@@ -1314,7 +1455,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
 	            case NetworkingService.MSG_RET_JSON_STRING_FROM_SERVER:
 	            	Log.d(this.toString(), "Got something from NetworkingService");
 	            	String str = msg.getData().getString("" + NetworkingService.MSG_RET_JSON_STRING_FROM_SERVER);
-	            	Log.d(this.toString(), str);
+	            	//Log.d(this.toString(), str);
 	            	if(str != null) {
 	            		isConnectedToGameServer = true;
 	            		onGameStateChange(str);
@@ -1323,6 +1464,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
 	            case NetworkingService.MSG_NETWORKING_FAILURE:
 	            	isConnectedToGameServer = false;
 	            	Log.d(this.toString(), "Networking Failure");
+	            	onGameStateChange(STATIC_GAME_STATE);
 	            	break;
 	            default:
 	                super.handleMessage(msg);
@@ -1392,6 +1534,7 @@ public class ARGameActivity extends FragmentActivity implements OnTouchListener
                 msg.replyTo = mMessenger;
                 networkingServiceMessenger.send(msg);
                 networkingServiceMessenger = null;
+                isBoundToNetworkingService = false;
             } catch (RemoteException e) {
                 // There is nothing special we need to do if the service has crashed.
             }

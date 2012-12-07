@@ -250,11 +250,7 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
         //TODO:twitter handle button needs to change
         Button tweetHandle = (Button)findViewById(R.id.tweet_frag_button);
         //deal with deprecated methods calls, ugh
-        if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN) {
-            tweetHandle.setBackgroundDrawable(getResources().getDrawable(R.drawable.twitter_logo));
-        } else {
-        	tweetHandle.setBackground(getResources().getDrawable(R.drawable.twitter_logo));
-        }       
+
     }
     
     /**
@@ -270,11 +266,7 @@ public class GameActivity extends FragmentActivity implements OnTouchListener {
         //TODO:twitter handle button needs to change
         Button tweetHandle = (Button)findViewById(R.id.tweet_frag_button);
         //deprecated methods again...
-        if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN) {
-            tweetHandle.setBackgroundDrawable(getResources().getDrawable(R.drawable.twitter_logo));
-        } else {
-        	tweetHandle.setBackground(getResources().getDrawable(R.drawable.twitter_logo));
-        }
+
     }
     
     /**

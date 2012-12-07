@@ -11,7 +11,6 @@
     <string name="oauth_callback_url">http://www.PLACEHOLDERURL.com</string>
     <string name="oauth_access_token">oauth_access_token</string>
     <string name="oauth_token_secret">oauth_token_secret</string>
-    <string name="prefs_error">retrieve error</string>
     <string name="ar_name">viChar AR</string>
     <string name="tweet_icon">Twitter Icon</string>
 
@@ -49,10 +48,9 @@
     <string name="access_token_secret_key">access_token_secret_key</string>
     <string name="toggle_sound_key">toggle_sound_key</string>
     <string name="first_launch_flag">first_launch_flag</string>
-    <string name="tw_login_key">tw_login_flag_key</string>    
-    <string name="title_activity_test">TestActivity</string>
-    <string name="screenname_key">screenname</string>
-    <string name="guest_name">guest name</string>
+    <string name="tw_login_key">tw_login_flag_key</string>   
+    <string name="screenname_key">screenname_key</string>    
+    <string name="prefs_error">retrieve error</string>
 
     <!-- Colors -->
     <color name="myColor">#F5F5F5</color>
@@ -61,7 +59,7 @@
 
     <string name="corner_radious">8dp</string>
 
-
+	 <string name="title_activity_test">TestActivity</string>
     <string name="title_activity_leaderboard">LeaderboardActivity</string>
     <string name="title_activity_main_menu">MainMenuActivity</string>
     <string name="title_activity_rules">RulesActivity</string>
@@ -79,6 +77,8 @@
     <string name="title_activity_splash">SplashActivity</string>
     <string name="title_activity_splash_screen">SplashScreen</string>
 
+
+    <string name="desc">button filling animation</string>
 
 
 </resources>

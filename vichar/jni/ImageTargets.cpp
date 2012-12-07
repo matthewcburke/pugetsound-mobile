@@ -2,8 +2,8 @@
             Copyright (c) 2012 QUALCOMM Austria Research Center GmbH.
             All Rights Reserved.
             Qualcomm Confidential and Proprietary
-            
-@file 
+
+@file
     ImageTargets.cpp
 
 @brief
@@ -51,16 +51,17 @@
 #include <QCAR/DataSet.h>
 
 #include "SampleUtils.h"
+#include "SampleMath.h"
 #include "Texture.h"
 #include "CubeShaders.h"
 #include "Teapot.h"
- #include "SampleMath.h"    //To get phones location
 
 // UPDATE:: Our models to be displayed
 // TODO: Should we put all of these .h files into one gameObjects.h file?
 #include "banana.h"
 #include "tower_top.h"
 #include "tower_shell.h"
+#include "cube.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -84,8 +85,18 @@ GLint mvpMatrixHandle           = 0;
 #endif
 
 // UPDATE:: added this variable to assist animating rotations for demo.
-float turAng = 0.0;
-float phoneLoc[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+float turAng = 0.0;  //UNUSED
+
+// An array used to pass camera pose information. The first entry is used as a flag to indicate whether or not a target is in sight.
+// the next three are x, y, and z locations respectively, and the last three are degrees of rotation around the x, y, and z axis respectively.
+float phoneLoc[7] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+
+int drawCount = 0.0;
+
+
+
+QCAR::Matrix44F modelViewMatrix;
+
 
 // Screen dimensions:
 unsigned int screenWidth        = 0;
@@ -98,16 +109,54 @@ bool isActivityInPortraitMode   = false;
 QCAR::Matrix44F projectionMatrix;
 
 // Constants:
-static const float kObjectScale = 120.f; // UPDATE:: increased the scale to properly display our models. It was 3 for the teapots.
+static const float kObjectScale = 20.f; // UPDATE:: increased the scale to properly display our models. It was 3 for the teapots.
 
 QCAR::DataSet* dataSetVichar    = 0;
 QCAR::DataSet* dataSetFlakesBox = 0;
 
 bool switchDataSetAsap          = false;
 
+static const int turretId = 1;
+static const int turretBulletId = 2;
+static const int fireballId = 3;
+static const int minionId = 4;
+static const int batteryId = 5;
+static const int playerId = 6;
+static const int eyeballId = 7;
+static const int platformId = 8;
+
+typedef struct _Model {
+	int id;
+
+	// memory addresses
+	float* vertPointer;
+	float* normPointer;
+    float* texPointer;
+
+	unsigned int numVerts;
+
+	Texture* modelTex;
+
+	float pos[3];
+	float ang[3];
+	//TODO float scale[3];
+
+    //QCAR::Vec2F position;
+
+	QCAR::Matrix44F transform;
+} Model;
+
+int MAX_MODELS = 100;
+int modelCount;
+Model drawList[100];
+
+int interpLength = 0;
+const int MAX_INTERPLENGTH=100;
+float interpList[MAX_INTERPLENGTH][7];
+
 // Object to receive update callbacks from QCAR SDK
 class ImageTargets_UpdateCallback : public QCAR::UpdateCallback
-{   
+{
     virtual void QCAR_onUpdate(QCAR::State& /*state*/)
     {
         if (switchDataSetAsap)
@@ -124,7 +173,7 @@ class ImageTargets_UpdateCallback : public QCAR::UpdateCallback
                 LOG("Failed to switch data set.");
                 return;
             }
-            
+
             if (imageTracker->getActiveDataSet() == dataSetVichar)
             {
                 imageTracker->deactivateDataSet(dataSetVichar);
@@ -144,7 +193,7 @@ ImageTargets_UpdateCallback updateCallback;
 JNIEXPORT int JNICALL
 Java_edu_pugetsound_vichar_ar_ARGameActivity_getOpenGlEsVersionNative(JNIEnv *, jobject)
 {
-#ifdef USE_OPENGL_ES_1_1        
+#ifdef USE_OPENGL_ES_1_1
     return 1;
 #else
     return 2;
@@ -171,7 +220,7 @@ JNIEXPORT int JNICALL
 Java_edu_pugetsound_vichar_ar_ARGameActivity_initTracker(JNIEnv *, jobject)
 {
     LOG("Java_edu_pugetsound_vichar_ar_ARGameActivity_initTracker");
-    
+
     // Initialize the image tracker:
     QCAR::TrackerManager& trackerManager = QCAR::TrackerManager::getInstance();
     QCAR::Tracker* tracker = trackerManager.initTracker(QCAR::Tracker::IMAGE_TRACKER);
@@ -201,7 +250,7 @@ JNIEXPORT int JNICALL
 Java_edu_pugetsound_vichar_ar_ARGameActivity_loadTrackerData(JNIEnv *, jobject)
 {
     LOG("Java_edu_pugetsound_vichar_ar_ARGameActivity_loadTrackerData");
-    
+
     // Get the image tracker:
     QCAR::TrackerManager& trackerManager = QCAR::TrackerManager::getInstance();
     QCAR::ImageTracker* imageTracker = static_cast<QCAR::ImageTracker*>(
@@ -268,7 +317,7 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_destroyTrackerData(JNIEnv *, jobjec
             " been initialized.");
         return 0;
     }
-    
+
     if (dataSetVichar != 0)
     {
         if (imageTracker->getActiveDataSet() == dataSetVichar &&
@@ -326,20 +375,231 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_onQCARInitializedNative(JNIEnv *, j
 }
 
 
-JNIEXPORT void JNICALL
-Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
-{
-    //LOG("Java_edu_pugetsound_vichar_ar_GLRenderer_renderFrame");
 
-    // Clear color and depth buffer 
+void
+updateDrawList()
+{
+//Retrieve JSON object or parsed object HERE
+
+//this method pulls substantially from updateDominoTransform in Dominoes.cpp
+
+
+for(int i = 0; i<interpLength; i++)
+{
+
+	Model* current= &drawList[i];
+	current->transform=SampleMath::Matrix44FIdentity();
+    float* transformPtr = &current->transform.data[0];
+
+	//Must translate communication into
+
+	/*
+	current->vertPointer=&tower_topVerts[0];
+	current->normPointer=&tower_topNormals[0];
+	current->texPointer=&tower_topTexCoords[0];
+	*/
+
+
+	float* position = &current->pos[0];
+	float* angle = &current->ang[0];
+
+	current->id= (int) interpList[i][0];
+	int id = (int) interpList[i][0];
+
+	switch (id)
+	    {
+	        case 1:
+	        	current->vertPointer=&tower_topVerts[0];
+	        	current->normPointer=&tower_topNormals[0];
+	        	current->texPointer=&tower_topTexCoords[0];
+
+	        	current->modelTex= textures[1];
+	        	break;
+
+	        case 2:
+	        	current->vertPointer=&tower_shellVerts[0];
+	        	current->normPointer=&tower_shellNormals[0];
+	        	current->texPointer=&tower_shellTexCoords[0];
+	        	current->numVerts=tower_shellNumVerts;
+
+	        	current->modelTex=textures[2];
+	            break;
+
+	        case 3:
+	        	current->vertPointer=&tower_shellVerts[0];
+	        	current->normPointer=&tower_shellNormals[0];
+	        	current->texPointer=&tower_shellTexCoords[0];
+	        	current->numVerts=tower_shellNumVerts;
+
+	        	current->modelTex=textures[2];
+
+	            break;
+
+	        case 4:
+	        	current->vertPointer=&tower_shellVerts[0];
+	        	current->normPointer=&tower_shellNormals[0];
+	        	current->texPointer=&tower_shellTexCoords[0];
+	        	current->numVerts=tower_shellNumVerts;
+
+	        	current->modelTex=textures[2];
+	        	break;
+
+	        case 5:
+	        	current->vertPointer=&tower_shellVerts[0];
+	        	current->normPointer=&tower_shellNormals[0];
+	        	current->texPointer=&tower_shellTexCoords[0];
+	        	current->numVerts=tower_shellNumVerts;
+
+	        	current->modelTex=textures[2];
+	        	break;
+
+	        case 6:
+	        	current->vertPointer=&tower_topVerts[0];
+	        	current->normPointer=&tower_topNormals[0];
+	        	current->texPointer=&tower_topTexCoords[0];
+	        	current->numVerts=tower_topNumVerts;
+
+	        	current->modelTex= textures[1];
+	        	break;
+
+	        case 7:
+	        	current->vertPointer=&tower_topVerts[0];
+	        	current->normPointer=&tower_topNormals[0];
+	        	current->texPointer=&tower_topTexCoords[0];
+	        	current->numVerts=tower_topNumVerts;
+
+	        	current->modelTex= textures[1];
+	        	break;
+
+	        case 8:
+	        	current->vertPointer=&tower_shellVerts[0];
+	        	current->normPointer=&tower_shellNormals[0];
+	        	current->texPointer=&tower_shellTexCoords[0];
+	        	current->numVerts=tower_shellNumVerts;
+
+	        	current->modelTex=textures[2];
+	        	break;
+
+	        default:
+	        	return;
+	    }
+
+	//float position[3];
+	position[0]=interpList[i][1];
+	position[1]=interpList[i][2];
+	position[2]=interpList[i][3];
+
+	//float angle[3];
+	angle[0]=interpList[i][4];
+	angle[1]=interpList[i][5];
+	angle[2]=interpList[i][6];
+
+	//current->id=2*(i+1);
+
+	/*
+	SampleUtils::translatePoseMatrix(position[0],position[1], position[2], transformPtr);
+    SampleUtils::rotatePoseMatrix(angle[0], 0, 0, 1, transformPtr);
+	SampleUtils::rotatePoseMatrix(angle[1], 0, 0, 1, transformPtr);
+	SampleUtils::rotatePoseMatrix(angle[2], 0, 0, 1, transformPtr);
+
+    //SampleUtils::translatePoseMatrix(-kObjectScale, 0.0f, kObjectScale, transformPtr);
+
+    SampleUtils::scalePoseMatrix(kObjectScale, kObjectScale, kObjectScale, transformPtr);
+	*/
+
+
+	drawCount=drawCount+1;
+	//drawList[i]=&current;
+	}
+}
+
+void
+renderModel(float* transform)
+{
+	//CURRENTLY UNUSED
+    // Render a cube with the given transform
+    // Assumes prior GL setup
+
+#ifdef USE_OPENGL_ES_1_1
+    glPushMatrix();
+    glMultMatrixf(transform);
+    glDrawElements(GL_TRIANGLES, NUM_CUBE_INDEX, GL_UNSIGNED_SHORT, (const GLvoid*) &cubeIndices[0]);
+    glPopMatrix(); 
+#else
+
+    QCAR::Matrix44F modelViewProjection;
+	QCAR::Matrix44F objectMatrix;
+	/*
+	SampleUtils::multiplyMatrix(&modelViewMatrix.data[0], transform, &objectMatrix.data[0]);
+    SampleUtils::multiplyMatrix(&projectionMatrix.data[0], &objectMatrix.data[0], &modelViewProjection.data[0]);
+    glUniformMatrix4fv(mvpMatrixHandle, 1, GL_FALSE, (GLfloat*)&modelViewProjection.data[0]);
+	*/
+
+    //glDrawElements(GL_TRIANGLES, NUM_CUBE_INDEX, GL_UNSIGNED_SHORT, (const GLvoid*) &cubeIndices[0]);
+
+	/*
+	LOG("drawing");
+	glUniformMatrix4fv(mvpMatrixHandle, 1, GL_FALSE, (GLfloat*)&modelViewProjection.data[0]);
+	glDrawArrays(GL_TRIANGLES, 0, tower_topNumVerts);
+	SampleUtils::checkGlError("ImageTargets renderFrame");
+	*/
+
+#endif
+}
+
+/** The native render function.
+ *
+ *  update = true if the array has been updated by the JSON object
+ *  test = an array of location and rotation information: see format below.
+ *
+ * format of the jfloatArray:
+ * 	array of floats[type, posX, posY, posZ, rotX, rotY, rotZ], numobjects (each object is 7 long),
+ * 	turret = 1
+ * 	turret bullets = 2
+ * 	fireballs = 3
+ * 	minions = 4
+ * 	batteries = 5
+ *	player = 6
+ *	eyeballs = 7
+ *	platforms = 8
+ * */
+JNIEXPORT void JNICALL
+Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject obj, jboolean updated, jfloatArray test, jint objSize)
+{
+	bool update;
+	update = (bool) updated; //so we know whether or not to update the drawlist.
+	float testScale = 0.1f; // don't set to 0. 1/testScale is used to scale the phone location going to the game engine.
+
+	// here is an example of how to pull the elements out of the jfloatArray. I think c++ will implicitly handle the type casting of jfloats as floats,
+	// but if you are getting errors, you can always explicitly type cast them like so (assuming you have jfloats in the array):
+	// float x;
+	// x = (float) posData[i];
+	
+	if(update){
+		int i = 0;
+		int j = 0;
+		jsize len = env->GetArrayLength(test);
+		jfloat* posData = env->GetFloatArrayElements(test, 0);
+		while(i<len && posData[(i/objSize)*objSize] != 0){
+			LOG("JSON to JNI test. Pos. %d : %f", i, posData[i]); //print the elements of the array.
+			interpList[i/objSize][i%objSize]= (float) posData[i]; //can't scale here, it screws up the angles
+			i++;
+		}
+		interpLength=(i)/objSize;
+		//LOG("%i", interpLength);
+		env->ReleaseFloatArrayElements(test, posData, 0); //release memory
+	}
+
+    //LOG("Java_edu_pugetsound_vichar_ar_GLRenderer_renderFrame");
+    // Clear color and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Get the state from QCAR and mark the beginning of a rendering section
     QCAR::State state = QCAR::Renderer::getInstance().begin();
-    
+
     // Explicitly render the Video Background
     QCAR::Renderer::getInstance().drawVideoBackground();
-       
+
 #ifdef USE_OPENGL_ES_1_1
     // Set GL11 flags:
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -348,7 +608,7 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
 
     glEnable(GL_TEXTURE_2D);
     glDisable(GL_LIGHTING);
-        
+
 #endif
 
     glEnable(GL_DEPTH_TEST);
@@ -362,7 +622,7 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
         QCAR::Matrix44F modelViewMatrix =
             QCAR::Tool::convertPose2GLMatrix(trackable->getPose());
 
-        //Begin additions by Erin================================================================================
+//Begin additions by Erin================================================================================
         QCAR::Matrix34F test;   //gets inverse pos matrix
         QCAR::Matrix34F pos;   //Gets positional data
         pos = trackable->getPose();
@@ -380,23 +640,19 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
 //        LOG("%f %f %f %f",test.data[4], test.data[5], test.data[6], test.data[7]);
 //        LOG("%f %f %f %f",test.data[8], test.data[9], test.data[10], test.data[11]);
 //        LOG("=========================");
-        phoneLoc[0] = test.data[3];
-        phoneLoc[1] = test.data[7];
-        phoneLoc[2] = test.data[11];
-        //End============================================================================================
-
-
-        // UPDATE:: Load the trackable position into a second modelViewMatrix to display second item.
-        QCAR::Matrix44F modelViewMatrix2 =
-                    QCAR::Tool::convertPose2GLMatrix(trackable->getPose());
-        QCAR::Matrix44F modelViewMatrix3 =
-                            QCAR::Tool::convertPose2GLMatrix(trackable->getPose());
+        phoneLoc[0] = 1.0f;
+        phoneLoc[1] = test.data[3] * 1/testScale;
+        phoneLoc[2] = test.data[7] * 1/testScale;
+        phoneLoc[3] = test.data[11] * 1/testScale;
+//End============================================================================================
 
         // Assign Textures according in the texture indices defined at the beginning of the file, and based
         // on the loadTextures() method in ARGameActivity.java.
+
+
         const Texture* const tower_shellTexture = textures[tower_shellIndex];
         const Texture* const tower_topTexture = textures[tower_topIndex];
-        const Texture* const bananaTexture = textures[banana180Index];
+        const Texture* const platformTexture = textures[8];
 
 #ifdef USE_OPENGL_ES_1_1
         // Load projection matrix:
@@ -417,119 +673,152 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
         glDrawElements(GL_TRIANGLES, NUM_TEAPOT_OBJECT_INDEX, GL_UNSIGNED_SHORT,
                        (const GLvoid*) &teapotIndices[0]);
 #else
+		/* MATRIX GUIDE
+		ModelViewMatrix = starting point matrix, with no mods is the center of the image target.
+		Is only modified when not using Prefab transforms
 
-        //Draw the tower_top.
-        QCAR::Matrix44F modelViewProjection;
+		ObjectMatrix = ModelViewMatrix * transform matrix(in the case of prefab transforms)
+		OR
+		ObjectMatrix = ModelViewMatrix with all transforms performed.
 
-        // Quick and dirty demonstration of animation. The tower_top turns to face the banana.
-        if( turAng < 180.0)
-        {
-        	turAng = turAng + 1.0;
-        }
+		ProjectionMatrix = Is set utilizing a method in this class, when called by the Java. Is not modified by
+		drawing process.
 
-        // UPDATE:: translate, rotate and scale the tower_top.
-        SampleUtils::translatePoseMatrix(100.0f, 0.0f, kObjectScale,
-                                    &modelViewMatrix.data[0]);
-        // Animate the tower_top spinning 180 deg.
-        SampleUtils::rotatePoseMatrix(turAng, 0.0f, 0.0f, 1.0f,
-                        			    	&modelViewMatrix.data[0]);
-        // So the tower_top appears upright
-        SampleUtils::rotatePoseMatrix(90.0f, 1.0f, 0.0f, 0.0f,
-                        			&modelViewMatrix.data[0]);
-        SampleUtils::scalePoseMatrix(kObjectScale, kObjectScale, kObjectScale,
-                                    &modelViewMatrix.data[0]);
-        SampleUtils::multiplyMatrix(&projectionMatrix.data[0],
-                                    &modelViewMatrix.data[0] ,
-                                    &modelViewProjection.data[0]);
+		ModelViewProjection = (w/ prefab transforms) ObjectMatrix * Projection
+		ModelViewProjection = (w/o prefab transforms) Modified ModelViewMatrix * Projection
+		*/
 
-        glUseProgram(shaderProgramID);
-         
-        glVertexAttribPointer(vertexHandle, 3, GL_FLOAT, GL_FALSE, 0,
-                              (const GLvoid*) &tower_topVerts[0]);
-        glVertexAttribPointer(normalHandle, 3, GL_FLOAT, GL_FALSE, 0,
-                              (const GLvoid*) &tower_topNormals[0]);
-        glVertexAttribPointer(textureCoordHandle, 2, GL_FLOAT, GL_FALSE, 0,
-                              (const GLvoid*) &tower_topTexCoords[0]);
-        
-        glEnableVertexAttribArray(vertexHandle);
-        glEnableVertexAttribArray(normalHandle);
-        glEnableVertexAttribArray(textureCoordHandle);
-        
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, tower_topTexture->mTextureID);
-        glUniformMatrix4fv(mvpMatrixHandle, 1, GL_FALSE,
-                           (GLfloat*)&modelViewProjection.data[0] );
-        glDrawArrays(GL_TRIANGLES, 0, tower_topNumVerts);
 
-        SampleUtils::checkGlError("ImageTargets renderFrame");
+		drawCount=0;
+		//Get List of Objects to Draw
+		//obtain list of objects to draw -- fills drawList.
+		updateDrawList();
 
-        // UPDATE:: Draw a banana positioned on the other side of the target.
-        // TO DO:: write a method so we aren't repeating the above code!
-        QCAR::Matrix44F modelViewProjection2;
+		//Get modelViewMatrix
+		modelViewMatrix = QCAR::Tool::convertPose2GLMatrix(trackable->getPose());
 
-        SampleUtils::translatePoseMatrix(-100.0f, 0.0f, kObjectScale,
-        		&modelViewMatrix2.data[0]);
-        SampleUtils::rotatePoseMatrix( 90.0f, 1.0f, 0.0f, 0.0f,
-        		&modelViewMatrix2.data[0]);
-        SampleUtils::scalePoseMatrix(kObjectScale, kObjectScale, kObjectScale,
-        		&modelViewMatrix2.data[0]);
-        SampleUtils::multiplyMatrix(&projectionMatrix.data[0],
-        		&modelViewMatrix2.data[0] ,
-        		&modelViewProjection2.data[0]);
+		//Initialize intermediate and final Matricies
+		//Intermediate matrix used only in multiplying using the transform matrix
+		QCAR::Matrix44F objectMatrix;
+
+		//The final matrix that is used to draw
+		QCAR::Matrix44F modelViewProjection;
 
         glUseProgram(shaderProgramID);
 
-        glVertexAttribPointer(vertexHandle, 3, GL_FLOAT, GL_FALSE, 0,
-        		(const GLvoid*) &bananaVerts[0]);
-        glVertexAttribPointer(normalHandle, 3, GL_FLOAT, GL_FALSE, 0,
-        		(const GLvoid*) &bananaNormals[0]);
-        glVertexAttribPointer(textureCoordHandle, 2, GL_FLOAT, GL_FALSE, 0,
-        		(const GLvoid*) &bananaTexCoords[0]);
+		
+		// Render the models
+		for (int i = 0; i < drawCount; i++) {
 
-        glEnableVertexAttribArray(vertexHandle);
-        glEnableVertexAttribArray(normalHandle);
-        glEnableVertexAttribArray(textureCoordHandle);
+			//Need to figure out which textures/verticies/etc to use here, currently hardcoded to turrets
+			
+			//Reinitalize ModelViewMatrix to its initialstate, as at this point it gets modified.
+			modelViewMatrix = QCAR::Tool::convertPose2GLMatrix(trackable->getPose());
 
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, bananaTexture->mTextureID); // UPDATE:: apply a different texture.
-        glUniformMatrix4fv(mvpMatrixHandle, 1, GL_FALSE,
-        		(GLfloat*)&modelViewProjection2.data[0] );
-        glDrawArrays(GL_TRIANGLES, 0, bananaNumVerts);
+			//Loads the current model from the drawList
+			Model* model = &drawList[i];
 
-        SampleUtils::checkGlError("ImageTargets renderFrame");
+			//LOG("%i%i",i,drawCount);
 
-        // draw third object
-        QCAR::Matrix44F modelViewProjection3;
 
-        SampleUtils::translatePoseMatrix(0.0f, 0.0f, kObjectScale,
-        		&modelViewMatrix3.data[0]);
-        SampleUtils::rotatePoseMatrix( 0.0f, 0.0f, 0.0f, 0.0f,
-        		&modelViewMatrix3.data[0]);
-        SampleUtils::scalePoseMatrix(kObjectScale, kObjectScale, kObjectScale,
-        		&modelViewMatrix3.data[0]);
-        SampleUtils::multiplyMatrix(&projectionMatrix.data[0],
-        		&modelViewMatrix3.data[0] ,
-        		&modelViewProjection3.data[0]);
+			//These Lines used only for prefab transforms
+			//QCAR::Matrix44F transform;
+			//float* transform=&model->transform.data[0];
+			
+			//Test Prints to ensure data was being stored correctly
+			//LOG("OBJECT ID:");
+			//LOG("%i",model->id);
+			
 
-        glUseProgram(shaderProgramID);
+			//Verts,norms,texcords assigned here -- Is currently hardcoded to turret coords
+//			glVertexAttribPointer(vertexHandle, 3, GL_FLOAT, GL_FALSE, 0,
+//								 (const GLvoid*) &tower_shellVerts[0]);
+//			glVertexAttribPointer(normalHandle, 3, GL_FLOAT, GL_FALSE, 0,
+//								  (const GLvoid*) &tower_shellNormals[0]);
+//			glVertexAttribPointer(textureCoordHandle, 2, GL_FLOAT, GL_FALSE, 0,
+//								  (const GLvoid*) &tower_shellTexCoords[0]);
 
-        glVertexAttribPointer(vertexHandle, 3, GL_FLOAT, GL_FALSE, 0,
-        		(const GLvoid*) &tower_shellVerts[0]);
-        glVertexAttribPointer(normalHandle, 3, GL_FLOAT, GL_FALSE, 0,
-        		(const GLvoid*) &tower_shellNormals[0]);
-        glVertexAttribPointer(textureCoordHandle, 2, GL_FLOAT, GL_FALSE, 0,
-        		(const GLvoid*) &tower_shellTexCoords[0]);
 
-        glEnableVertexAttribArray(vertexHandle);
-        glEnableVertexAttribArray(normalHandle);
-        glEnableVertexAttribArray(textureCoordHandle);
+			//NON-HARDCODED VERSION
 
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, tower_shellTexture->mTextureID); // UPDATE:: apply a different texture.
-        glUniformMatrix4fv(mvpMatrixHandle, 1, GL_FALSE,
-        		(GLfloat*)&modelViewProjection3.data[0] );
-        glDrawArrays(GL_TRIANGLES, 0, tower_shellNumVerts);
+			float& vert = *model->vertPointer;
+			float& norm = *model->normPointer;
+			float& tex = *model->texPointer;
 
+			glVertexAttribPointer(vertexHandle, 3, GL_FLOAT, GL_FALSE, 0,
+								 (const GLvoid*) &vert);
+			glVertexAttribPointer(normalHandle, 3, GL_FLOAT, GL_FALSE, 0,
+								  (const GLvoid*) &norm);
+			glVertexAttribPointer(textureCoordHandle, 2, GL_FLOAT, GL_FALSE, 0,
+								  (const GLvoid*) &tex);
+
+		
+			//Open GL initialization
+			glEnableVertexAttribArray(vertexHandle);
+			glEnableVertexAttribArray(normalHandle);
+			glEnableVertexAttribArray(textureCoordHandle);
+
+
+			//Prep Transforms
+			float* position=&model->pos[0];
+			float* angle=&model->ang[0];
+			for(int i = 0; i < 3; i++)
+			{
+				position[i] = position[i] * testScale;
+			}
+
+			//LOG("%f%f%f",position[0],position[1],position[2]);
+
+			//Begin Transforms
+			//BE WARY OF GETTING RID OR ADDING KObject SCALE
+			SampleUtils::translatePoseMatrix(position[0], position[1], kObjectScale + position[2],
+										&modelViewMatrix.data[0]);
+			// So the tower_top appears upright
+			SampleUtils::rotatePoseMatrix(90.0f + angle[0], 1.0f, 0.0f, 0.0f,
+                        				&modelViewMatrix.data[0]);
+			SampleUtils::rotatePoseMatrix(angle[1], 0.0f, 1.0f, 0.0f,
+                        				&modelViewMatrix.data[0]);
+			SampleUtils::rotatePoseMatrix(angle[2], 0.0f, 0.0f, 1.0f,
+										&modelViewMatrix.data[0]);
+			SampleUtils::scalePoseMatrix(kObjectScale, kObjectScale, kObjectScale,
+										&modelViewMatrix.data[0]);
+
+			//Combine projectionMatrix and modelViewMatrix to create final modelViewProejctionMatrix
+			SampleUtils::multiplyMatrix(&projectionMatrix.data[0],
+										&modelViewMatrix.data[0] ,
+										&modelViewProjection.data[0]);
+
+			
+			//attempt to use stored transform matrix
+			//SampleUtils::multiplyMatrix(&modelViewMatrix.data[0], transform, &objectMatrix.data[0]);
+			//SampleUtils::multiplyMatrix(&projectionMatrix.data[0], &objectMatrix.data[0], &modelViewProjection.data[0]);
+			//glUniformMatrix4fv(mvpMatrixHandle, 1, GL_FALSE, (GLfloat*)&modelViewProjection.data[0]);
+
+
+			//Assign and bind texture -- once again this is hard coded to turrets
+			glActiveTexture(GL_TEXTURE0);
+//			glBindTexture(GL_TEXTURE_2D, tower_shellTexture->mTextureID);
+
+
+			//un-hardcoding
+			glBindTexture(GL_TEXTURE_2D, model->modelTex->mTextureID);
+
+			//apply modelViewProjectionMatrix
+			glUniformMatrix4fv(mvpMatrixHandle, 1, GL_FALSE,
+							   (GLfloat*)&modelViewProjection.data[0] );
+			//Draw -- hardcoded to turret
+//			glDrawArrays(GL_TRIANGLES, 0, tower_shellNumVerts);
+
+			//Un-hardcoding
+			glDrawArrays(GL_TRIANGLES, 0, model->numVerts);
+			
+			//Unused method that previous attempted to draw.
+			//renderModel(&model->transform.data[0]);
+			}
+
+		//Output given after every frame is fully rendered
+//		LOG("Render Frame Complete");
+		 
         SampleUtils::checkGlError("ImageTargets renderFrame");
 
 #endif
@@ -538,17 +827,18 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv *, jobject)
 
     glDisable(GL_DEPTH_TEST);
 
-#ifdef USE_OPENGL_ES_1_1        
+#ifdef USE_OPENGL_ES_1_1
     glDisable(GL_TEXTURE_2D);
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_NORMAL_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 #else
+	//Deinit Open GL
     glDisableVertexAttribArray(vertexHandle);
     glDisableVertexAttribArray(normalHandle);
     glDisableVertexAttribArray(textureCoordHandle);
 #endif
-
+	//END
     QCAR::Renderer::getInstance().end();
 }
 
@@ -558,30 +848,11 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_getCameraLocation(JNIEnv * env, job
 {
 
 	jfloatArray cameraLocation;
-	cameraLocation = env->NewFloatArray(6);
-
-	// Set an array full of zeros to test my use of the jni. Replace the values in coordArray with the
+	cameraLocation = env->NewFloatArray(7);
 	// phone location and rotation.
-	jfloat coordArray[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-
-//	//find a better way to get the state object
-//	QCAR::State& state = new QCAR::State();
-//	if(state.getNumActiveTrackables() > 0){
-//		int tIdx=0;
-//		const QCAR::Trackable* trackable = state.getActiveTrackable(tIdx);
-//
-//		// assign the location vector of the array to the coord array.
-//		coordArray[0]=pos.data[3];
-//		coordArray[1]=pos.data[7];
-//		coordArray[2]=pos.data[11];
-//		LOG("C++ Position: %f %f %f", coordArray[0], coordArray[1], coordArray[2]);
-//	}else
-//	{
-//		LOG("Skipped the if statement in getCameraLocation.");
-//	}
-
-	env->SetFloatArrayRegion(cameraLocation, 0, 6, phoneLoc);
-	//delete state;
+	jfloat coordArray[7] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+	env->SetFloatArrayRegion(cameraLocation, 0, 7, phoneLoc);
+	phoneLoc[0] = 0.0f; // reset flag to no target in sight ?? Bad idea?
 	return cameraLocation;
 }
 
@@ -600,7 +871,7 @@ configureVideoBackground()
     config.mSynchronous = true;
     config.mPosition.data[0] = 0.0f;
     config.mPosition.data[1] = 0.0f;
-    
+
     if (isActivityInPortraitMode)
     {
         //LOG("configureVideoBackground PORTRAIT");
@@ -612,7 +883,7 @@ configureVideoBackground()
         {
             LOG("Correcting rendering background size to handle missmatch between screen and video aspect ratios.");
             config.mSize.data[0] = screenWidth;
-            config.mSize.data[1] = screenWidth * 
+            config.mSize.data[1] = screenWidth *
                               (videoMode.mWidth / (float)videoMode.mHeight);
         }
     }
@@ -644,11 +915,11 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_initApplicationNative(
                             JNIEnv* env, jobject obj, jint width, jint height)
 {
     LOG("Java_edu_pugetsound_vichar_ar_ARGameActivity_initApplicationNative");
-    
+
     // Store screen dimensions
     screenWidth = width;
     screenHeight = height;
-        
+
     // Handle to the activity class:
     jclass activityClass = env->GetObjectClass(obj);
 
@@ -660,7 +931,7 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_initApplicationNative(
         return;
     }
 
-    textureCount = env->CallIntMethod(obj, getTextureCountMethodID);    
+    textureCount = env->CallIntMethod(obj, getTextureCountMethodID);
     if (!textureCount)
     {
         LOG("getTextureCount() returned zero.");
@@ -682,7 +953,7 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_initApplicationNative(
     for (int i = 0; i < textureCount; ++i)
     {
 
-        jobject textureObject = env->CallObjectMethod(obj, getTextureMethodID, i); 
+        jobject textureObject = env->CallObjectMethod(obj, getTextureMethodID, i);
         if (textureObject == NULL)
         {
             LOG("GetTexture() returned zero pointer");
@@ -702,16 +973,16 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_deinitApplicationNative(JNIEnv* env
 
     // Release texture resources
     if (textures != 0)
-    {    
+    {
         for (int i = 0; i < textureCount; ++i)
         {
             delete textures[i];
             textures[i] = NULL;
         }
-    
+
         delete[]textures;
         textures = NULL;
-        
+
         textureCount = 0;
     }
 }
@@ -767,7 +1038,7 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_stopCamera(JNIEnv *, jobject)
     QCAR::Tracker* imageTracker = trackerManager.getTracker(QCAR::Tracker::IMAGE_TRACKER);
     if(imageTracker != 0)
         imageTracker->stop();
-    
+
     QCAR::CameraDevice::getInstance().stop();
     QCAR::CameraDevice::getInstance().deinit();
 }
@@ -810,23 +1081,23 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_setFocusMode(JNIEnv*, jobject, jint
         case 0:
             qcarFocusMode = QCAR::CameraDevice::FOCUS_MODE_NORMAL;
             break;
-        
+
         case 1:
             qcarFocusMode = QCAR::CameraDevice::FOCUS_MODE_CONTINUOUSAUTO;
             break;
-            
+
         case 2:
             qcarFocusMode = QCAR::CameraDevice::FOCUS_MODE_INFINITY;
             break;
-            
+
         case 3:
             qcarFocusMode = QCAR::CameraDevice::FOCUS_MODE_MACRO;
             break;
-    
+
         default:
             return JNI_FALSE;
     }
-    
+
     return QCAR::CameraDevice::getInstance().setFocusMode(qcarFocusMode) ? JNI_TRUE : JNI_FALSE;
 }
 
@@ -839,7 +1110,7 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_initRendering(
 
     // Define clear color
     glClearColor(0.0f, 0.0f, 0.0f, QCAR::requiresAlpha() ? 0.0f : 1.0f);
-    
+
     // Now generate the OpenGL texture objects and add settings
     for (int i = 0; i < textureCount; ++i)
     {
@@ -852,7 +1123,7 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_initRendering(
                 (GLvoid*)  textures[i]->mData);
     }
 #ifndef USE_OPENGL_ES_1_1
-  
+
     shaderProgramID     = SampleUtils::createProgramFromBuffer(cubeMeshVertexShader,
                                                             cubeFragmentShader);
 

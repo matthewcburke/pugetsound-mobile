@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.view.Window;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.EditText;
@@ -39,6 +40,8 @@ implements RequestTokenCallback, AccessTokenCallback {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_twitter_oauth);
 		
+		//hide title/action bar: let webview fill as much screen as possible
+		requestWindowFeature(Window.FEATURE_NO_TITLE);		
 		
 		this.webView = (WebView) findViewById(R.id.oauth_webview);			
 		this.webView.setWebViewClient(new WebViewClient() //set a couple properties of webview...
@@ -171,7 +174,7 @@ implements RequestTokenCallback, AccessTokenCallback {
 		if(wrapper.getResult()) 	{
 			accessToken = wrapper.getAccessToken(); //temp store access token
 			PreferenceUtility pu = new PreferenceUtility();
-			pu.saveString(getString(R.string.tw_login_key), "true", this); //set logged in flag to true 
+			pu.saveBoolean(getString(R.string.tw_login_key), true, this); //set logged in flag to true 
 			pu.saveString(getString(R.string.screenname_key), wrapper.getScreenName(), this); //save screenname			
 			storeAccessToken(accessToken); //save access token
 			//and then move on to main menu    		

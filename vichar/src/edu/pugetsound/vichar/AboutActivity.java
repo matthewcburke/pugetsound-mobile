@@ -12,7 +12,7 @@ import android.widget.Button;
 import android.view.MenuItem;
 import android.content.Context;
 
-
+// Testing git corruption
 
 /**
  * Activity for the "about" screen, contains authors names 
