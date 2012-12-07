@@ -43,7 +43,7 @@ LOCAL_MODULE := VicharAR
 
 # The TARGET_PLATFORM defines the targetted Android Platform API level
 
-TARGET_PLATFORM := android-5
+TARGET_PLATFORM := android-16
 
 # This variable determines the OpenGL ES API version to use:
 # If set to true, OpenGL ES 1.1 is used, otherwise OpenGL ES 2.0.

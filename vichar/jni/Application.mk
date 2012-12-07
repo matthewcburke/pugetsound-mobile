@@ -8,6 +8,7 @@
 # Build both ARMv5TE and ARMv7-A machine code.
 
 APP_ABI := armeabi armeabi-v7a 
+APP_PLATFORM := android-8
 
 # This optional variable can be defined to either 'release' or
 # 'debug'. This is used to alter the optimization level when
