@@ -1,8 +1,11 @@
 package edu.pugetsound.vichar;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -16,8 +19,7 @@ import android.widget.Button;
  * @author Nathan P
  * @version 10/16/12
  */
-public class MainActivity extends Activity
-							
+public class MainActivity extends WifiRequiredActivity
 {
     final Context context = this;
 
@@ -33,21 +35,38 @@ public class MainActivity extends Activity
         	Button button = (Button)findViewById(R.id.login_with_twitter);
         	button.setText("Continue with Twitter");
         }
-        checkConnection(); //check network connectivity
         Boolean firstLaunch = checkFirstLaunch(); //check if this the first app launch
         if(firstLaunch) firstLaunch();	//if so, executed appropriate instructions
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_main, menu);
-        return true;
     }
     
     @Override
     protected void onResume()  {
     	super.onResume();
-    	checkConnection();
+    }
+    
+    /**
+     * Called whenever the Activity becomes visible
+     */
+    @Override
+    public void onStart() {
+    	super.onStart();
+    }
+
+    @Override
+    protected void onPause()  {
+    	super.onPause();
+    	
+    }
+    
+    @Override
+    protected void onStop()  {
+    	super.onStop();
+    }
+    
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_main, menu);
+        return true;
     }
     
     public void createButtons() {
@@ -93,19 +112,6 @@ public class MainActivity extends Activity
     	Intent twitterOAuthIntent = new Intent(this, TwitterOAuthActivity.class);
     	startActivity(twitterOAuthIntent);
     	}
-    }
-    
-    /**
-     * Checks network connection status, and prompts user to connect
-     * if there is no connection
-     */
-    private void checkConnection()  {
-        ConnectionUtility cu = new ConnectionUtility();
-        //if no connection, or connection with no connectivity
-        if(cu.checkConnection(this)!=2) {
-        	ConnectionDialog cd = new ConnectionDialog(this);
-        	cd.show();
-        }
     }
     
     /**

@@ -29,7 +29,7 @@
     
     <!-- Get permission to disconnect/connect/change network connections -->
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-
+    
     <!-- Get permission to access HW ID. -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />

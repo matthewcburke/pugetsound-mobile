@@ -18,25 +18,34 @@ public class ConnectionDialog  {
 	private AlertDialog ad; 
 	private Context context; //the application context
 	
+	public static final int CONNECTING = 0;
+	public static final int NO_CONNECTION = 1;
+	
 	/**
 	 * Builds the connection alert dialog
 	 * @param c Application context
 	 */
-	public ConnectionDialog(Context c)	{
+	public ConnectionDialog(Context c, int msgCode)	{
 		context = c;
 		AlertDialog.Builder builder = new AlertDialog.Builder(c);
-		
-		builder.setMessage(R.string.conn_dialog)
-			.setPositiveButton(R.string.connect, new DialogInterface.OnClickListener() {
+		if(msgCode == CONNECTING) {
+			builder.setMessage(R.string.conn_dialog_connecting);
+		} else if(msgCode == NO_CONNECTION) {
+			builder.setMessage(R.string.conn_dialog);
+			builder.setPositiveButton(R.string.connect, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
 	        	   connectToWifi(((Dialog) dialog).getContext());
 		           }
-				});
+			});
+		}
+		
 		builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
 	           public void onClick(DialogInterface dialog, int id) {
 	        	   cancel(getContext());
 	           }
 	       });
+
+		
 		Log.d("ConnectionDialog", "builder all set, about to create");
 		ad = builder.create();
 	}
@@ -46,7 +55,13 @@ public class ConnectionDialog  {
 	 * @param c Application context
 	 */
 	private void connectToWifi(Context c)	{
+		WifiManager wm = (WifiManager) c.getSystemService(Context.WIFI_SERVICE);
+		wm.setWifiEnabled(true);
+		//wait while wifi enables..
+		//while(wm.isWifiEnabled()==false);
+		//calls Android wifi choosing menu
 		c.startActivity(new Intent(WifiManager.ACTION_PICK_WIFI_NETWORK));
+		
 	}
 	
 	/**
@@ -65,6 +80,10 @@ public class ConnectionDialog  {
 	 */
 	public void show()	{
 		ad.show();
+	}
+	
+	public void dismiss() {
+		ad.dismiss();
 	}
 	
 	private Context getContext()  {
