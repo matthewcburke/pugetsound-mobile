@@ -151,7 +151,7 @@ public class ARGameActivity extends WifiRequiredActivity
     private String deviceUUID; // Device namespace
     
 
-    private static final String STATIC_ENGINE_STATE = "{gameRunning:false,player:{energy:100,position:{x:0.0,y:0.0,z:0.0},rotation:{x:0.0,y:90.0,z:0.0}}}"; // for use when not connected to the network
+    private static final String STATIC_ENGINE_STATE = "{gameRunning:false,player:{energy:100,position:{x:0.0,y:0.0,z:0.0},rotation:{x:0.0,y:90.0,z:0.0}},minion:{MattsMinion:{position:{x:10.0,y:10.0,z:0.0},rotation:{x:0.0,y:0.0,z:0.0}}}}"; // for use when not connected to the network
 
 	// Service Stuff
     private Messenger networkingServiceMessenger = null;
@@ -655,15 +655,15 @@ public class ARGameActivity extends WifiRequiredActivity
     private void loadTextures()
     {
     	// UPDATE:: We added these textures for the demo.
-    	mTextures.add(Texture.loadTextureFromApk("banana180.jpg", getAssets()));
-    	mTextures.add(Texture.loadTextureFromApk("tower_top.png", getAssets()));
-    	mTextures.add(Texture.loadTextureFromApk("tower_shell.png", getAssets()));
     	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));
-    	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));
-    	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));
-    	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));
-    	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));
-    	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));
+    	mTextures.add(Texture.loadTextureFromApk("towertoptexture.png", getAssets())); // turret
+    	mTextures.add(Texture.loadTextureFromApk("projtexture.png", getAssets()));//turretbullet
+    	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));	//fireball
+    	mTextures.add(Texture.loadTextureFromApk("minion_skin.png", getAssets()));	//minion
+    	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));	//battery
+    	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));	//player
+    	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));	//eyeball
+    	mTextures.add(Texture.loadTextureFromApk("tiletexture.png", getAssets()));	//tile/platform
 
     }
     

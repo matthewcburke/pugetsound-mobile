@@ -21,7 +21,6 @@
  *
  * */
 
-
 #include <jni.h>
 #include <android/log.h>
 #include <stdio.h>
@@ -62,6 +61,10 @@
 #include "tower_top.h"
 #include "tower_shell.h"
 #include "cube.h"
+#include "towertop.h"
+#include "minion.h"
+#include "proj.h"
+#include "tile.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -93,10 +96,7 @@ float phoneLoc[7] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
 int drawCount = 0.0;
 
-
-
 QCAR::Matrix44F modelViewMatrix;
-
 
 // Screen dimensions:
 unsigned int screenWidth        = 0;
@@ -115,19 +115,38 @@ QCAR::DataSet* dataSetVichar    = 0;
 QCAR::DataSet* dataSetFlakesBox = 0;
 
 bool switchDataSetAsap          = false;
-
+//Known scale values entered, unkown values remain as kObjectScale
 static const int turretId = 1;
+float turretScale[3] = {20.0, 20.0, 20.0};
+
 static const int turretBulletId = 2;
+float turretBulletScale[3] = {5.0, 5.0, 5.0};
+
+//Turrent Base unimplemented thus far
+//static const int turretBaseId=*****;
+//float turretBaseScale[3]={20,20,40};
+
 static const int fireballId = 3;
+float fireballScale[3] = {20.0, 20.0, 20.0};   //These values assigned before fireball model created -- could need adjustment
+
 static const int minionId = 4;
+float minionScale[3] = {kObjectScale, kObjectScale, kObjectScale};
+
 static const int batteryId = 5;
+float batteryScale[3] = {15.0, 15.0, 15.0};
+
 static const int playerId = 6;
+float playerScale[3] = {20.0, 20.0, 20.0};
+
 static const int eyeballId = 7;
+float eyeScale[3] = {kObjectScale, kObjectScale, kObjectScale};
+
 static const int platformId = 8;
+float platformScale[3] = {23.0f, 23.0f, 10.0f};
 
 typedef struct _Model {
 	int id;
-
+	
 	// memory addresses
 	float* vertPointer;
 	float* normPointer;
@@ -139,19 +158,15 @@ typedef struct _Model {
 
 	float pos[3];
 	float ang[3];
-	//TODO float scale[3];
+	float scale[3];
 
-    //QCAR::Vec2F position;
-
-	QCAR::Matrix44F transform;
 } Model;
 
-int MAX_MODELS = 100;
 int modelCount;
 Model drawList[100];
 
 int interpLength = 0;
-const int MAX_INTERPLENGTH=100; //TODO make resizable
+const int MAX_INTERPLENGTH=150; //TODO make resizable
 float interpList[MAX_INTERPLENGTH][7];
 
 // Object to receive update callbacks from QCAR SDK
@@ -383,101 +398,128 @@ updateDrawList()
 
 //this method pulls substantially from updateDominoTransform in Dominoes.cpp
 
-
 for(int i = 0; i<interpLength; i++)
 {
-
+	 
 	Model* current= &drawList[i];
-	current->transform=SampleMath::Matrix44FIdentity();
-    float* transformPtr = &current->transform.data[0];
-
-	//Must translate communication into
-
-	/*
-	current->vertPointer=&tower_topVerts[0];
-	current->normPointer=&tower_topNormals[0];
-	current->texPointer=&tower_topTexCoords[0];
-	*/
-
 
 	float* position = &current->pos[0];
 	float* angle = &current->ang[0];
+	float* scale = &current->scale[0];
 
 	current->id= (int) interpList[i][0];
 	int id = (int) interpList[i][0];
 
 	switch (id)
 	    {
-	        case 1:
-	        	current->vertPointer=&tower_topVerts[0];
-	        	current->normPointer=&tower_topNormals[0];
-	        	current->texPointer=&tower_topTexCoords[0];
+	        case 1: //Turret
+	        	current->vertPointer=&towertopVerts[0];
+	        	current->normPointer=&towertopNormals[0];
+	        	current->texPointer=&towertopTexCoords[0];
+	        	current->numVerts=towertopNumVerts;
+
+	        	/*
+	        	 * Maybe put the tower bottom in here?
+	        	 *
+	        	 * */
+
+				scale[0]=turretScale[0];
+				scale[1]=turretScale[1];
+				scale[2]=turretScale[2];
 
 	        	current->modelTex= textures[1];
 	        	break;
 
-	        case 2:
-	        	current->vertPointer=&tower_shellVerts[0];
-	        	current->normPointer=&tower_shellNormals[0];
-	        	current->texPointer=&tower_shellTexCoords[0];
-	        	current->numVerts=tower_shellNumVerts;
+	        case 2: //Turrent Shell
+	        	current->vertPointer=&projVerts[0];
+	        	current->normPointer=&projNormals[0];
+	        	current->texPointer=&projTexCoords[0];
+	        	current->numVerts=projNumVerts;
+
+				scale[0]=turretBulletScale[0];
+				scale[1]=turretBulletScale[1];
+				scale[2]=turretBulletScale[2];
 
 	        	current->modelTex=textures[2];
 	            break;
 
-	        case 3:
+	        case 3:  //Fireball
 	        	current->vertPointer=&tower_shellVerts[0];
 	        	current->normPointer=&tower_shellNormals[0];
 	        	current->texPointer=&tower_shellTexCoords[0];
 	        	current->numVerts=tower_shellNumVerts;
+
+				scale[0]=fireballScale[0];
+				scale[1]=fireballScale[1];
+				scale[2]=fireballScale[2];
 
 	        	current->modelTex=textures[2];
 
 	            break;
 
-	        case 4:
+	        case 4:		//Minion
+	        	current->vertPointer=&minionVerts[0];
+	        	current->normPointer=&minionNormals[0];
+	        	current->texPointer=&minionTexCoords[0];
+	        	current->numVerts=minionNumVerts;
+
+				scale[0]=minionScale[0];
+				scale[1]=minionScale[1];
+				scale[2]=minionScale[2];
+
+	        	current->modelTex=textures[4];
+	        	break;
+
+	        case 5:		//Battery
 	        	current->vertPointer=&tower_shellVerts[0];
 	        	current->normPointer=&tower_shellNormals[0];
 	        	current->texPointer=&tower_shellTexCoords[0];
 	        	current->numVerts=tower_shellNumVerts;
 
-	        	current->modelTex=textures[2];
+				scale[0]=batteryScale[0];
+				scale[1]=batteryScale[1];
+				scale[2]=batteryScale[2];
+
+	        	current->modelTex=textures[5];
 	        	break;
 
-	        case 5:
-	        	current->vertPointer=&tower_shellVerts[0];
-	        	current->normPointer=&tower_shellNormals[0];
-	        	current->texPointer=&tower_shellTexCoords[0];
-	        	current->numVerts=tower_shellNumVerts;
+	        case 6:		//Player
+	        	current->vertPointer=&minionVerts[0];
+	        	current->normPointer=&minionNormals[0];
+	        	current->texPointer=&minionTexCoords[0];
+	        	current->numVerts=minionNumVerts;
 
-	        	current->modelTex=textures[2];
+				scale[0]=playerScale[0];
+				scale[1]=playerScale[1];
+				scale[2]=playerScale[2];
+
+	        	current->modelTex= textures[1];
 	        	break;
 
-	        case 6:
+	        case 7:		//Eyeball
 	        	current->vertPointer=&tower_topVerts[0];
 	        	current->normPointer=&tower_topNormals[0];
 	        	current->texPointer=&tower_topTexCoords[0];
 	        	current->numVerts=tower_topNumVerts;
 
-	        	current->modelTex= textures[1];
+				scale[0]=eyeScale[0];
+				scale[1]=eyeScale[1];
+				scale[2]=eyeScale[2];
+
+	        	current->modelTex= textures[7];
 	        	break;
 
-	        case 7:
-	        	current->vertPointer=&tower_topVerts[0];
-	        	current->normPointer=&tower_topNormals[0];
-	        	current->texPointer=&tower_topTexCoords[0];
-	        	current->numVerts=tower_topNumVerts;
+	        case 8:		//Platform
+	        	current->vertPointer=&tileVerts[0];
+	        	current->normPointer=&tileNormals[0];
+	        	current->texPointer=&tileTexCoords[0];
+	        	current->numVerts=tileNumVerts;
 
-	        	current->modelTex= textures[1];
-	        	break;
+				scale[0]=platformScale[0];
+				scale[1]=platformScale[1];
+				scale[2]=platformScale[2];
 
-	        case 8:
-	        	current->vertPointer=&tower_shellVerts[0];
-	        	current->normPointer=&tower_shellNormals[0];
-	        	current->texPointer=&tower_shellTexCoords[0];
-	        	current->numVerts=tower_shellNumVerts;
-
-	        	current->modelTex=textures[2];
+	        	current->modelTex=textures[8];
 	        	break;
 
 	        default:
@@ -494,57 +536,8 @@ for(int i = 0; i<interpLength; i++)
 	angle[1]=interpList[i][5];
 	angle[2]=interpList[i][6];
 
-	//current->id=2*(i+1);
-
-	/*
-	SampleUtils::translatePoseMatrix(position[0],position[1], position[2], transformPtr);
-    SampleUtils::rotatePoseMatrix(angle[0], 0, 0, 1, transformPtr);
-	SampleUtils::rotatePoseMatrix(angle[1], 0, 0, 1, transformPtr);
-	SampleUtils::rotatePoseMatrix(angle[2], 0, 0, 1, transformPtr);
-
-    //SampleUtils::translatePoseMatrix(-kObjectScale, 0.0f, kObjectScale, transformPtr);
-
-    SampleUtils::scalePoseMatrix(kObjectScale, kObjectScale, kObjectScale, transformPtr);
-	*/
-
-
 	drawCount=drawCount+1;
-	//drawList[i]=&current;
 	}
-}
-
-void
-renderModel(float* transform)
-{
-	//CURRENTLY UNUSED
-    // Render a cube with the given transform
-    // Assumes prior GL setup
-
-#ifdef USE_OPENGL_ES_1_1
-    glPushMatrix();
-    glMultMatrixf(transform);
-    glDrawElements(GL_TRIANGLES, NUM_CUBE_INDEX, GL_UNSIGNED_SHORT, (const GLvoid*) &cubeIndices[0]);
-    glPopMatrix(); 
-#else
-
-    QCAR::Matrix44F modelViewProjection;
-	QCAR::Matrix44F objectMatrix;
-	/*
-	SampleUtils::multiplyMatrix(&modelViewMatrix.data[0], transform, &objectMatrix.data[0]);
-    SampleUtils::multiplyMatrix(&projectionMatrix.data[0], &objectMatrix.data[0], &modelViewProjection.data[0]);
-    glUniformMatrix4fv(mvpMatrixHandle, 1, GL_FALSE, (GLfloat*)&modelViewProjection.data[0]);
-	*/
-
-    //glDrawElements(GL_TRIANGLES, NUM_CUBE_INDEX, GL_UNSIGNED_SHORT, (const GLvoid*) &cubeIndices[0]);
-
-	/*
-	LOG("drawing");
-	glUniformMatrix4fv(mvpMatrixHandle, 1, GL_FALSE, (GLfloat*)&modelViewProjection.data[0]);
-	glDrawArrays(GL_TRIANGLES, 0, tower_topNumVerts);
-	SampleUtils::checkGlError("ImageTargets renderFrame");
-	*/
-
-#endif
 }
 
 /** The native render function.
@@ -655,8 +648,8 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 		phoneLoc[5] = euler.data[1];
 	    phoneLoc[6] = euler.data[2];
 	    //print phone pose data
-//	    LOG("x: %f, y: %f, z: %f, xRot: %f, yRot: %f, zRot: %f",
-//	    		phoneLoc[1],phoneLoc[2],phoneLoc[3],phoneLoc[4],phoneLoc[5],phoneLoc[6]);
+	    LOG("x: %f, y: %f, z: %f, xRot: %f, yRot: %f, zRot: %f",
+	    		phoneLoc[1],phoneLoc[2],phoneLoc[3],phoneLoc[4],phoneLoc[5],phoneLoc[6]);
 //End============================================================================================
 
         // Assign Textures according in the texture indices defined at the beginning of the file, and based
@@ -688,69 +681,31 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 #else
 		/* MATRIX GUIDE
 		ModelViewMatrix = starting point matrix, with no mods is the center of the image target.
-		Is only modified when not using Prefab transforms
-
-		ObjectMatrix = ModelViewMatrix * transform matrix(in the case of prefab transforms)
-		OR
-		ObjectMatrix = ModelViewMatrix with all transforms performed.
-
 		ProjectionMatrix = Is set utilizing a method in this class, when called by the Java. Is not modified by
 		drawing process.
-
-		ModelViewProjection = (w/ prefab transforms) ObjectMatrix * Projection
 		ModelViewProjection = (w/o prefab transforms) Modified ModelViewMatrix * Projection
 		*/
 
-
 		drawCount=0;
-		//Get List of Objects to Draw
 		//obtain list of objects to draw -- fills drawList.
 		updateDrawList();
 
 		//Get modelViewMatrix
 		modelViewMatrix = QCAR::Tool::convertPose2GLMatrix(trackable->getPose());
 
-		//Initialize intermediate and final Matricies
-		//Intermediate matrix used only in multiplying using the transform matrix
-		QCAR::Matrix44F objectMatrix;
-
 		//The final matrix that is used to draw
 		QCAR::Matrix44F modelViewProjection;
 
         glUseProgram(shaderProgramID);
-
 		
 		// Render the models
 		for (int i = 0; i < drawCount; i++) {
-
-			//Need to figure out which textures/verticies/etc to use here, currently hardcoded to turrets
 			
 			//Reinitalize ModelViewMatrix to its initialstate, as at this point it gets modified.
 			modelViewMatrix = QCAR::Tool::convertPose2GLMatrix(trackable->getPose());
 
 			//Loads the current model from the drawList
 			Model* model = &drawList[i];
-
-			//LOG("%i%i",i,drawCount);
-
-
-			//These Lines used only for prefab transforms
-			//QCAR::Matrix44F transform;
-			//float* transform=&model->transform.data[0];
-			
-			//Test Prints to ensure data was being stored correctly
-			//LOG("OBJECT ID:");
-			//LOG("%i",model->id);
-			
-
-			//Verts,norms,texcords assigned here -- Is currently hardcoded to turret coords
-//			glVertexAttribPointer(vertexHandle, 3, GL_FLOAT, GL_FALSE, 0,
-//								 (const GLvoid*) &tower_shellVerts[0]);
-//			glVertexAttribPointer(normalHandle, 3, GL_FLOAT, GL_FALSE, 0,
-//								  (const GLvoid*) &tower_shellNormals[0]);
-//			glVertexAttribPointer(textureCoordHandle, 2, GL_FLOAT, GL_FALSE, 0,
-//								  (const GLvoid*) &tower_shellTexCoords[0]);
-
 
 			//NON-HARDCODED VERSION
 
@@ -764,17 +719,16 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 								  (const GLvoid*) &norm);
 			glVertexAttribPointer(textureCoordHandle, 2, GL_FLOAT, GL_FALSE, 0,
 								  (const GLvoid*) &tex);
-
-		
+	
 			//Open GL initialization
 			glEnableVertexAttribArray(vertexHandle);
 			glEnableVertexAttribArray(normalHandle);
 			glEnableVertexAttribArray(textureCoordHandle);
 
-
 			//Prep Transforms
 			float* position=&model->pos[0];
 			float* angle=&model->ang[0];
+			float* scale=&model->scale[0];
 			for(int i = 0; i < 3; i++)
 			{
 				position[i] = position[i] * testScale;
@@ -787,13 +741,13 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 			SampleUtils::translatePoseMatrix(position[0], position[1], kObjectScale + position[2],
 										&modelViewMatrix.data[0]);
 			// So the tower_top appears upright
-			SampleUtils::rotatePoseMatrix(90.0f + angle[0], 1.0f, 0.0f, 0.0f,
+			SampleUtils::rotatePoseMatrix(angle[0], 1.0f, 0.0f, 0.0f,
                         				&modelViewMatrix.data[0]);
 			SampleUtils::rotatePoseMatrix(angle[1], 0.0f, 1.0f, 0.0f,
                         				&modelViewMatrix.data[0]);
 			SampleUtils::rotatePoseMatrix(angle[2], 0.0f, 0.0f, 1.0f,
 										&modelViewMatrix.data[0]);
-			SampleUtils::scalePoseMatrix(kObjectScale, kObjectScale, kObjectScale,
+			SampleUtils::scalePoseMatrix(scale[0], scale[1], scale[2],
 										&modelViewMatrix.data[0]);
 
 			//Combine projectionMatrix and modelViewMatrix to create final modelViewProejctionMatrix
@@ -801,17 +755,8 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 										&modelViewMatrix.data[0] ,
 										&modelViewProjection.data[0]);
 
-			
-			//attempt to use stored transform matrix
-			//SampleUtils::multiplyMatrix(&modelViewMatrix.data[0], transform, &objectMatrix.data[0]);
-			//SampleUtils::multiplyMatrix(&projectionMatrix.data[0], &objectMatrix.data[0], &modelViewProjection.data[0]);
-			//glUniformMatrix4fv(mvpMatrixHandle, 1, GL_FALSE, (GLfloat*)&modelViewProjection.data[0]);
-
-
 			//Assign and bind texture -- once again this is hard coded to turrets
 			glActiveTexture(GL_TEXTURE0);
-//			glBindTexture(GL_TEXTURE_2D, tower_shellTexture->mTextureID);
-
 
 			//un-hardcoding
 			glBindTexture(GL_TEXTURE_2D, model->modelTex->mTextureID);
@@ -819,19 +764,12 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 			//apply modelViewProjectionMatrix
 			glUniformMatrix4fv(mvpMatrixHandle, 1, GL_FALSE,
 							   (GLfloat*)&modelViewProjection.data[0] );
-			//Draw -- hardcoded to turret
-//			glDrawArrays(GL_TRIANGLES, 0, tower_shellNumVerts);
 
 			//Un-hardcoding
 			glDrawArrays(GL_TRIANGLES, 0, model->numVerts);
-			
-			//Unused method that previous attempted to draw.
-			//renderModel(&model->transform.data[0]);
 			}
 
-		//Output given after every frame is fully rendered
-//		LOG("Render Frame Complete");
-		 
+//		LOG("Render Frame Complete");		 
         SampleUtils::checkGlError("ImageTargets renderFrame");
 
 #endif
@@ -855,15 +793,12 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
     QCAR::Renderer::getInstance().end();
 }
 
-// TODO: write this function to return the camera location.
 JNIEXPORT jfloatArray JNICALL
 Java_edu_pugetsound_vichar_ar_ARGameActivity_getCameraLocation(JNIEnv * env, jobject)
 {
-
 	jfloatArray cameraLocation;
 	cameraLocation = env->NewFloatArray(7);
 	// phone location and rotation.
-	jfloat coordArray[7] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 	env->SetFloatArrayRegion(cameraLocation, 0, 7, phoneLoc);
 	phoneLoc[0] = 0.0f; // reset flag to no target in sight ?? Bad idea?
 	return cameraLocation;
