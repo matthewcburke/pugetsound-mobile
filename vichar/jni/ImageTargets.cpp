@@ -61,6 +61,10 @@
 #include "tower_top.h"
 #include "tower_shell.h"
 #include "cube.h"
+#include "towertop.h"
+#include "minion.h"
+#include "proj.h"
+#include "tile.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -406,9 +410,10 @@ for(int i = 0; i<interpLength; i++)
 	switch (id)
 	    {
 	        case 1: //Turret
-	        	current->vertPointer=&tower_topVerts[0];
-	        	current->normPointer=&tower_topNormals[0];
-	        	current->texPointer=&tower_topTexCoords[0];
+	        	current->vertPointer=&towertopVerts[0];
+	        	current->normPointer=&towertopNormals[0];
+	        	current->texPointer=&towertopTexCoords[0];
+	        	current->numVerts=towertopNumVerts;
 
 				scale[0]=turretScale[0];
 				scale[1]=turretScale[1];
@@ -418,10 +423,10 @@ for(int i = 0; i<interpLength; i++)
 	        	break;
 
 	        case 2: //Turrent Shell
-	        	current->vertPointer=&tower_shellVerts[0];
-	        	current->normPointer=&tower_shellNormals[0];
-	        	current->texPointer=&tower_shellTexCoords[0];
-	        	current->numVerts=tower_shellNumVerts;
+	        	current->vertPointer=&projVerts[0];
+	        	current->normPointer=&projNormals[0];
+	        	current->texPointer=&projTexCoords[0];
+	        	current->numVerts=projNumVerts;
 
 				scale[0]=turretBulletScale[0];
 				scale[1]=turretBulletScale[1];
@@ -440,21 +445,21 @@ for(int i = 0; i<interpLength; i++)
 				scale[1]=fireballScale[1];
 				scale[2]=fireballScale[2];
 
-	        	current->modelTex=textures[2];
+	        	current->modelTex=textures[3];
 
 	            break;
 
 	        case 4:		//Minion
-	        	current->vertPointer=&tower_shellVerts[0];
-	        	current->normPointer=&tower_shellNormals[0];
-	        	current->texPointer=&tower_shellTexCoords[0];
-	        	current->numVerts=tower_shellNumVerts;
+	        	current->vertPointer=&minionVerts[0];
+	        	current->normPointer=&minionNormals[0];
+	        	current->texPointer=&minionTexCoords[0];
+	        	current->numVerts=minionNumVerts;
 
 				scale[0]=minionScale[0];
 				scale[1]=minionScale[1];
 				scale[2]=minionScale[2];
 
-	        	current->modelTex=textures[2];
+	        	current->modelTex=textures[4];
 	        	break;
 
 	        case 5:		//Battery
@@ -467,20 +472,20 @@ for(int i = 0; i<interpLength; i++)
 				scale[1]=batteryScale[1];
 				scale[2]=batteryScale[2];
 
-	        	current->modelTex=textures[2];
+	        	current->modelTex=textures[5];
 	        	break;
 
 	        case 6:		//Player
-	        	current->vertPointer=&tower_topVerts[0];
-	        	current->normPointer=&tower_topNormals[0];
-	        	current->texPointer=&tower_topTexCoords[0];
-	        	current->numVerts=tower_topNumVerts;
+	        	current->vertPointer=&minionVerts[0];
+	        	current->normPointer=&minionNormals[0];
+	        	current->texPointer=&minionTexCoords[0];
+	        	current->numVerts=minionNumVerts;
 
 				scale[0]=playerScale[0];
 				scale[1]=playerScale[1];
 				scale[2]=playerScale[2];
 
-	        	current->modelTex= textures[1];
+	        	current->modelTex= textures[4];
 	        	break;
 
 	        case 7:		//Eyeball
@@ -493,20 +498,20 @@ for(int i = 0; i<interpLength; i++)
 				scale[1]=eyeScale[1];
 				scale[2]=eyeScale[2];
 
-	        	current->modelTex= textures[1];
+	        	current->modelTex= textures[7];
 	        	break;
 
 	        case 8:		//Platform
-	        	current->vertPointer=&tower_shellVerts[0];
-	        	current->normPointer=&tower_shellNormals[0];
-	        	current->texPointer=&tower_shellTexCoords[0];
-	        	current->numVerts=tower_shellNumVerts;
+	        	current->vertPointer=&tileVerts[0];
+	        	current->normPointer=&tileNormals[0];
+	        	current->texPointer=&tileTexCoords[0];
+	        	current->numVerts=tileNumVerts;
 
 				scale[0]=platformScale[0];
 				scale[1]=platformScale[1];
 				scale[2]=platformScale[2];
 
-	        	current->modelTex=textures[2];
+	        	current->modelTex=textures[8];
 	        	break;
 
 	        default:
@@ -728,7 +733,7 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 			SampleUtils::translatePoseMatrix(position[0], position[1], kObjectScale + position[2],
 										&modelViewMatrix.data[0]);
 			// So the tower_top appears upright
-			SampleUtils::rotatePoseMatrix(90.0f + angle[0], 1.0f, 0.0f, 0.0f,
+			SampleUtils::rotatePoseMatrix(/*90.0f + */angle[0], 1.0f, 0.0f, 0.0f,
                         				&modelViewMatrix.data[0]);
 			SampleUtils::rotatePoseMatrix(angle[1], 0.0f, 1.0f, 0.0f,
                         				&modelViewMatrix.data[0]);
@@ -780,15 +785,12 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
     QCAR::Renderer::getInstance().end();
 }
 
-// TODO: write this function to return the camera location.
 JNIEXPORT jfloatArray JNICALL
 Java_edu_pugetsound_vichar_ar_ARGameActivity_getCameraLocation(JNIEnv * env, jobject)
 {
-
 	jfloatArray cameraLocation;
 	cameraLocation = env->NewFloatArray(7);
 	// phone location and rotation.
-	jfloat coordArray[7] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 	env->SetFloatArrayRegion(cameraLocation, 0, 7, phoneLoc);
 	phoneLoc[0] = 0.0f; // reset flag to no target in sight ?? Bad idea?
 	return cameraLocation;
