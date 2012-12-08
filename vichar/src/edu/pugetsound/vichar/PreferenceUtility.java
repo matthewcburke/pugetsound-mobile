@@ -1,6 +1,5 @@
 package edu.pugetsound.vichar;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
@@ -30,9 +29,7 @@ public class PreferenceUtility {
    		//save key and value, then commit
     	editor.putString(key, value);
     	editor.commit();
-
-    }
-    
+    }    
 	
     /*
      * Returns saved String value at provided key

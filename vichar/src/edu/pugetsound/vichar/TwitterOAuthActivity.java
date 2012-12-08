@@ -36,15 +36,17 @@ implements RequestTokenCallback, AccessTokenCallback {
 	AccessToken accessToken;
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_twitter_oauth);
-		
+	public void onCreate(Bundle savedInstanceState) {		
 		//hide title/action bar: let webview fill as much screen as possible
-		requestWindowFeature(Window.FEATURE_NO_TITLE);		
+		requestWindowFeature(Window.FEATURE_NO_TITLE);	
 		
+		//set layout
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_twitter_oauth);	
+		
+		//set a couple properties of webview...
 		this.webView = (WebView) findViewById(R.id.oauth_webview);			
-		this.webView.setWebViewClient(new WebViewClient() //set a couple properties of webview...
+		this.webView.setWebViewClient(new WebViewClient() 
 		{
 			//do following to ensure no address bar is visible
 			public boolean shouldOverrideUrlLoading(WebView view, String url)

@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -32,7 +33,6 @@ public class MainMenuActivity extends Activity {
         //set title to screenname
         setTitle(getScreenname());
         createButtons();
-        
     }
     
     private void createButtons() {
