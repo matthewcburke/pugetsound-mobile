@@ -532,10 +532,12 @@ public class ARGameActivity extends WifiRequiredActivity
      * TODO:clear this up. method shouldn't be public, but needs to be accessed from fragment
      */
     public void snapTwitterOn() {
-    	View tweetContainer = (View) findViewById(edu.pugetsound.vichar.R.id.tweet_container);
-    	FrameLayout.LayoutParams paramsSuccess = (FrameLayout.LayoutParams) tweetContainer.getLayoutParams();
-		paramsSuccess.leftMargin = 0;
-		tweetContainer.setLayoutParams(paramsSuccess);  
+    	if(uiInflated) {
+    		View tweetContainer = (View) findViewById(edu.pugetsound.vichar.R.id.tweet_container);
+    		FrameLayout.LayoutParams paramsSuccess = (FrameLayout.LayoutParams) tweetContainer.getLayoutParams();
+    		paramsSuccess.leftMargin = 0;
+    		tweetContainer.setLayoutParams(paramsSuccess);  
+    	}
     }
     
     /**
@@ -543,14 +545,18 @@ public class ARGameActivity extends WifiRequiredActivity
      * TODO:clear this up. method shouldn't be public, but needs to be accessed from fragment
      */
     public void snapTwitterOff()  {
-    	View tweetContainer = (View) findViewById(edu.pugetsound.vichar.R.id.tweet_container);
-    	FrameLayout.LayoutParams paramsReset = (FrameLayout.LayoutParams) tweetContainer.getLayoutParams();
-    	
-    	//its difficult to get fragment width, instead take entire width of layout and subtract handle button width
-//    	View twHandle = (View) findViewById(R.id.tweet_frag_button);
-//    	int twFragWidth = tweetContainer.getWidth() - twHandle.getWidth();    	
-		paramsReset.leftMargin = -315;
-		tweetContainer.setLayoutParams(paramsReset);  
+    	if(uiInflated) {
+    		View tweetContainer = (View) findViewById(edu.pugetsound.vichar.R.id.tweet_container);
+    		FrameLayout.LayoutParams paramsReset = (FrameLayout.LayoutParams) tweetContainer.getLayoutParams();
+
+    		//its difficult to get fragment width, instead take entire width of layout and subtract handle button width
+    		//    	View twHandle = (View) findViewById(R.id.tweet_frag_button);
+    		//    	int twFragWidth = tweetContainer.getWidth() - twHandle.getWidth();    	
+    		paramsReset.leftMargin = -315;
+    		tweetContainer.setLayoutParams(paramsReset);  
+
+    		Log.d("UI", "TWITTER SNAPPED OFF");
+    	}
     }
        
     /**
@@ -559,31 +565,33 @@ public class ARGameActivity extends WifiRequiredActivity
      * @return True if new challenge, false if not
      */
     private void updateTwitterState(JSONObject webState)  {
-    	//TODO: based on web API as of 11/17, which is likely to change    	
-    	Boolean twLogin = checkTwitterLogin();
-    	if(twLogin) {
-	    	boolean isActive = false;
-	    	try{	    		
-	    		JSONObject twitter = webState.getJSONObject("twitter");
-	    		JSONObject activeVote = twitter.getJSONObject("activeVote");
-	    		isActive = activeVote.getBoolean("isActive");
-	    	} catch (JSONException ex) {
-	    		//TODO:json exception procedures
-	    		System.out.println(ex);
-	    		return;
-	    	}
-	    	
-	    	if(isActive==false) {
-	    		//if a vote has just ended...
-	    		if(activeTwitter==true)  {    			
-	    			endTwitter();
-	    		}
-	    	} else {
-	    		//if a vote has just begun
-	    		if(activeTwitter==false) {    			
-	    			startTwitter();
-	    		}
-	    	}
+    	//TODO: based on web API as of 11/17, which is likely to change    
+    	if(uiInflated) {
+    		Boolean twLogin = checkTwitterLogin();
+    		if(twLogin) {
+    			boolean isActive = false;
+    			try{	    		
+    				JSONObject twitter = webState.getJSONObject("twitter");
+    				JSONObject activeVote = twitter.getJSONObject("activeVote");
+    				isActive = activeVote.getBoolean("isActive");
+    			} catch (JSONException ex) {
+    				//TODO:json exception procedures
+    				System.out.println(ex);
+    				return;
+    			}
+
+    			if(isActive==false) {
+    				//if a vote has just ended...
+    				if(activeTwitter==true)  {    			
+    					endTwitter();
+    				}
+    			} else {
+    				//if a vote has just begun
+    				if(activeTwitter==false) {    			
+    					startTwitter();
+    				}
+    			}
+    		}
     	}
     }
     
@@ -632,6 +640,7 @@ public class ARGameActivity extends WifiRequiredActivity
         alpha.setFillAfter(true);
         tweetHandle.startAnimation(alpha);
         
+        snapTwitterOff();
         //deprecated methods again...
 //        if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN) {
 //            tweetHandle.setBackgroundDrawable(getResources().getDrawable(edu.pugetsound.vichar.R.drawable.twitter_logo));
@@ -818,18 +827,14 @@ public class ARGameActivity extends WifiRequiredActivity
      */
     private void updateHealthBar(JSONObject engineState) {
     	if(uiInflated) {
-    		//    	try {
-    		//    		JSONObject player = engineState.getJSONObject("player");
-    		//    		energy = player.getInt("energy");
-    		//    	} catch (JSONException ex) {
-    		//    		return; //nothing to do here, just maintain same energy level
-    		//    	}
-
-    		if(energy==500) energy=0;
+    		try {
+    			JSONObject player = engineState.getJSONObject("player");
+    			energy = player.getInt("energy");
+    		} catch (JSONException ex) {
+    			return; //nothing to do here, just maintain same energy level
+    		}
     		ProgressBar healthBar = (ProgressBar) findViewById(R.id.health_bar);
     		healthBar.setProgress(energy);
-    		Log.d("UI", "set health to " + energy);
-    		energy++;
     	}
     }
     
@@ -1036,6 +1041,8 @@ public class ARGameActivity extends WifiRequiredActivity
                     	    addContentView(gui, new LayoutParams(
                                     LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));                    	    
                     	    Log.d("UI", "add ui");
+                    	    uiInflated = true;
+                    	    Log.d("UI", "UI added, now visible");
                     	    //check if user is logged into twitter
                     	    Boolean twLogin = checkTwitterLogin();
                     	    //if not, don't render twitter container
@@ -1050,9 +1057,7 @@ public class ARGameActivity extends WifiRequiredActivity
                     	    snapTwitterOff();
                             endTwitter();
                             makeFireballButton();
-                            resizeEyelids();
-                            
-                            uiInflated = true;
+                            resizeEyelids();                                   
                         }
                 };
 

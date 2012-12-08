@@ -12,7 +12,7 @@ public class ParseTweet {
 
 	private static final int TWEET_LIMIT = 140;
 
-	private static final String VICHAR_TAG = "vichar";
+	private static final String VICHAR_TAG = "vichargame";
 	private static final String EYE_TAG = "eye";
 
 	public ParseTweet(String tweet) {
@@ -71,8 +71,8 @@ public class ParseTweet {
 			}
 		}
 		//check if this is vichar tag
-		if(index + 7 <= originalTweet.length()) {
-			if(originalTweet.substring(index + 1, index + 7).equals(ParseTweet.VICHAR_TAG)) {
+		if(index + 11 <= originalTweet.length()) {
+			if(originalTweet.substring(index + 1, index + 11).equals(ParseTweet.VICHAR_TAG)) {
 				Log.d("ParseTweetTest", "vichar tag at " + index);
 				type = ParseTweet.IS_VICHAR_TAG;
 			}

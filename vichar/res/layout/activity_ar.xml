@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  
+<!--
     In FrameLayout children are drawn in a stack, with the most recently 
     added child on top.
     
@@ -23,7 +23,7 @@
     
     To overcome this problem, we just construct the views dynamically upon
     calling onResume to guarantee the correct order and therefore leave the 
-    layout empty now.
+    layout empty now.
 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
@@ -31,7 +31,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content" >
 
-        <ImageView
+    <ImageView
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/eyelid_top_right"
         android:layout_width="wrap_content"
@@ -75,61 +75,59 @@
     android:drawable="@drawable/eyelid_top_right"
     android:scaleGravity="top|right"
     android:scaleHeight="100%"
-    android:scaleWidth="100%" />
+    android:scaleWidth="100%" />
     -->
-    
-   	<LinearLayout
-   	    xmlns:android="http://schemas.android.com/apk/res/android"
-   	    xmlns:tools="http://schemas.android.com/tools"
-   	    android:id="@+id/tweet_container"
-   	    android:layout_width="wrap_content"
-   	    android:layout_height="wrap_content"
-   	    android:layout_marginLeft="-300dp"
-   	    android:orientation="horizontal" >
 
-   	    <fragment
-   	        android:id="@+id/twitter_fragment"
-   	        android:name="edu.pugetsound.vichar.TweetFragment"
-   	        android:layout_width="wrap_content"
-   	        android:layout_height="wrap_content" />
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/fireball_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
 
-   	    <Button
-   	        android:id="@+id/tweet_frag_button"
-   	        android:layout_width="60dp"
-   	        android:layout_height="60dp"
-   	        android:background="@drawable/twitter_logo"
-   	        android:contentDescription="@string/tweet_icon" />
+        <Button
+            android:id="@+id/fireball_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/fireball_button" />
+    </RelativeLayout>
 
-   	    
-   	</LinearLayout>
-   	
-   	<RelativeLayout 
-   	xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/fireball_container"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    <ProgressBar
+        android:id="@+id/health_bar"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="160dp"
+        android:layout_height="30dp"
+        android:layout_gravity="top|center_horizontal"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/health_bar_background"
+        android:max="500"
+        android:progress="500"
+        android:progressDrawable="@drawable/health_bar_clip"
+        android:focusable="false" />
 
-   	    <Button
-   	        android:id="@+id/fireball_button"
-   	        android:layout_width="wrap_content"
-   	        android:layout_height="wrap_content"
-   	        android:layout_alignParentBottom="true"
-   	        android:layout_alignParentRight="true"
-   	        android:background="@drawable/fireball_button" />
-   	    
-   	</RelativeLayout>
-   	
-  <ProgressBar
-      style="@android:style/Widget.ProgressBar.Horizontal"
-      android:id="@+id/health_bar" 
-      android:max="500"
-      android:layout_gravity="top|center_horizontal"
-      android:layout_marginTop="5dp"
-      android:layout_width="160dp"
-      android:layout_height="30dp"
-      android:progress="500"
-      android:background="@drawable/health_bar_background"
-      android:progressDrawable="@drawable/health_bar_clip"
-      />
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/tweet_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="-300dp"
+        android:orientation="horizontal" >
+
+        <fragment
+            android:id="@+id/twitter_fragment"
+            android:name="edu.pugetsound.vichar.TweetFragment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/tweet_frag_button"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="@drawable/twitter_logo"
+            android:contentDescription="@string/tweet_icon" />
+    </LinearLayout>
+
 </FrameLayout>
