@@ -546,13 +546,13 @@ public class ARGameActivity extends WifiRequiredActivity
      */
     public void snapTwitterOff()  {
     	if(uiInflated) {
-    		View tweetContainer = (View) findViewById(edu.pugetsound.vichar.R.id.tweet_container);
+    		LinearLayout tweetContainer = (LinearLayout) findViewById(edu.pugetsound.vichar.R.id.tweet_container);
     		FrameLayout.LayoutParams paramsReset = (FrameLayout.LayoutParams) tweetContainer.getLayoutParams();
 
     		//its difficult to get fragment width, instead take entire width of layout and subtract handle button width
     		//    	View twHandle = (View) findViewById(R.id.tweet_frag_button);
     		//    	int twFragWidth = tweetContainer.getWidth() - twHandle.getWidth();    	
-    		paramsReset.leftMargin = -315;
+    		paramsReset.leftMargin = -350;
     		tweetContainer.setLayoutParams(paramsReset);  
 
     		Log.d("UI", "TWITTER SNAPPED OFF");
