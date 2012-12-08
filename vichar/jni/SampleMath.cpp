@@ -243,8 +243,6 @@ SampleMath::phoneCoorMatrix(QCAR::Matrix34F *m) {
 
     //get new pos coords
     matrxVecMult(&r);
-    //LOG("PhoneCoorMatrix: (%f,%f,%f)",r.data[3], r.data[7], r.data[11]);
-    //LOG("============================");
 
     return r;
 }
@@ -273,8 +271,6 @@ SampleMath::matrxVecMult(QCAR::Matrix34F *m) {
     m->data[3] = posTemp[0];
     m->data[7] = posTemp[1];
     m->data[11] = posTemp[2];
-
-    //LOG("matrxVecMult: (%f, %f, %f)", m->data[3], m->data[7], m->data[11]);
 }
 
 QCAR::Matrix34F
@@ -295,9 +291,6 @@ SampleMath::calcSecondPos(QCAR::Matrix34F *m, QCAR::Matrix34F *n) {
     temp.data[7] = n->data[7];
     temp.data[11] = n->data[11];
 
-    //pass posMatrix in form [R1|T2]
-   // LOG("calcSecondPos: (%f, %f, %f)", temp.data[3], temp.data[7], temp.data[11]);
-   // LOG("=====================================")
     return phoneCoorMatrix(&temp);
 }
 
@@ -318,8 +311,6 @@ SampleMath::vectorAdd(QCAR::Matrix34F *m, QCAR::Matrix34F *n) {
 	newPos.data[3] = temp[0];
 	newPos.data[7] = temp[1];
 	newPos.data[11] = temp[2];
-
-	//LOG("vectorAdd: (%f, %f, %f)", newPos.data[3], newPos.data[7], newPos.data[11]);
 
 
 	return newPos;
