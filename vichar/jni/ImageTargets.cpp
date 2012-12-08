@@ -136,13 +136,13 @@ static const int batteryId = 5;
 float batteryScale[3] = {15.0, 15.0, 15.0};
 
 static const int playerId = 6;
-float playerScale[3] = {2 * 20.0, 2 * 20.0, 2 * 20.0};
+float playerScale[3] = {20.0, 20.0, 20.0};
 
 static const int eyeballId = 7;
 float eyeScale[3] = {kObjectScale, kObjectScale, kObjectScale};
 
 static const int platformId = 8;
-float platformScale[3] = {kObjectScale, kObjectScale, kObjectScale};
+float platformScale[3] = {25.0f, 25.0f, 10.0f};
 
 typedef struct _Model {
 	int id;
@@ -736,9 +736,9 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 			SampleUtils::translatePoseMatrix(position[0], position[1], kObjectScale + position[2],
 										&modelViewMatrix.data[0]);
 			// So the tower_top appears upright
-			SampleUtils::rotatePoseMatrix(/*90.0f + */angle[0], 1.0f, 0.0f, 0.0f,
+			SampleUtils::rotatePoseMatrix(angle[0], 1.0f, 0.0f, 0.0f,
                         				&modelViewMatrix.data[0]);
-			SampleUtils::rotatePoseMatrix(angle[1], 0.0f, 1.0f, 0.0f,
+			SampleUtils::rotatePoseMatrix(angle[1] - 90.0f, 0.0f, 1.0f, 0.0f,
                         				&modelViewMatrix.data[0]);
 			SampleUtils::rotatePoseMatrix(angle[2], 0.0f, 0.0f, 1.0f,
 										&modelViewMatrix.data[0]);

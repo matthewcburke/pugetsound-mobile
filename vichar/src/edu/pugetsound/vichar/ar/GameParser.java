@@ -45,8 +45,8 @@ public class GameParser {
 
 	//Game Board
 	// the current C++ code can only handle 100 objects including tiles. TODO Fix this.
-	static int xTiles = 4; //number of board tiles in the x direction // don't enter zeros!!! 
-	static int yTiles = 4;// number of tiles in the y direction // don't enter zeros!!!
+	static int xTiles = 8; //number of board tiles in the x direction // don't enter zeros!!! 
+	static int yTiles = 8;// number of tiles in the y direction // don't enter zeros!!!
 	static boolean[][] board = new boolean[xTiles][yTiles];
 	static int[] tileCoordinate = new int[2];
 	private static final float[] THEIR_BOARD_DIMENSIONS = {2000.0f, 2000.0f}; // don't enter zeros!!!
@@ -264,9 +264,9 @@ public class GameParser {
 					poseData[count++] = xPos;
 					poseData[count++] = tempY;
 					tempY -= tilesY;
-					poseData[count++] = 0.0f; // z position
+					poseData[count++] = -100.0f; // z position
 					poseData[count++] = 0.0f; // x rotation
-					poseData[count++] = 0.0f; // y rotation
+					poseData[count++] = 90.0f; // y rotation. the 90 is to compensate for discrepancies when exporting the models from blender.
 					poseData[count++] = 0.0f; // z rotation
 				}
 				else
