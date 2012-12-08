@@ -1339,8 +1339,8 @@ public class ARGameActivity extends WifiRequiredActivity
     		}
     		else
     		{
-    			deviceState.put("position", null);
-    			deviceState.put("rotation", null);
+    			deviceState.put("position", JSONObject.NULL);
+    			deviceState.put("rotation", JSONObject.NULL);
     		}
     		
     		// Log the position for testing.
