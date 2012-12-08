@@ -25,21 +25,6 @@ import com.qualcomm.QCAR.QCAR;
 /** The renderer class for the ImageTargets sample. */
 public class ARGameRenderer implements GLSurfaceView.Renderer
 {
-	/*
-	 * format of the jfloatArray:
-	 * 	array of floats[type, posX, posY, posZ, rotX, rotY, rotZ], numobjects (each object is 7 long),
-	 * 	turret = 1
-	 * 	turret bullets = 2
-	 * 	fireballs = 3
-	 * 	minions = 4
-	 * 	batteries = 5
-	 *	player = 6
-	 *	eyeballs = 7
-	 *	platforms = 8
-	 */
-	public float[] myTest = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   	// turret at the origin
-							 1.0f, 50.0f, 50.0f, 0.0f, 0.0f, 0.0f, 0.0f, 	// turret offset 50 in the x and y directions
-							 1.0f, -50.0f, 50.0f, 0.0f, 0.0f, 0.0f, 0.0f};  // turret offset -50 x and 50 y
     public boolean mIsActive = false;
     
     /** Native function for initializing the renderer. */
@@ -77,13 +62,13 @@ public class ARGameRenderer implements GLSurfaceView.Renderer
     }    
     
     
-    /** The native render function. 
-     *  
-     *  update = true if the array has been updated by the JSON object
-     *  test = an array of location and rotation information: see format in above definition.
-     * 
-     * */    
-    public native void renderFrame(boolean update, float[] test, int objSize);
+    /**
+     * The native render function. 
+     * @param update boolean to indicate whether or not to update the drawlist/ has poseData been updated since last frame
+     * @param poseData the pose information about all of the game objects.
+     * @param objSize the number of spaces each element takes up in the attay.
+     */
+    public native void renderFrame(boolean update, float[] poseData, int objSize);
     
     
     /** Called to draw the current frame. */
@@ -93,8 +78,12 @@ public class ARGameRenderer implements GLSurfaceView.Renderer
             return;
 
         // Call our native function to render content
-//        renderFrame(updated, myTest, ARGameActivity.OBJ_SIZE);
-        renderFrame(ARGameActivity.updated, ARGameActivity.poseData, ARGameActivity.OBJ_SIZE);
-        ARGameActivity.updated = false;
+        if (GameParser.updated)
+        {
+        	renderFrame(true, GameParser.poseData, GameParser.OBJ_SIZE);
+        	GameParser.updated = false;
+        }else{
+        	renderFrame(false, GameParser.poseData, GameParser.OBJ_SIZE);
+        }
     }
 }

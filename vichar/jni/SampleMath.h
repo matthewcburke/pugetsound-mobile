@@ -55,27 +55,51 @@ public:
     
     static QCAR::Matrix44F Matrix44FInverse(QCAR::Matrix44F& m);
     
-  //Begin additions by Erin===========================================================================================
-    /**
-     * Calculates [R^-1|-R^-1*T] from [R|T]
-     * param m posMatrix in form [R|T]
-     * return posMatrix in form [R^-1|-R^-1*T]
-     */
-    static QCAR::Matrix34F phoneCoorMatrix(QCAR::Matrix34F m);
+    //Begin additions by Erin===========================================================================================
+      /**
+       * Calculates [R^-1|-R^-1*T] from [R|T]
+       * param m posMatrix in form [R|T]
+       * return posMatrix in form [R^-1|-R^-1*T]
+       */
+      static QCAR::Matrix34F phoneCoorMatrix(QCAR::Matrix34F *m);
 
-    /**
-     * Helper method: Calculates -R^-1*T
-     * param m posMatrix in form [R^-1|T]
-     */
-    static void matrxVecMult(QCAR::Matrix34F *m);
+      /**
+       * Helper method: Calculates -R^-1*T
+       * param m posMatrix in form [R^-1|T]
+       */
+      static void matrxVecMult(QCAR::Matrix34F *m);
 
-    /**
-     * Calculates [R1^-1|T2] given [R1^-1|T1] and [R2|T2]
-     * param m posMatrix [R1^-1|T1]
-     * param n pointer to posMatrix [R2|T2]
-     */
-    static void swapRotPos(QCAR::Matrix34F m, QCAR::Matrix34F *n);
-  //End===============================================================================================================
+      /**
+       * Calculates [R1^-1|-R1^-1*T2] given [R1^-1|T1] and [R2|T2]
+       * param m pointer to posMatrix [R1|T1]
+       * param n posMatrix [R2|T2]
+       * return pos matrix in form [R1^-1|-R1^-1*T2]
+       */
+      static QCAR::Matrix34F calcSecondPos(QCAR::Matrix34F *m, QCAR::Matrix34F *n);
+
+      /**
+       * Gets the relative position between two objects with pos matrices & [R1^-1|T2]
+       * param m pointer to object 1, must be in form [R^-1|-R^-1*T]
+       * param n pointer to object 2, must be in form [R2|T2]
+       * return posMatrix with position of object two with rotation to object 1
+       */
+      static QCAR::Matrix34F vectorAdd(QCAR::Matrix34F *m, QCAR::Matrix34F *n);
+
+      /**
+       * Calculates the distance between the phone and a target
+       * param phone pointer to the phones pos matrix
+       * return The distance between the phone and a target
+       */
+      static float getDistance(QCAR::Matrix34F *phone);
+
+      /**
+      * Calculates three Euler angles (theta_x, theta_y, theta_z) from a 3x3 rotation
+      * matrix nested inside a posMatrix of the form [R^-1|-R^-1*T]
+      * param m pointer to posMatrix in form [R^-1|-R^-1*T]
+      * return pointer to a float array containing the three Euler angles (theta_x, theta_y, theta_z)
+      */
+      static QCAR::Vec3F getEulerAngles(QCAR::Matrix34F *m);
+    //End===============================================================================================================
     
 };
 

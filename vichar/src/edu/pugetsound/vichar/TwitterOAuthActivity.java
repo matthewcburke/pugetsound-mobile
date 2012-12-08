@@ -26,7 +26,7 @@ import android.view.View.OnTouchListener;
  * @author Nathan Pastor & Michael Dubois
  * @version 10/15/12
  */
-public class TwitterOAuthActivity extends Activity
+public class TwitterOAuthActivity extends WifiRequiredActivity
 implements RequestTokenCallback, AccessTokenCallback {
 
 	Twitter twitter;
@@ -37,14 +37,14 @@ implements RequestTokenCallback, AccessTokenCallback {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {		
+		super.onCreate(savedInstanceState);
+		
 		//hide title/action bar: let webview fill as much screen as possible
 		requestWindowFeature(Window.FEATURE_NO_TITLE);	
 		
 		//set layout
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_twitter_oauth);	
-		
-		//set a couple properties of webview...
+		setContentView(R.layout.activity_twitter_oauth);
+
 		this.webView = (WebView) findViewById(R.id.oauth_webview);			
 		this.webView.setWebViewClient(new WebViewClient() 
 		{
@@ -128,14 +128,12 @@ implements RequestTokenCallback, AccessTokenCallback {
 			Log.d("Vichar", oAuthUrl);
 			webView.loadUrl(oAuthUrl);
 		} else {
-			ConnectionUtility cu = new ConnectionUtility();
+			ConnectionUtility cu = new ConnectionUtility(this);
+			cu.requireConnectivity();
 			int connected = cu.checkConnection(this);
 			//if connection, try again
 			if(connected == 2) {
 				new RetrieveAccessToken(this, wrapper);
-			} else { //if no network connection or poor connectivity, show connection dialog
-				ConnectionDialog cd = new ConnectionDialog(this);
-				cd.show();
 			}
 		}
 	}
@@ -185,14 +183,12 @@ implements RequestTokenCallback, AccessTokenCallback {
 			Intent mainActIntent = new Intent(this, MainMenuActivity.class);
 			startActivity(mainActIntent);
 		} else	{
-			ConnectionUtility cu = new ConnectionUtility();
+			ConnectionUtility cu = new ConnectionUtility(this);
+			cu.requireConnectivity();
 			int connected = cu.checkConnection(this);
 			//if connection, try again
 			if(connected == 2) {
 				new RetrieveAccessToken(this, wrapper);
-			} else { //if no network connection or poor connectivity, show connection dialog
-				ConnectionDialog cd = new ConnectionDialog(this);
-				cd.show();
 			}
 		}
 	}   

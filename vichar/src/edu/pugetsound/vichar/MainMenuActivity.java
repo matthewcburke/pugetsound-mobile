@@ -22,7 +22,7 @@ import android.content.Context;
  * @author Davis Shurbert
  *
  */
-public class MainMenuActivity extends Activity {
+public class MainMenuActivity extends WifiRequiredActivity {
 	final Context context = this;
     @Override
     public void onCreate(Bundle savedInstanceState) {
