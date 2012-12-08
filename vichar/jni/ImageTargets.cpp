@@ -142,7 +142,7 @@ static const int eyeballId = 7;
 float eyeScale[3] = {kObjectScale, kObjectScale, kObjectScale};
 
 static const int platformId = 8;
-float platformScale[3] = {25.0f, 25.0f, 10.0f};
+float platformScale[3] = {23.0f, 23.0f, 10.0f};
 
 typedef struct _Model {
 	int id;
@@ -418,6 +418,11 @@ for(int i = 0; i<interpLength; i++)
 	        	current->texPointer=&towertopTexCoords[0];
 	        	current->numVerts=towertopNumVerts;
 
+	        	/*
+	        	 * Maybe put the tower bottom in here?
+	        	 *
+	        	 * */
+
 				scale[0]=turretScale[0];
 				scale[1]=turretScale[1];
 				scale[2]=turretScale[2];
@@ -448,7 +453,7 @@ for(int i = 0; i<interpLength; i++)
 				scale[1]=fireballScale[1];
 				scale[2]=fireballScale[2];
 
-	        	current->modelTex=textures[3];
+	        	current->modelTex=textures[2];
 
 	            break;
 
@@ -488,7 +493,7 @@ for(int i = 0; i<interpLength; i++)
 				scale[1]=playerScale[1];
 				scale[2]=playerScale[2];
 
-	        	current->modelTex= textures[4];
+	        	current->modelTex= textures[1];
 	        	break;
 
 	        case 7:		//Eyeball

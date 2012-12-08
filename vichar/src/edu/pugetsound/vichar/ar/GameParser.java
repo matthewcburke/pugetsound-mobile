@@ -103,7 +103,7 @@ public class GameParser {
 
 			JSONObject batteries = engineState.optJSONObject(BATTERY_NAMESPACE);
 			if(batteries != null){
-				loadObject(batteries, 5.0f, deviceUUID, true);
+				loadObject(batteries, 5.0f, deviceUUID, false);
 			}
 
 			JSONObject player = engineState.optJSONObject(PLAYER_NAMESPACE);
@@ -122,7 +122,7 @@ public class GameParser {
 				}
 				catch(JSONException e)
 				{
-					DebugLog.LOGI("Object has no rotation. setting to 0,0,0.");
+//					DebugLog.LOGI("Object has no rotation. setting to 0,0,0.");
 					poseData[count++] = 0.0f;
 					poseData[count++] = 0.0f;
 					poseData[count ++] = 0.0f;    		}
@@ -132,7 +132,7 @@ public class GameParser {
 			JSONObject eyeballs = engineState.optJSONObject(EYEBALL_NAMESPACE);
 			if(eyeballs != null)
 			{
-				loadObject(eyeballs, 7.0f, deviceUUID, false);
+				loadObject(eyeballs, 7.0f, deviceUUID, true);
 			}
 		}catch(JSONException e)
 		{
@@ -151,7 +151,7 @@ public class GameParser {
 	 * @return
 	 * @throws JSONException
 	 */
-	private static void loadObject(JSONObject type, float typeIndex, String deviceUUID, boolean isBattery) throws JSONException
+	private static void loadObject(JSONObject type, float typeIndex, String deviceUUID, boolean isEye) throws JSONException
 	{
 		Iterator<String> objItr = type.keys();
 
@@ -159,10 +159,17 @@ public class GameParser {
 		{
 			String thisEye = objItr.next();
 			JSONObject obj = type.getJSONObject(thisEye);
-			if (deviceUUID.equals(thisEye))
+			if(isEye)
 			{
-				DebugLog.LOGI("Recognized own eye");
-				return;
+				if (deviceUUID.equals(thisEye))
+				{
+					DebugLog.LOGI("Recognized own eye");
+					return;
+				}
+				else
+				{
+					DebugLog.LOGI("My Device UUID: " + deviceUUID + "does not equal this key: " + thisEye);
+				}
 			}
 			if( count + OBJ_SIZE >= poseData.length)
 			{
@@ -198,8 +205,8 @@ public class GameParser {
 	private static void parsePosition(JSONObject xyz) throws JSONException
 	{
 		poseData[count++] = Float.parseFloat(xyz.getString("x"));
+		poseData[count++] = -Float.parseFloat(xyz.getString("z"));
 		poseData[count++] = Float.parseFloat(xyz.getString("y"));
-		poseData[count++] = Float.parseFloat(xyz.getString("z"));
 	}
 
 	/**
@@ -211,8 +218,8 @@ public class GameParser {
 	private static void parseRotaion(JSONObject xyz) throws JSONException
 	{
 		poseData[count++] = Float.parseFloat(xyz.getString("x"));
+		poseData[count++] = -Float.parseFloat(xyz.getString("z"));
 		poseData[count++] = Float.parseFloat(xyz.getString("y"));
-		poseData[count++] = Float.parseFloat(xyz.getString("z"));
 	}
 
 	/**
