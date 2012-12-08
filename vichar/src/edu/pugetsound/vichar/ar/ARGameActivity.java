@@ -440,7 +440,11 @@ public class ARGameActivity extends WifiRequiredActivity
     
     private OnTouchListener tweetHandleListener = new OnTouchListener() {
 		public boolean onTouch(View v, MotionEvent me) { 
-			return tweetContainerTouch(v, me);
+			if(activeTwitter) {
+				return tweetContainerTouch(v, me);
+			} else {
+				return false;
+			}
 		}
        };
        
@@ -492,19 +496,20 @@ public class ARGameActivity extends WifiRequiredActivity
 			case MotionEvent.ACTION_DOWN:
 				actionUp=0;
 				touchTwX = me.getRawX();
-				System.out.println("action down at " + touchTwX);       	
+				Log.d("UI", "action down at " + touchTwX);       	
 			case MotionEvent.ACTION_MOVE:
 				actionUp=0;				
 				System.out.println("motion event x " + me.getRawX());				
 				//only execute changes if user hasn't dragged too far right
+		    	Log.d("UI", "Tweet container width:" + tweetContainer.getWidth());
 				if(me.getRawX()<tweetContainer.getWidth()) {   
 					//calculate motion change
 					float delta = me.getRawX() - touchTwX;  
-					System.out.println("Delta " + delta);
+					Log.d("UI", "Delta " + delta);
 					touchTwX = me.getRawX();
 	   		
 					//calculate new x coordinate of view
-					System.out.println("right location " + tweetContainer.getRight());
+					Log.d("UI", "right location " + tweetContainer.getRight());
 					//set new params
 					FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) tweetContainer.getLayoutParams();
 					params.leftMargin = params.leftMargin + (int) delta;
@@ -514,7 +519,7 @@ public class ARGameActivity extends WifiRequiredActivity
 				actionUp++;
 				//if this is actually an up action...
 				if(actionUp==2) {
-					System.out.println("------ACTION UP OR CANCEL------");	
+					Log.d("UI", "------ACTION UP OR CANCEL------");	
 					//if user has dragged half distance of tweet container, snap onscreen
 					if(tweetContainer.getRight() > tweetContainer.getWidth()/2) {
 						snapTwitterOn();
@@ -536,7 +541,7 @@ public class ARGameActivity extends WifiRequiredActivity
     		View tweetContainer = (View) findViewById(edu.pugetsound.vichar.R.id.tweet_container);
     		FrameLayout.LayoutParams paramsSuccess = (FrameLayout.LayoutParams) tweetContainer.getLayoutParams();
     		paramsSuccess.leftMargin = 0;
-    		tweetContainer.setLayoutParams(paramsSuccess);  
+    		tweetContainer.setLayoutParams(paramsSuccess); 
     	}
     }
     
@@ -550,12 +555,12 @@ public class ARGameActivity extends WifiRequiredActivity
     		FrameLayout.LayoutParams paramsReset = (FrameLayout.LayoutParams) tweetContainer.getLayoutParams();
 
     		//its difficult to get fragment width, instead take entire width of layout and subtract handle button width
-    		//    	View twHandle = (View) findViewById(R.id.tweet_frag_button);
-    		//    	int twFragWidth = tweetContainer.getWidth() - twHandle.getWidth();    	
-    		paramsReset.leftMargin = -350;
+	    	View twHandle = (View) findViewById(R.id.tweet_frag_button);
+	    	int twFragWidth = tweetContainer.getWidth() - twHandle.getWidth();    	
+    		
+	    	//set left margin to negative distance of twitter fragment width
+    		paramsReset.leftMargin = -twFragWidth;
     		tweetContainer.setLayoutParams(paramsReset);  
-
-    		Log.d("UI", "TWITTER SNAPPED OFF");
     	}
     }
        
@@ -569,21 +574,24 @@ public class ARGameActivity extends WifiRequiredActivity
     	if(uiInflated) {
     		Boolean twLogin = checkTwitterLogin();
     		if(twLogin) {
-    			boolean isActive = false;
+    			boolean newTwitterState = false;
     			try{	    		
     				JSONObject twitter = webState.getJSONObject("twitter");
     				JSONObject activeVote = twitter.getJSONObject("activeVote");
-    				isActive = activeVote.getBoolean("isActive");
+    				newTwitterState = activeVote.getBoolean("isActive");
     			} catch (JSONException ex) {
     				//TODO:json exception procedures
     				System.out.println(ex);
     				return;
-    			}
-
-    			if(isActive==false) {
-    				//if a vote has just ended...
+    			}    			
+    		
+    			if(newTwitterState==false) {
+    				//if a vote has just ended, end twitter
     				if(activeTwitter==true)  {    			
-    					endTwitter();
+    					endTwitter();    				
+    				} else {
+    					//otherwise, just snap twitter off
+    					snapTwitterOff();
     				}
     			} else {
     				//if a vote has just begun
@@ -607,46 +615,28 @@ public class ARGameActivity extends WifiRequiredActivity
     	activeTwitter=true;
     	//update prompt...
     	TweetFragment tweetFrag = (TweetFragment) getSupportFragmentManager().findFragmentById(edu.pugetsound.vichar.R.id.twitter_fragment);
-        tweetFrag.setPrompt(getString(edu.pugetsound.vichar.R.string.default_twitter_vote));
-        //TODO:twitter handle button needs to change
-        Button tweetHandle = (Button)findViewById(edu.pugetsound.vichar.R.id.tweet_frag_button);
+        tweetFrag.setPrompt(getString(edu.pugetsound.vichar.R.string.default_twitter_vote));        
         
-        //set opacity
+        //set opacity of tweet handle 
+        Button tweetHandle = (Button)findViewById(edu.pugetsound.vichar.R.id.tweet_frag_button);    
         AlphaAnimation alpha = new AlphaAnimation(0.50f, 1f);
         alpha.setFillAfter(true);
-        tweetHandle.startAnimation(alpha);
-        
-        snapTwitterOff();
-        //deal with deprecated methods calls, ugh     
-//        if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN) {
-//            tweetHandle.setBackgroundDrawable(getResources().getDrawable(edu.pugetsound.vichar.R.drawable.twitter_logo));
-//        } else {
-//        	tweetHandle.setBackground(getResources().getDrawable(edu.pugetsound.vichar.R.drawable.twitter_logo));
-//        }       
+        tweetHandle.startAnimation(alpha);        
     }
     
     /**
      * Terminates current twitter vote, changes appropriate UI
      */
 	private void endTwitter() {
-    	activeTwitter=false;
-    	//update prompt...
-    	TweetFragment tweetFrag = (TweetFragment) getSupportFragmentManager().findFragmentById(edu.pugetsound.vichar.R.id.twitter_fragment);
-        tweetFrag.setPrompt(getString(edu.pugetsound.vichar.R.string.inactive_twitter));
-        
+    	activeTwitter=false;         
+
+        //set opacity of tweet handle
         Button tweetHandle = (Button)findViewById(edu.pugetsound.vichar.R.id.tweet_frag_button);        
-        //set opacity
         AlphaAnimation alpha = new AlphaAnimation(1f, 0.50f);
         alpha.setFillAfter(true);
         tweetHandle.startAnimation(alpha);
         
         snapTwitterOff();
-        //deprecated methods again...
-//        if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN) {
-//            tweetHandle.setBackgroundDrawable(getResources().getDrawable(edu.pugetsound.vichar.R.drawable.twitter_logo));
-//        } else {
-//        	tweetHandle.setBackground(getResources().getDrawable(edu.pugetsound.vichar.R.drawable.twitter_logo));
-//        }
     }
     
     /**
@@ -1035,7 +1025,7 @@ public class ARGameActivity extends WifiRequiredActivity
                                             LayoutParams.MATCH_PARENT));   
                     	    
                             // Start the camera:
-                            updateApplicationStatus(APPSTATUS_CAMERA_RUNNING);
+                            updateApplicationStatus(APPSTATUS_CAMERA_RUNNING);                            
                             
                             //make UI visible
                     	    addContentView(gui, new LayoutParams(
@@ -1044,20 +1034,22 @@ public class ARGameActivity extends WifiRequiredActivity
                     	    uiInflated = true;
                     	    Log.d("UI", "UI added, now visible");
                     	    //check if user is logged into twitter
-                    	    Boolean twLogin = checkTwitterLogin();
-                    	    //if not, don't render twitter container
-                    	    if(!twLogin) {
+                    	    Boolean twLogin = checkTwitterLogin(); 
+                    	    Log.d("UI", "Twitter log in:" + twLogin);
+                    	    if(twLogin) {
+                    	    	//if so, set tweet handle touch listener
+                                Button tweetHandle = (Button) findViewById(R.id.tweet_frag_button);
+                                tweetHandle.setOnTouchListener(tweetHandleListener);
+                        	    snapTwitterOff();
+                                endTwitter();                    	    	
+                    	    } else {
+                    	    	//if not, don't render twitter container
                     	    	View twContainer = findViewById(R.id.tweet_container);
                     	    	twContainer.setVisibility(View.GONE);
-                    	    }
-                    	    
-                    	    //tweet handle touch listener
-                            Button tweetHandle = (Button) findViewById(R.id.tweet_frag_button);
-                            tweetHandle.setOnTouchListener(tweetHandleListener);
-                    	    snapTwitterOff();
-                            endTwitter();
+                    	    }                    	    
+                    	  
                             makeFireballButton();
-                            resizeEyelids();                                   
+                            resizeEyelids();       
                         }
                 };
 

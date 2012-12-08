@@ -82,7 +82,7 @@ public class TweetFragment extends Fragment implements PostTweetCallback {
 			Twitter twitter = tf.getInstance();
 			//pass twitter wrapper object to worker thread
 			TwitterWrapper wrapper = new TwitterWrapper(twitter);
-			wrapper.setTweet(tweet);
+			wrapper.setTweet(toSend);
 			new PostTweet(this, wrapper);
 		}
 	}

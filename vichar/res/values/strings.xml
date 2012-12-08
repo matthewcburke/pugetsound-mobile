@@ -22,6 +22,7 @@
     <string name="choose_username">Choose Username</string>
     <string name="play_as_guest">Play as Guest</string>
     <string name="about_info">Nathan, Kirah, Micheal, Robert, Davis</string>
+    <string name="health_bar_title">Robot Energy</string>
 
     <!-- Buttons -->
     <string name="button_ok">OK</string>
@@ -35,6 +36,7 @@
     <string name="toggle_sound">Toggle Sound</string>
     <string name="logout_twitter">Logout of Twitter</string>
     <string name="tweet">tweet</string>
+    <string name="button_send">Send</string>
 
     <!-- EditText Hints -->
     <string name="enter_pin">Enter Above Pin</string>

@@ -1,28 +1,37 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/enter_submit_tweet"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:background="@drawable/tw_frag_background" >
 
     <TextView
+        android:paddingTop="14dp"
+        android:paddingLeft="3dp"
+        android:paddingRight="3dp"
         android:id="@+id/cur_twitter_challenge"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="match_parent"
+        android:textColor="#4EC6FE"
+        android:textSize="15sp"
+        android:shadowColor="#000000"
+        android:shadowRadius="1"
+        android:shadowDx="0.5"
+        android:shadowDy="0.5"   />
 
     <EditText
+        android:paddingTop="2dp"
         android:id="@+id/tweet_pane"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight=".2"
+        android:layout_width="100dp"
+        android:layout_height="match_parent"
         android:hint="@string/enter_tweet" />
 
     <Button
+        android:paddingTop="2dp"
         android:id="@+id/ok_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight=".8"
+        android:layout_width="60dp"
+        android:layout_height="match_parent"
         android:onClick="sendTweet"
-        android:text="@string/button_ok" />
+        android:text="@string/button_send" />
 
 </LinearLayout>

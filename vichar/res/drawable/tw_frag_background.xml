@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
+<shape xmlns:android="http://schemas.android.com/apk/res/android" >
+
     <corners android:radius="10dp" />
-    <solid android:color="@color/twitter_blue"/>
+
+    <gradient
+        android:angle="-90"
+        android:centerColor="#7DC0C4"
+        android:centerY="0.9"
+        android:endColor="#60A5A9"
+        android:startColor="#C1ECEF"
+        android:type="linear" />
+
 </shape>

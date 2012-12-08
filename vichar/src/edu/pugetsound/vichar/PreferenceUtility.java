@@ -2,7 +2,6 @@ package edu.pugetsound.vichar;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 /**
  * A utility for saving and retrieving values from persistent storage 
@@ -20,7 +19,6 @@ public class PreferenceUtility {
      */
     public void saveString(String key, String value, Context con)
     {
-    	Log.d("viCHar","save" + value + " commenced");
     	//instantiate a preference instance 
    		SharedPreferences sharedPref = con.getSharedPreferences(con.getString(R.string.prefs_key), 0);
    		//instantiate editor
@@ -42,9 +40,7 @@ public class PreferenceUtility {
     {
    		SharedPreferences sharedPref = con.getSharedPreferences(con.getString(R.string.prefs_key), 0);
    		//retrieve String, retrieve error if pref with this name is not a String
-   		String toReturn = sharedPref.getString(key, error);
-   		
-   		Log.d("viCHar", toReturn);
+   		String toReturn = sharedPref.getString(key, error);   		
    		return toReturn;
     }
     
@@ -55,7 +51,6 @@ public class PreferenceUtility {
      * @param act The application context
      */
     public void saveBoolean(String key, Boolean bool, Context con) {
-    	Log.d("viCHar","save " + bool + " commenced");
     	SharedPreferences sharedPref = con.getSharedPreferences(con.getString(R.string.prefs_key), 0);
     	SharedPreferences.Editor editor = sharedPref.edit();
     	editor.putBoolean(key, bool);
