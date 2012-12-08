@@ -641,9 +641,9 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 //        LOG("%f %f %f %f",test.data[8], test.data[9], test.data[10], test.data[11]);
 //        LOG("=========================");
         phoneLoc[0] = 1.0f;
-        phoneLoc[1] = test.data[3];
-        phoneLoc[2] = test.data[7];
-        phoneLoc[3] = test.data[11];
+        phoneLoc[1] = test.data[3] * 1/testScale;
+        phoneLoc[2] = test.data[7] * 1/testScale;
+        phoneLoc[3] = test.data[11] * 1/testScale;
         phoneLoc[4] = euler.data[0];
 		phoneLoc[5] = euler.data[1];
 	    phoneLoc[6] = euler.data[2];
