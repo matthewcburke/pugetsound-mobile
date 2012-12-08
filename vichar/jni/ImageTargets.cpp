@@ -648,8 +648,8 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 		phoneLoc[5] = euler.data[1];
 	    phoneLoc[6] = euler.data[2];
 	    //print phone pose data
-//	    LOG("x: %f, y: %f, z: %f, xRot: %f, yRot: %f, zRot: %f",
-//	    		phoneLoc[1],phoneLoc[2],phoneLoc[3],phoneLoc[4],phoneLoc[5],phoneLoc[6]);
+	    LOG("x: %f, y: %f, z: %f, xRot: %f, yRot: %f, zRot: %f",
+	    		phoneLoc[1],phoneLoc[2],phoneLoc[3],phoneLoc[4],phoneLoc[5],phoneLoc[6]);
 //End============================================================================================
 
         // Assign Textures according in the texture indices defined at the beginning of the file, and based
@@ -743,7 +743,7 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 			// So the tower_top appears upright
 			SampleUtils::rotatePoseMatrix(angle[0], 1.0f, 0.0f, 0.0f,
                         				&modelViewMatrix.data[0]);
-			SampleUtils::rotatePoseMatrix(angle[1] - 90.0f, 0.0f, 1.0f, 0.0f,
+			SampleUtils::rotatePoseMatrix(angle[1], 0.0f, 1.0f, 0.0f,
                         				&modelViewMatrix.data[0]);
 			SampleUtils::rotatePoseMatrix(angle[2], 0.0f, 0.0f, 1.0f,
 										&modelViewMatrix.data[0]);

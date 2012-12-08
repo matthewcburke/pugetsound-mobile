@@ -273,7 +273,7 @@ public class GameParser {
 					tempY -= tilesY;
 					poseData[count++] = -100.0f; // z position
 					poseData[count++] = 0.0f; // x rotation
-					poseData[count++] = 90.0f; // y rotation. the 90 is to compensate for discrepancies when exporting the models from blender.
+					poseData[count++] = 0.0f; // y rotation. the 90 is to compensate for discrepancies when exporting the models from blender.
 					poseData[count++] = 0.0f; // z rotation
 				}
 				else
