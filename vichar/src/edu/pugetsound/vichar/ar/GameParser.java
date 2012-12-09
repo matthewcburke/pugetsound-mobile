@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONArray;
 
 /**
  * Parses the engine state of the JSONObject and loads the information into a float array. 
@@ -66,6 +67,26 @@ public class GameParser {
 		{
 			// TODO do something with the platforms
 			// like delete them from board.
+			JSONArray missing = platforms.optJSONArray("deletedTiles");
+			if(missing != null)
+			{
+				int numTiles = missing.length();
+				
+				int i = 0;
+				while(i<numTiles)
+				{
+					try{
+						JSONArray coords = missing.getJSONArray(i);
+						board[coords.getInt(0)][coords.getInt(1)] = false;
+					}catch(JSONException e)
+					{
+						e.printStackTrace();
+					}
+					i++;
+				}
+				freshBoard = false;
+			}
+			
 		}
 
 		if(freshBoard)
@@ -75,7 +96,7 @@ public class GameParser {
 		else
 		{
 			count = 0;
-			poseData = new float[(xTiles * yTiles + 0)* OBJ_SIZE]; // ZERO IS IN THERE FOR TESTING.
+			poseData = new float[(xTiles * yTiles + 10)* OBJ_SIZE]; // ZERO IS IN THERE FOR TESTING.
 			loadBoard(board);
 		}
 
@@ -291,7 +312,7 @@ public class GameParser {
 	 * Then calls loadBoard() so that a board will be displayed on a target regardless of the network connection.
 	 */
 	static void generateBoard() {
-		poseData = new float[(xTiles * yTiles + 1)* OBJ_SIZE]; // the hard coded digit is space for game objects.
+		poseData = new float[(xTiles * yTiles + 10)* OBJ_SIZE]; // the hard coded digit is space for game objects.
 		for(int i = 0; i < xTiles; i++)
 		{
 			for(int j = 0; j < yTiles; j++)

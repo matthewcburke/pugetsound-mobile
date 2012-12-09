@@ -150,8 +150,9 @@ public class ARGameActivity extends WifiRequiredActivity
     private static final String WEB_NAMESPACE = "web";
     private String deviceUUID; // Device namespace
     
-
-    private static final String STATIC_ENGINE_STATE = "{gameRunning:false,player:{energy:100,position:{x:0.0,y:0.0,z:0.0},rotation:{x:0.0,y:90.0,z:0.0}},minions:{MattsMinion:{position:{x:10.0,y:10.0,z:0.0},rotation:{x:0.0,y:0.0,z:0.0}}}}"; // for use when not connected to the network
+    private static boolean test = false;
+    private static final String STATIC_ENGINE_STATE = 
+    		"{gameRunning:false,turrets:{},turretBullets:{},fireballs:{},batteries:{},player:{energy:0,position:{x:0,y:0,z:0}},eyeballs:{},platforms:{rows:0,columns:0,deletedTiles:[[0,0],[7,7],[2,2],[1,1],[3,3],[4,4],[5,5],[6,6] ]}}"; // for use when not connected to the network
 
 	// Service Stuff
     private Messenger networkingServiceMessenger = null;
