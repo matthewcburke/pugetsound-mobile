@@ -1339,8 +1339,8 @@ public class ARGameActivity extends WifiRequiredActivity
     		}
     		else
     		{
-    			deviceState.put("position", null);
-    			deviceState.put("rotation", null);
+    			deviceState.put("position", JSONObject.NULL);
+    			deviceState.put("rotation", JSONObject.NULL);
     		}
     		
     		// Log the position for testing.
@@ -1348,8 +1348,8 @@ public class ARGameActivity extends WifiRequiredActivity
     		
     		//put current time in JSON
     		long time = System.currentTimeMillis();
-    		deviceState.put("lastUpdated", time);
-    		deviceState.put("lastUpdatedByDevice", time);
+    		deviceState.put("lastModified", time);
+    		deviceState.put("lastModifiedByDevice", time);
     		
     		//put username in JSON
     		deviceState.put("screenname", getScreenname());
