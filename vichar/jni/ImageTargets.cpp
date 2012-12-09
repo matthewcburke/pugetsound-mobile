@@ -626,6 +626,22 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 
         //Get inverse
         test = SampleMath::phoneCoorMatrix(&pos);
+        LOG("Number active trackables: %f", state.getNumActiveTrackables());
+        //Begin multiTarget=============================================================
+        if (state.getNumActiveTrackables() > 1 && tIdx == 0) {
+        	const QCAR::Trackable* trackable2 = state.getActiveTrackable(1);
+        	QCAR::Matrix34F turret1Pos = trackable2->getPose();
+
+        	//Get relative position
+        	QCAR::Matrix34F turret1PosRelative = SampleMath::calcSecondPos(&pos, &turret1Pos);
+
+        	//Get position relative to the phone
+        	QCAR::Matrix34F turret1PosToPhone = SampleMath::vectorAdd(&test, &turret1PosRelative);
+
+        	LOG("Relative position: (%f, %f, %f)", turret1PosToPhone.data[3], turret1PosToPhone.data[7],
+        			turret1PosToPhone.data[11]);
+        }
+        //End===========================================================================
 
         //Get Euler angles
         QCAR::Vec3F euler = SampleMath::getEulerAngles(&test);
@@ -651,8 +667,8 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 		phoneLoc[5] = euler.data[1];
 	    phoneLoc[6] = euler.data[2];
 	    //print phone pose data
-	    LOG("x: %f, y: %f, z: %f, xRot: %f, yRot: %f, zRot: %f",
-	    		phoneLoc[1],phoneLoc[2],phoneLoc[3],phoneLoc[4],phoneLoc[5],phoneLoc[6]);
+	   // LOG("x: %f, y: %f, z: %f, xRot: %f, yRot: %f, zRot: %f",
+	   //  		phoneLoc[1],phoneLoc[2],phoneLoc[3],phoneLoc[4],phoneLoc[5],phoneLoc[6]);
 //End============================================================================================
 
         // Assign Textures according in the texture indices defined at the beginning of the file, and based
