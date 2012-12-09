@@ -71,6 +71,16 @@ public class GameParser {
 			if(missing != null)
 			{
 				int numTiles = missing.length();
+				if(numTiles>0)
+				{
+					for(int i = 0; i < xTiles; i++)
+					{
+						for(int j = 0; j < yTiles; j++)
+						{
+							board[i][j] = true;
+						}
+					}
+				}
 				
 				int i = 0;
 				while(i<numTiles)
@@ -226,7 +236,7 @@ public class GameParser {
 	private static void parsePosition(JSONObject xyz) throws JSONException
 	{
 		poseData[count++] = Float.parseFloat(xyz.getString("x"));
-		poseData[count++] = -Float.parseFloat(xyz.getString("z"));
+		poseData[count++] = Float.parseFloat(xyz.getString("z"));
 		poseData[count++] = Float.parseFloat(xyz.getString("y"));
 	}
 
@@ -239,8 +249,8 @@ public class GameParser {
 	private static void parseRotaion(JSONObject xyz) throws JSONException
 	{
 		poseData[count++] = Float.parseFloat(xyz.getString("x"));
-		poseData[count++] = -Float.parseFloat(xyz.getString("z"));
-		poseData[count++] = Float.parseFloat(xyz.getString("y"));
+		poseData[count++] = Float.parseFloat(xyz.getString("z"));
+		poseData[count++] = -Float.parseFloat(xyz.getString("y"));
 	}
 
 	/**
@@ -273,8 +283,8 @@ public class GameParser {
 
 		float tilesX = THEIR_BOARD_DIMENSIONS[0]/xTiles; //space alloted for each tile
 		float tilesY = THEIR_BOARD_DIMENSIONS[1]/yTiles; 
-		float xPos = (THEIR_BOARD_DIMENSIONS[0]/2) - tilesX / 2; //
-		float yPos = (THEIR_BOARD_DIMENSIONS[1]/2) - tilesY / 2;
+		float xPos = -(THEIR_BOARD_DIMENSIONS[0]/2);// - tilesX / 2; //
+		float yPos = -(THEIR_BOARD_DIMENSIONS[1]/2);// - tilesY / 2;
 		float tempY = yPos;
 
 		if(count + (xTiles*yTiles*OBJ_SIZE) >= poseData.length)
@@ -291,7 +301,7 @@ public class GameParser {
 					poseData[count++] = 8.0f; //TODO use enums or change the hard coded id's
 					poseData[count++] = xPos;
 					poseData[count++] = tempY;
-					tempY -= tilesY;
+					tempY += tilesY;
 					poseData[count++] = -100.0f; // z position
 					poseData[count++] = 0.0f; // x rotation
 					poseData[count++] = 0.0f; // y rotation. the 90 is to compensate for discrepancies when exporting the models from blender.
@@ -299,10 +309,10 @@ public class GameParser {
 				}
 				else
 				{
-					tempY -= tilesY;
+					tempY += tilesY;
 				}
 			}
-			xPos -= tilesX;
+			xPos += tilesX;
 			tempY = yPos;
 		}
 	}
