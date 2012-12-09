@@ -9,7 +9,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.graphics.PixelFormat;
+import android.graphics.Typeface;
 import android.widget.Button;
+import android.widget.TextView;
 import android.view.MenuItem;
 import android.content.Context;
 
@@ -30,6 +32,7 @@ public class MainMenuActivity extends Activity {
         //custom title
         setTitle("dwsprout");
         createButtons();
+
         
     }
     

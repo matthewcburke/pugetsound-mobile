@@ -36,16 +36,23 @@
                    android:gravity="center|right" />
 
     <LinearLayout 
+         android:baselineAligned="false"
          android:layout_width="fill_parent"
          android:layout_height="0dp"
          android:layout_weight="2.75"
          android:weightSum="2"
          android:orientation="horizontal">
+
+        <FrameLayout
+        android:layout_weight="1"
+   		android:layout_width="0dp"
+    	android:layout_height="match_parent"
+    	android:foreground="@drawable/book"
+    	android:foregroundGravity="center">
     	<Button
         	android:id="@+id/rules_button"
-        	android:layout_width="0dp"
-      		android:layout_height="fill_parent"
-        	android:layout_weight="1"
+        	android:layout_width="match_parent"
+      		android:layout_height="match_parent"
         	android:text="@string/enter_rules" 
         	android:layout_margin="5dp"
              	   android:paddingTop="5dp"
@@ -54,55 +61,78 @@
                    style="@style/ShadowTextStyle"
                    android:background="@drawable/grayscale_button_bg"
                    android:gravity="left|top" />
+		</FrameLayout>
 
-    	<Button
-        	android:id="@+id/leaderboard_button"
-        	android:layout_width="0dp"
-      		android:layout_height="fill_parent"
-        	android:layout_weight="1"
-       		android:text="@string/enter_leaderboard" 
-        	android:layout_margin="5dp"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
-            android:textColor="@drawable/grayscale_button_txt"
+        <FrameLayout
+        android:layout_weight="1"
+   		android:layout_width="0dp"
+    	android:layout_height="match_parent"
+    	android:foreground="@drawable/trophy_2"
+    	android:foregroundGravity="center">
+        <Button
+            android:id="@+id/leaderboard_button"
             style="@style/ShadowTextStyle"
+        	android:layout_width="match_parent"
+      		android:layout_height="match_parent"
+            android:layout_margin="5dp"
             android:background="@drawable/scores_button_bg"
-            android:gravity="left|top" />
+            android:gravity="left|top"
+            android:paddingBottom="5dp"
+            android:paddingTop="5dp"
+            android:text="@string/enter_leaderboard"
+            android:textColor="@drawable/grayscale_button_txt" />
+		</FrameLayout>
+        
 	</LinearLayout>
     
     <LinearLayout 
+         android:baselineAligned="false"
          android:layout_height="0dp"
       	 android:layout_width="fill_parent"
          android:layout_weight="2.75"
          android:weightSum="2"
          android:orientation="horizontal">
-    <Button
-        android:id="@+id/about_button"
-        android:layout_width="0dp"
-      	android:layout_height="fill_parent"
-        android:layout_weight="1"
-        android:layout_margin="5dp"
-        android:text="@string/enter_about" 
-                   android:paddingTop="5dp"
-                   android:paddingBottom="5dp"
-                   android:textColor="@drawable/grayscale_button_txt"
-                   style="@style/ShadowTextStyle"
-                   android:background="@drawable/rules_button_bg"
-                   android:gravity="left|top" />
+        
+	    <FrameLayout
+	        android:layout_weight="1"
+	   		android:layout_width="0dp"
+	    	android:layout_height="match_parent"
+	    	android:foreground="@drawable/comments"
+	    	android:foregroundGravity="center">
+		    <Button
+		        android:id="@+id/about_button"
+		        android:layout_width="match_parent"
+		      	android:layout_height="match_parent"
+		        android:layout_margin="5dp"
+		        android:text="@string/enter_about" 
+		                   android:paddingTop="5dp"
+		                   android:paddingBottom="5dp"
+		                   android:textColor="@drawable/grayscale_button_txt"
+		                   style="@style/ShadowTextStyle"
+		                   android:background="@drawable/rules_button_bg"
+		                   android:gravity="left|top" />
+		</FrameLayout>
 
-    <Button
-        android:id="@+id/settings_button"
-        android:layout_width="0dp"
-      	android:layout_height="fill_parent"
-        android:layout_weight="1"
-        android:text="@string/enter_settings"    
-        android:drawableBottom="@drawable/settings_icon" 
-                   android:layout_margin="5dp"
-                   android:paddingTop="5dp"
-                   android:paddingBottom="5dp"
-                   android:textColor="@drawable/grayscale_button_txt"
-                   style="@style/ShadowTextStyle"
-                   android:background="@drawable/settings_button_bg"
-                   android:gravity="left|top" />
+	    <FrameLayout
+	        android:layout_weight="1"
+	   		android:layout_width="0dp"
+	    	android:layout_height="match_parent"
+	    	android:foreground="@drawable/wrench"
+	    	android:foregroundGravity="center">
+		    <Button
+		        android:id="@+id/settings_button"
+		        android:layout_width="match_parent"
+		      	android:layout_height="match_parent"
+		        android:text="@string/enter_settings"    
+		                   android:layout_margin="5dp"
+		                   android:paddingTop="5dp"
+		                   android:paddingBottom="5dp"
+		                   android:textColor="@drawable/grayscale_button_txt"
+		                   style="@style/ShadowTextStyle"
+		                   android:background="@drawable/settings_button_bg"
+		                   android:gravity="left|top" />
+    	</FrameLayout>
+    	
 	</LinearLayout>
+	
 </LinearLayout>

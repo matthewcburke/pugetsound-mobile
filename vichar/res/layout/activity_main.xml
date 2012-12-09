@@ -5,7 +5,7 @@
     android:background="@drawable/settings_portrait" 
     android:orientation="vertical" 
     android:weightSum="6.5">
-    >
+    
 
     <Button
         android:id="@+id/login_with_twitter"
@@ -21,11 +21,12 @@
         android:drawableRight="@drawable/twitter_icon_white"
 		android:layout_margin="5dp"
 		android:layout_weight="1.61803398875"
-             	   android:paddingTop="5dp"
+             	   android:paddingRight="5dp"
                    android:paddingBottom="5dp"
                    android:gravity="center|left" />
 
     <Button
+        android:drawableRight="@drawable/user"
         android:id="@+id/login_with_vichar"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -37,6 +38,7 @@
 		android:layout_margin="5dp"
              	   android:paddingTop="5dp"
                    android:paddingBottom="5dp"
+                   android:paddingRight="5dp"
                    android:gravity="center|left"
                    android:layout_weight="1" />
     
