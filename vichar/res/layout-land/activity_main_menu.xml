@@ -1,0 +1,107 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/epic_portrait"
+    android:orientation="horizontal" 
+    android:weightSum="8">
+    
+
+    <!--Uses selectors which allows the buttons to change colors when 
+    you press them. To use selectors we make two separate drawable .xml files
+    and point android:textColor and android:background to these.
+    
+    Also, to create the grid effect, we must use nested linear layouts. 
+    
+    I have also opted to use nested weights to take advantage of weightSum. Note that 
+    "Layout weights require a widget to be measured twice. When a LinearLayout 
+    with non-zero weights is nested inside another LinearLayout with non-zero 
+    weights, then the number of measurements increase exponentially." However, In our
+    case this exponent is small enough (we only nest one layer deep) for this effect to
+    be negligable. 
+     -->
+    <Button
+        android:id="@+id/game_button"
+        android:layout_height="fill_parent"
+        android:layout_width="0dp"
+        android:layout_weight="2.5"
+        android:layout_marginTop="10dp"
+        android:text="PLAY!"
+        android:layout_margin="5dp"
+             	   android:paddingTop="5dp"
+                   android:paddingBottom="5dp"
+                   android:textColor="@drawable/game_button_txt"
+                   style="@style/BigShadowTextStyle"
+                   android:background="@drawable/game_button_bg"
+                   android:gravity="center|right" />
+
+    <LinearLayout 
+         android:layout_width="0dp"
+         android:layout_height="fill_parent"
+         android:layout_weight="5.5"
+         android:weightSum="4"
+         android:orientation="vertical">
+
+        <Button
+            android:id="@+id/rules_button"
+            style="@style/ShadowTextStyle"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:background="@drawable/grayscale_button_bg"
+            android:drawableRight="@drawable/book"
+            android:gravity="left|center"
+            android:paddingBottom="5dp"
+            android:paddingTop="5dp"
+            android:text="@string/enter_rules"
+            android:textColor="@drawable/grayscale_button_txt" />
+
+    	<Button
+    	    android:id="@+id/leaderboard_button"
+    	    style="@style/ShadowTextStyle"
+    	    android:layout_width="match_parent"
+    	    android:layout_height="0dp"
+    	    android:layout_margin="5dp"
+    	    android:layout_weight="1"
+    	    android:background="@drawable/scores_button_bg"
+    	    android:drawableRight="@drawable/trophy_2"
+    	    android:gravity="left|center"
+    	    android:paddingBottom="5dp"
+    	    android:paddingTop="5dp"
+    	    android:text="@string/enter_leaderboard"
+    	    android:textColor="@drawable/grayscale_button_txt" />
+
+	    <Button
+	        android:id="@+id/about_button"
+	        style="@style/ShadowTextStyle"
+	        android:layout_width="match_parent"
+	        android:layout_height="0dp"
+	        android:layout_margin="5dp"
+	        android:layout_weight="1"
+	        android:background="@drawable/rules_button_bg"
+	        android:drawableRight="@drawable/comments"
+	        android:gravity="left|center"
+	        android:paddingBottom="5dp"
+	        android:paddingTop="5dp"
+	        android:text="@string/enter_about"
+	        android:textColor="@drawable/grayscale_button_txt" />
+	
+	    <Button
+	        android:id="@+id/settings_button"
+	        style="@style/ShadowTextStyle"
+	        android:layout_width="match_parent"
+	        android:layout_height="0dp"
+	        android:layout_margin="5dp"
+	        android:layout_weight="1"
+	        android:background="@drawable/settings_button_bg"
+	        android:drawableRight="@drawable/wrench"
+	        android:gravity="left|center"
+	        android:paddingBottom="5dp"
+	        android:paddingTop="5dp"
+	        android:text="@string/enter_settings"
+	        android:textColor="@drawable/grayscale_button_txt" />
+
+	</LinearLayout>
+	
+</LinearLayout>
