@@ -27,7 +27,6 @@ public class MainActivity extends WifiRequiredActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        createButtons();
         PreferenceUtility prefs = new PreferenceUtility();
         String loginInfo = prefs.returnSavedString(getString(R.string.access_token_key), getString(R.string.prefs_error), this);
         if(loginInfo != getString(R.string.prefs_error)) {
@@ -68,19 +67,6 @@ public class MainActivity extends WifiRequiredActivity
         getMenuInflater().inflate(R.menu.activity_main, menu);
         return true;
     }
-    
-    public void createButtons() {
-        Button menub = (Button)findViewById(R.id.main_menu_button); //declaring the button
-        menub.setOnClickListener(menuListener); //making the thing that checks if the button's been pushed
-        
-    }
-    
-    private OnClickListener menuListener = new OnClickListener() { //sets what happens when the button is pushed
-        public void onClick(View v) { 
-            
-            startActivity(new Intent(context, MainMenuActivity.class));
-        }
-       };
        
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
