@@ -104,7 +104,7 @@ public class SettingsActivity extends Activity {
      */
     private void logoutTwitter() {
     	PreferenceUtility pu = new PreferenceUtility();
-    	pu.saveString(getString(R.string.tw_login_key), "false", this);
+    	pu.saveBoolean(getString(R.string.tw_login_key), false, this);
     	startActivity(new Intent(this, MainActivity.class)); //redirect to login screen    	
     }
     

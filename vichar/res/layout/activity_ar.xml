@@ -81,14 +81,14 @@
     <ProgressBar
         android:id="@+id/health_bar"
         style="@android:style/Widget.ProgressBar.Horizontal"
-        android:layout_width="200dp"
+        android:layout_width="240dp"
         android:layout_height="30dp"
         android:layout_gravity="top|center_horizontal"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="4dp"
         android:background="@drawable/health_bar_background"
         android:focusable="false"
-        android:max="500"
-        android:progress="500"
+        android:max="5000"
+        android:progress="5000"
         android:progressDrawable="@drawable/health_bar_clip" />
 
     <TextView
@@ -96,11 +96,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="top|center"
-        android:layout_marginTop="11dp"
+        android:layout_marginTop="10dp"
         android:focusable="false"
         android:text="@string/health_bar_title"
         android:textSize="15sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:shadowColor="#000000"
+        android:shadowDx="0.7"
+        android:shadowDy="0.7"
+        android:shadowRadius="1" />
 
     <RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"

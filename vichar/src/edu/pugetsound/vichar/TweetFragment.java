@@ -28,15 +28,7 @@ public class TweetFragment extends Fragment implements PostTweetCallback {
 	 * @return View The fragment UI encapsulated in a View
 	 */
 	@Override
-	public View onCreateView(LayoutInflater inflater, 
-			ViewGroup container, Bundle savedInstanceState) {
-
-		//        //get default prompt text
-		//    	curPrompt = getString(R.string.default_twitter_prompt);    	
-		//    	//set default prompt text
-		//    	TextView twitterPrompt = (TextView) getView().findViewById(R.id.cur_twitter_challenge);
-		//    	twitterPrompt.setText(curPrompt);
-		//inflate the fragment's layout
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		Log.d("TF", "commencing inflation");
 		return inflater.inflate(R.layout.fragment_tweet, container, false);
 	}
@@ -114,7 +106,12 @@ public class TweetFragment extends Fragment implements PostTweetCallback {
 			modifiedTweet = TweetFragment.INVALID_TWEET;
 		} else {
 			modifiedTweet = pt.addTags();
-		}
+			ParseTweet pt2 = new ParseTweet(modifiedTweet);
+			//if adding the tags made the tweet too long, set to invalid tweet
+			if(!pt2.checkLength()) {
+				modifiedTweet = TweetFragment.INVALID_TWEET;
+			}
+		}		
 		return modifiedTweet;
 	}
 }

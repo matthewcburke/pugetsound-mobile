@@ -176,7 +176,7 @@ implements RequestTokenCallback, AccessTokenCallback {
 		if(wrapper.getResult()) 	{
 			accessToken = wrapper.getAccessToken(); //temp store access token
 			PreferenceUtility pu = new PreferenceUtility();
-			pu.saveBoolean(getString(R.string.tw_login_key), true, this); //set logged in flag to true 
+			pu.saveBoolean(getString(R.string.tw_login_key), true, this); //set twitter loging flag to true 
 			pu.saveString(getString(R.string.screenname_key), wrapper.getScreenName(), this); //save screenname			
 			storeAccessToken(accessToken); //save access token
 			//and then move on to main menu    		

@@ -1,7 +1,11 @@
 package edu.pugetsound.vichar;
 
-import android.util.Log;
-
+/**
+ * Parses tweets, checking validity, and adding any tags
+ * required by the server.
+ * @author Nathan P
+ * @version 12/8/12
+ */
 public class ParseTweet {
 
 	private String originalTweet;
@@ -20,7 +24,9 @@ public class ParseTweet {
 	}
 
 	/**
-	 * Add any appropriate tags to tweet, if user hasn't already added them
+	 * Add any appropriate tags to tweet, if user hasn't already added them.
+	 * As of 12/8, server requires tags {@link #VICHAR_TAG} and {@link #EYE_TAG} 
+	 * to count a vote.
 	 * @return tweet with any added tags concatenated
 	 */
 	public String addTags() {
@@ -31,7 +37,7 @@ public class ParseTweet {
 		//check each tag in tweet
 		while(index < originalTweet.length()) {
 			String curChar = originalTweet.substring(index, index+1);
-			Log.d("ParseTweetTest", "Check char at " + index + ": " + curChar);
+//			Log.d("ParseTweetTest", "Check char at " + index + ": " + curChar);
 			//if this is the beginning of a tag, check the type
 			if(curChar.equals("#")) {
 				if(checkTagType(index) == ParseTweet.IS_EYE_TAG) {
@@ -62,18 +68,18 @@ public class ParseTweet {
 	private int checkTagType(int index) {
 		int type = ParseTweet.IS_UNKNOWN_TAG;
 
-		Log.d("ParseTweetTest", "Checking tag type at " + index);
+//		Log.d("ParseTweetTest", "Checking tag type at " + index);
 		//check if this is eye tag
 		if(index + 4 <= originalTweet.length()) {
-			if(originalTweet.substring(index + 1, index + 4).equals(ParseTweet.EYE_TAG)) {
-				Log.d("ParseTweetTest", "eye tag at " + index);
+			if(originalTweet.substring(index + 1, index + 4).equalsIgnoreCase(ParseTweet.EYE_TAG)) {
+//				Log.d("ParseTweetTest", "eye tag at " + index);
 				type = ParseTweet.IS_EYE_TAG;
 			}
 		}
 		//check if this is vichar tag
 		if(index + 11 <= originalTweet.length()) {
-			if(originalTweet.substring(index + 1, index + 11).equals(ParseTweet.VICHAR_TAG)) {
-				Log.d("ParseTweetTest", "vichar tag at " + index);
+			if(originalTweet.substring(index + 1, index + 11).equalsIgnoreCase(ParseTweet.VICHAR_TAG)) {
+//				Log.d("ParseTweetTest", "vichar tag at " + index);
 				type = ParseTweet.IS_VICHAR_TAG;
 			}
 		}		
