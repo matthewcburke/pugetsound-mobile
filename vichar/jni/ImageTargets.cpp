@@ -112,7 +112,7 @@ QCAR::Matrix44F projectionMatrix;
 static const float kObjectScale = 20.f; // UPDATE:: increased the scale to properly display our models. It was 3 for the teapots.
 
 QCAR::DataSet* dataSetVichar    = 0;
-QCAR::DataSet* dataSetFlakesBox = 0;
+QCAR::DataSet* dataSetVicharFinal = 0;
 
 bool switchDataSetAsap          = false;
 //Known scale values entered, unkown values remain as kObjectScale
@@ -182,7 +182,7 @@ class ImageTargets_UpdateCallback : public QCAR::UpdateCallback
             QCAR::TrackerManager& trackerManager = QCAR::TrackerManager::getInstance();
             QCAR::ImageTracker* imageTracker = static_cast<QCAR::ImageTracker*>(
                 trackerManager.getTracker(QCAR::Tracker::IMAGE_TRACKER));
-            if (imageTracker == 0 || dataSetVichar == 0 || dataSetFlakesBox == 0 ||
+            if (imageTracker == 0 || dataSetVichar == 0 || dataSetVicharFinal == 0 ||
                 imageTracker->getActiveDataSet() == 0)
             {
                 LOG("Failed to switch data set.");
@@ -192,11 +192,11 @@ class ImageTargets_UpdateCallback : public QCAR::UpdateCallback
             if (imageTracker->getActiveDataSet() == dataSetVichar)
             {
                 imageTracker->deactivateDataSet(dataSetVichar);
-                imageTracker->activateDataSet(dataSetFlakesBox);
+                imageTracker->activateDataSet(dataSetVicharFinal);
             }
             else
             {
-                imageTracker->deactivateDataSet(dataSetFlakesBox);
+                imageTracker->deactivateDataSet(dataSetVicharFinal);
                 imageTracker->activateDataSet(dataSetVichar);
             }
         }
@@ -285,8 +285,8 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_loadTrackerData(JNIEnv *, jobject)
         return 0;
     }
 
-    dataSetFlakesBox = imageTracker->createDataSet();
-    if (dataSetFlakesBox == 0)
+    dataSetVicharFinal = imageTracker->createDataSet();
+    if (dataSetVicharFinal == 0)
     {
         LOG("Failed to create a new tracking data.");
         return 0;
@@ -299,7 +299,7 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_loadTrackerData(JNIEnv *, jobject)
         return 0;
     }
 
-    if (!dataSetFlakesBox->load("FlakesBox.xml", QCAR::DataSet::STORAGE_APPRESOURCE))
+    if (!dataSetVicharFinal->load("VicharFinal.xml", QCAR::DataSet::STORAGE_APPRESOURCE))
     {
         LOG("Failed to load data set.");
         return 0;
@@ -353,24 +353,24 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_destroyTrackerData(JNIEnv *, jobjec
         dataSetVichar = 0;
     }
 
-    if (dataSetFlakesBox != 0)
+    if (dataSetVicharFinal != 0)
     {
-        if (imageTracker->getActiveDataSet() == dataSetFlakesBox &&
-            !imageTracker->deactivateDataSet(dataSetFlakesBox))
+        if (imageTracker->getActiveDataSet() == dataSetVicharFinal &&
+            !imageTracker->deactivateDataSet(dataSetVicharFinal))
         {
             LOG("Failed to destroy the tracking data set FlakesBox because the data set "
                 "could not be deactivated.");
             return 0;
         }
 
-        if (!imageTracker->destroyDataSet(dataSetFlakesBox))
+        if (!imageTracker->destroyDataSet(dataSetVicharFinal))
         {
             LOG("Failed to destroy the tracking data set FlakesBox.");
             return 0;
         }
 
         LOG("Successfully destroyed the data set FlakesBox.");
-        dataSetFlakesBox = 0;
+        dataSetVicharFinal = 0;
     }
 
     return 1;
@@ -640,6 +640,9 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 //        LOG("%f %f %f %f",test.data[4], test.data[5], test.data[6], test.data[7]);
 //        LOG("%f %f %f %f",test.data[8], test.data[9], test.data[10], test.data[11]);
 //        LOG("=========================");
+
+        //LOG("Before scale: %f", test.data[3]);
+        //LOG("After scale of %f: %f", 1.0f/testScale, test.data[3] * (1.0f/testScale));
         phoneLoc[0] = 1.0f;
         phoneLoc[1] = test.data[3];// * (1.0f/testScale);
         phoneLoc[2] = test.data[7];// * (1.0f/testScale);
