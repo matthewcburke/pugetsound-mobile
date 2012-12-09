@@ -59,12 +59,17 @@
 // TODO: Should we put all of these .h files into one gameObjects.h file?
 #include "banana.h"
 #include "tower_top.h"
-#include "tower_shell.h"
-#include "cube.h"
-#include "towertop.h"
-#include "minion.h"
+#include "tower_botObj.h"
 #include "proj.h"
+#include "fireballObj.h"
+#include "minion.h"
+#include "battery.h"
+#include "CharTry1.h"
+#include "EyeBall1.h"
 #include "tile.h"
+#include "towertop.h"
+#include "cube.h"
+#include "tower_shell.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -444,16 +449,16 @@ for(int i = 0; i<interpLength; i++)
 	            break;
 
 	        case 3:  //Fireball
-	        	current->vertPointer=&tower_shellVerts[0];
-	        	current->normPointer=&tower_shellNormals[0];
-	        	current->texPointer=&tower_shellTexCoords[0];
-	        	current->numVerts=tower_shellNumVerts;
+	        	current->vertPointer=&fireballObjVerts[0];
+	        	current->normPointer=&fireballObjNormals[0];
+	        	current->texPointer=&fireballObjTexCoords[0];
+	        	current->numVerts=fireballObjNumVerts;
 
 				scale[0]=fireballScale[0];
 				scale[1]=fireballScale[1];
 				scale[2]=fireballScale[2];
 
-	        	current->modelTex=textures[2];
+	        	current->modelTex=textures[3];
 
 	            break;
 
@@ -471,10 +476,10 @@ for(int i = 0; i<interpLength; i++)
 	        	break;
 
 	        case 5:		//Battery
-	        	current->vertPointer=&tower_shellVerts[0];
-	        	current->normPointer=&tower_shellNormals[0];
-	        	current->texPointer=&tower_shellTexCoords[0];
-	        	current->numVerts=tower_shellNumVerts;
+	        	current->vertPointer=&batteryVerts[0];
+	        	current->normPointer=&batteryNormals[0];
+	        	current->texPointer=&batteryTexCoords[0];
+	        	current->numVerts=batteryNumVerts;
 
 				scale[0]=batteryScale[0];
 				scale[1]=batteryScale[1];
@@ -484,23 +489,23 @@ for(int i = 0; i<interpLength; i++)
 	        	break;
 
 	        case 6:		//Player
-	        	current->vertPointer=&minionVerts[0];
-	        	current->normPointer=&minionNormals[0];
-	        	current->texPointer=&minionTexCoords[0];
-	        	current->numVerts=minionNumVerts;
+	        	current->vertPointer=&CharTry1Verts[0];
+	        	current->normPointer=&CharTry1Normals[0];
+	        	current->texPointer=&CharTry1TexCoords[0];
+	        	current->numVerts=CharTry1NumVerts;
 
 				scale[0]=playerScale[0];
 				scale[1]=playerScale[1];
 				scale[2]=playerScale[2];
 
-	        	current->modelTex= textures[1];
+	        	current->modelTex= textures[6];
 	        	break;
 
 	        case 7:		//Eyeball
-	        	current->vertPointer=&tower_topVerts[0];
-	        	current->normPointer=&tower_topNormals[0];
-	        	current->texPointer=&tower_topTexCoords[0];
-	        	current->numVerts=tower_topNumVerts;
+	        	current->vertPointer=&EyeBall1Verts[0];
+	        	current->normPointer=&EyeBall1Normals[0];
+	        	current->texPointer=&EyeBall1TexCoords[0];
+	        	current->numVerts=EyeBall1NumVerts;
 
 				scale[0]=eyeScale[0];
 				scale[1]=eyeScale[1];
