@@ -250,9 +250,9 @@ public class GameParser {
 	private static void loadBoard(boolean[][] currentBoard) 
 	{
 
-		float tilesX = THEIR_BOARD_DIMENSIONS[0]/xTiles;
-		float tilesY = THEIR_BOARD_DIMENSIONS[1]/yTiles;
-		float xPos = (THEIR_BOARD_DIMENSIONS[0]/2) - tilesX / 2;
+		float tilesX = THEIR_BOARD_DIMENSIONS[0]/xTiles; //space alloted for each tile
+		float tilesY = THEIR_BOARD_DIMENSIONS[1]/yTiles; 
+		float xPos = (THEIR_BOARD_DIMENSIONS[0]/2) - tilesX / 2; //
 		float yPos = (THEIR_BOARD_DIMENSIONS[1]/2) - tilesY / 2;
 		float tempY = yPos;
 
