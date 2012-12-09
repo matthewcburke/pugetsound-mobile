@@ -70,8 +70,8 @@ public class GameParser {
 			generateBoard();
 			
 			while(i<length){
-				int[] tile=missing.get(i);
-				board[tile[0],tile[1]] = false;
+				JSONArray tile=missing.getJSONArray(i);
+				board[tile.getInt(0),tile.getInt(1)] = false;
 				i++;
 			}
 			loadBoard(board);
