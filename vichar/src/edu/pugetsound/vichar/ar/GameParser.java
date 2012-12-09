@@ -64,8 +64,19 @@ public class GameParser {
 		JSONObject platforms = engineState.optJSONObject(PLATFORM_NAMESPACE);
 		if(platforms != null)
 		{
+			JSONArray missing = platforms.getJSONArray("deletedTiles");
+			
+			int length = missing.length();
+			generateBoard();
+			
+			while(i<length){
+				int[] tile=missing.get(i);
+				board[tile[0],tile[1]] = false;
+				i++;
+			}
+			loadBoard(board);
 			// TODO do something with the platforms
-			// like delete them from board.
+			// like delete them from board.		
 		}
 
 		if(freshBoard)
