@@ -17,7 +17,7 @@
     <string name="default_twitter_vote">Vote For Your Team!</string>
     <string name="inactive_twitter">No Current Vote!</string>
     <string name="conn_dialog">ViChar requires an active Wifi connection. Would you like to turn wifi on?</string>
-    <string name="conn_dialog_connecting">Wifi is connecting...</string>
+    <string name="conn_dialog_connecting">Wifi is connecting#8230;</string>
     <string name="choose_username">Choose Username</string>
     <string name="play_as_guest">Play as Guest</string>
     <string name="about_info">Nathan, Kirah, Micheal, Robert, Davis</string>
@@ -57,6 +57,7 @@
     <color name="myColor">#F5F5F5</color>
     <color name="game_blue">#268bd2</color>
     <color name="twitter_blue">#4099FF</color>
+    <color name="twitt_blue">#4099FF</color>
 
     <string name="corner_radious">8dp</string>
 
@@ -78,8 +79,7 @@
     <string name="title_activity_splash">SplashActivity</string>
     <string name="title_activity_splash_screen">SplashScreen</string>
 
-
     <string name="desc">button filling animation</string>
-
+    <string name="guest_name">guest name</string>
 
 </resources>
