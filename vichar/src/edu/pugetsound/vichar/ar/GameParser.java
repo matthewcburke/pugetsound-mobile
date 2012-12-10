@@ -184,6 +184,7 @@ public class GameParser {
 			JSONObject eyeballs = engineState.optJSONObject(EYEBALL_NAMESPACE);
 			if(eyeballs != null)
 			{
+//				DebugLog.LOGI("Recognized Eyeball");
 				loadObject(eyeballs, 7.0f, deviceUUID, true, EYEBALL_TRANSFORM);
 			}
 		}catch(JSONException e)
@@ -209,14 +210,17 @@ public class GameParser {
 
 		while( objItr.hasNext())
 		{
+//			DebugLog.LOGI("Recognized a Key");
+
 			String thisEye = objItr.next();
 			JSONObject obj = type.getJSONObject(thisEye);
 			if(isEye)
 			{
+//				DebugLog.LOGI("Recognized and Eye Key");
 				if (deviceUUID.equals(thisEye))
 				{
-					DebugLog.LOGI("Recognized own eye");
-					return;
+//					DebugLog.LOGI("Recognized own eye");
+					continue;
 				}
 				else
 				{
@@ -229,23 +233,21 @@ public class GameParser {
 				//poseData = poseData.
 				resizeArray(newLen);
 			}
-			else
+
+			poseData[count++] = typeIndex; // TODO use enums to represent the types of gameobjects.
+			parsePosition(obj.getJSONObject(POSITION_NAMESPACE), transform[0], transform[1], transform[2]);
+			try
 			{
-				poseData[count++] = typeIndex; // TODO use enums to represent the types of gameobjects.
-				parsePosition(obj.getJSONObject(POSITION_NAMESPACE), transform[0], transform[1], transform[2]);
-				try
-				{
-					parseRotaion(obj.getJSONObject(ROTATION_NAMESPACE), transform[3], transform[4], transform[5]);
-				}
-				catch(JSONException e)
-				{
-					JSONObject temp = new JSONObject(ZERO_ROTATION);
-//					DebugLog.LOGI("Object has no rotation. setting to 0,0,0.");
-					parseRotaion(temp.getJSONObject(ROTATION_NAMESPACE), transform[3], transform[4], transform[5]);
-//					poseData[count++] = 0.0f;
-//					poseData[count++] = 0.0f;
-//					poseData[count++] = 0.0f;
-				}
+				parseRotaion(obj.getJSONObject(ROTATION_NAMESPACE), transform[3], transform[4], transform[5]);
+			}
+			catch(JSONException e)
+			{
+				JSONObject temp = new JSONObject(ZERO_ROTATION);
+				//					DebugLog.LOGI("Object has no rotation. setting to 0,0,0.");
+				parseRotaion(temp.getJSONObject(ROTATION_NAMESPACE), transform[3], transform[4], transform[5]);
+				//					poseData[count++] = 0.0f;
+				//					poseData[count++] = 0.0f;
+				//					poseData[count++] = 0.0f;
 			}
 		}
 	}
