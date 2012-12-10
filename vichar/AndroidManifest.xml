@@ -81,7 +81,8 @@
         </activity>
         <activity
             android:name=".RulesActivity"
-            android:label="@string/title_activity_rules" >
+            android:label="@string/title_activity_rules"            
+            android:screenOrientation="landscape" >
         </activity>
         <activity
             android:name=".SettingsActivity"

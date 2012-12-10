@@ -25,7 +25,8 @@
             android:ems="10"
             android:hint="@string/enter_pin"
             android:inputType="number"
-            android:textColor="#FFFFFF" />
+            android:textColor="#FFFFFF"
+            android:background="#000000" />
 
         <Button
             android:id="@+id/ok_button"

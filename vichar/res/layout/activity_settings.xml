@@ -61,7 +61,7 @@
 	        android:layout_margin="1dp"
             android:paddingTop="1dp"
             android:paddingBottom="5dp"
-	        android:text="@string/logout_twitter"
+	        android:text="@string/logout"
 	        android:textColor="@drawable/grayscale_button_txt"
 	        style="@style/ShadowTextStyle"
 	        android:background="@drawable/scores_button_bg"

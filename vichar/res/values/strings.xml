@@ -22,6 +22,14 @@
     <string name="play_as_guest">Play as Guest</string>
     <string name="about_info">Nathan, Kirah, Micheal, Robert, Davis</string>
     <string name="health_bar_title">Robot Energy</string>
+    <string name="rules_intro">Welcome to ViChar, eyes! \n Your task is to render the robot\'s life \n as short as possible.</string>
+    <string name="rules_fireballs">This can be accomplished by by shooting fireballs...</string>
+    <string name="rules_overload">But if you get too close to the robot, your cortex overloads!</string>
+    <string name="rules_minions">Or, you can drop minions to do the work for you</string>
+    <string name="rules_energy">Track the robot\'s health with the energy bar</string>
+    <string name="rules_twitter">If you have a Twitter account, tweet words of encouragement for your team to gain bonuses</string>
+    <string name="rules_tw_enable">A solid twitter button indicates an opportunity to do so</string>
+    <string name="rules_good_luck">Good luck eyes!</string>
 
     <!-- Buttons -->
     <string name="button_ok">OK</string>
@@ -33,7 +41,7 @@
     <string name="connect">Connect</string>
     <string name="cancel">Cancel</string>
     <string name="toggle_sound">Toggle Sound</string>
-    <string name="logout_twitter">Logout of Twitter</string>
+    <string name="logout">Logout</string>
     <string name="tweet">tweet</string>
     <string name="button_send">Send</string>
 

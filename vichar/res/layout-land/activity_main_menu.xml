@@ -99,7 +99,7 @@
 	        android:gravity="left|center"
 	        android:paddingBottom="5dp"
 	        android:paddingTop="5dp"
-	        android:text="@string/enter_settings"
+	        android:text="@string/logout"
 	        android:textColor="@drawable/grayscale_button_txt" />
 
 	</LinearLayout>

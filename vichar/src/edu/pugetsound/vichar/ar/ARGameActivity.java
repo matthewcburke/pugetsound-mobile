@@ -902,13 +902,13 @@ public class ARGameActivity extends WifiRequiredActivity
     		updateTwitterState(webState);    		
     		updateHealthBar(engineState);
     		updateDistanceCheck(engineState);
-    		if(distance = true && uiInflated) {
+    		if(distance == true && uiInflated) {
     			makeWarningVis();
     			fireb.setEnabled(false);
     		}
     		else if(uiInflated) {
     			makeWarningInvis();
-    			if(buttonTimer1 = true) {
+    			if(buttonTimer1 == true) {
     				//do nothing
     			}
     			else {
