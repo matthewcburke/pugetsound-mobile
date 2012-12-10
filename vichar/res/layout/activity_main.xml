@@ -5,7 +5,7 @@
     android:background="@drawable/settings_portrait" 
     android:orientation="vertical" 
     android:weightSum="6.5">
-    >
+    
 
     <Button
         android:id="@+id/login_with_twitter"
@@ -14,17 +14,19 @@
         android:onClick="authorizeTwitter"
         android:text="@string/login_with_twitter"
         android:includeFontPadding="true"
-        android:textColor="@drawable/game_button_txt"
+        android:textColor="@drawable/grayscale_button_txt"
         style="@style/ShadowTextStyle"
         android:textSize="28sp"
-        android:background="@drawable/grayscale_button_bg"
+        android:background="@drawable/twitter_button_bg"
+        android:drawableRight="@drawable/twitter_icon_white"
 		android:layout_margin="5dp"
 		android:layout_weight="1.61803398875"
-             	   android:paddingTop="5dp"
+             	   android:paddingRight="5dp"
                    android:paddingBottom="5dp"
                    android:gravity="center|left" />
 
     <Button
+        android:drawableRight="@drawable/user"
         android:id="@+id/login_with_vichar"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -36,16 +38,10 @@
 		android:layout_margin="5dp"
              	   android:paddingTop="5dp"
                    android:paddingBottom="5dp"
+                   android:paddingRight="5dp"
                    android:gravity="center|left"
                    android:layout_weight="1" />
     
-	<Button
-        android:id="@+id/main_menu_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="25dp"
-        android:layout_marginTop="25dp"
-        android:text="@string/enter_main_menu" />
 
 
 </LinearLayout>
