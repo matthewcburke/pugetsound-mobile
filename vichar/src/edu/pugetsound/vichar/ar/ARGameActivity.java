@@ -1416,9 +1416,9 @@ public class ARGameActivity extends WifiRequiredActivity
     {	
     	JSONObject position = new JSONObject();
     	
-    	position.put("x", "" + x);
-    	position.put("y", "" + z);
-    	position.put("z", "" + (-y));
+    	position.put("x", "" + x * 10);
+    	position.put("y", "" + (z - 20) * 10); //20 is the kObject Scale in ImageTargets.cpp.
+    	position.put("z", "" + y * 10);
     	
     	return position; 	
     }
