@@ -153,23 +153,14 @@
           android:layout_marginBottom="14dp"
           android:text="CORTEX OVERLOAD" />
 
-      <ImageView
-          xmlns:android="http://schemas.android.com/apk/res/android"
-          android:id="@+id/minionIcon"
-          android:layout_width="30dp"
-          android:layout_height="30dp"
-          android:layout_alignParentRight="true"
-          android:layout_alignParentTop="true"
-          android:src="@drawable/minion_icon" />
+      <Button
+          android:id="@+id/minion_button"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_alignParentBottom="true"
+          android:layout_alignParentLeft="true"
+          android:background="@drawable/minion_button" />
 
-      <ImageView
-          xmlns:android="http://schemas.android.com/apk/res/android"
-          android:id="@+id/minionIconDisabled"
-          android:layout_width="30dp"
-          android:layout_height="30dp"
-          android:layout_alignParentRight="true"
-          android:layout_alignParentTop="true"
-          android:src="@drawable/minion_icon_disabled" />
     </RelativeLayout>
 
     <LinearLayout
