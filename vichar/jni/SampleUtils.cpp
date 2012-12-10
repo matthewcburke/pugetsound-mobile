@@ -32,6 +32,14 @@ SampleUtils::printMatrix(const float* mat)
         LOG("%7.3f %7.3f %7.3f %7.3f", mat[0], mat[1], mat[2], mat[3]);
 }
 
+void
+SampleUtils::printDebug(QCAR::Matrix34F *mat)
+{
+        LOG("%7.3f %7.3f %7.3f %7.3f", mat->data[0], mat->data[1], mat->data[2], mat->data[3]);
+        LOG("%7.3f %7.3f %7.3f %7.3f", mat->data[4], mat->data[5], mat->data[6], mat->data[7]);
+        LOG("%7.3f %7.3f %7.3f %7.3f", mat->data[8], mat->data[9], mat->data[10], mat->data[11]);
+        LOG("=====================================");
+}
 
 void
 SampleUtils::checkGlError(const char* operation)

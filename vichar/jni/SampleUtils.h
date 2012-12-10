@@ -18,6 +18,7 @@
 // Includes:
 #include <stdio.h>
 #include <android/log.h>
+#include <QCAR/Tool.h>
 
 // Utility for logging:
 #define LOG_TAG    "IMAGE_TARGETS"
@@ -30,6 +31,9 @@ public:
 
     /// Prints a 4x4 matrix.
     static void printMatrix(const float* matrix);
+
+    //Print matrix
+    static void printDebug(QCAR::Matrix34F *m);
 
     /// Prints GL error information.
     static void checkGlError(const char* operation);

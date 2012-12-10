@@ -17,6 +17,8 @@
 
 // Includes:
 #include <QCAR/Tool.h>
+#include <android/log.h>
+#include <SampleUtils.h>
 
 /// A utility class used by the QCAR SDK samples.
 class SampleMath

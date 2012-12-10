@@ -17,6 +17,7 @@
 #include <stdlib.h>
 
 
+
 QCAR::Vec2F
 SampleMath::Vec2FSub(QCAR::Vec2F v1, QCAR::Vec2F v2)
 {
@@ -239,8 +240,8 @@ SampleMath::phoneCoorMatrix(QCAR::Matrix34F *m) {
 
     //get new pos coords
     matrxVecMult(&r);
-    //LOG("PhoneCoorMatrix: (%f,%f,%f)",r.data[3], r.data[7], r.data[11]);
-    //LOG("============================");
+
+    SampleUtils::printDebug(&r);
 
     return r;
 }
@@ -289,6 +290,8 @@ SampleMath::calcSecondPos(QCAR::Matrix34F *m, QCAR::Matrix34F *n) {
     temp.data[7] = n->data[7];
     temp.data[11] = n->data[11];
 
+    SampleUtils::printDebug(&temp);
+
     return phoneCoorMatrix(&temp);
 }
 
@@ -309,6 +312,8 @@ SampleMath::vectorAdd(QCAR::Matrix34F *m, QCAR::Matrix34F *n) {
     newPos.data[3] = temp[0];
     newPos.data[7] = temp[1];
     newPos.data[11] = temp[2];
+
+    SampleUtils::printDebug(&newPos);
 
     return newPos;
 }
