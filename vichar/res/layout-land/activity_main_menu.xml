@@ -38,20 +38,26 @@
                    style="@style/BigShadowTextStyle"
                    android:background="@drawable/game_button_bg"
                    android:gravity="top|center" />
-    <ImageView 
+    <Button
+        android:id="@+id/button_animation"
+	    android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:background="@drawable/game_button_ani_bg"
+        android:text="PLAY!"
+             	   android:paddingTop="5dp"
+                   android:paddingBottom="5dp"
+                   android:textColor="@drawable/game_button_txt"
+                   style="@style/BigShadowTextStyle"
+                   android:gravity="top|center"
+      />
+        <ImageView 
 	    android:id="@+id/vichar_robot"
 	    android:layout_width="75dp"
         android:layout_height="75dp"
         android:layout_gravity="center"
         android:src="@drawable/robot_icon_large_mdpi"
 	  />
-    <Button
-        android:id="@+id/button_animation"
-	    android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:background="@drawable/game_button_ani"
-      />
  
     </FrameLayout>
 
@@ -115,7 +121,7 @@
 	        android:layout_margin="5dp"
 	        android:layout_weight="1"
 	        android:background="@drawable/settings_button_bg"
-	        android:drawableRight="@drawable/wrench"
+	        android:drawableRight="@drawable/user"
 	        android:gravity="left|center"
 	        android:paddingBottom="5dp"
 	        android:paddingTop="5dp"

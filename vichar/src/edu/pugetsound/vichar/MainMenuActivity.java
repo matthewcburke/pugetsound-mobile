@@ -5,8 +5,10 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
 import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.view.Window;
 import android.graphics.PixelFormat;
 import android.graphics.Typeface;
@@ -46,6 +48,7 @@ public class MainMenuActivity extends Activity {
     private void createButtons() {
     	Button anib = (Button)findViewById(R.id.button_animation); //declaring the button
         anib.setOnClickListener(animationListener); //making the thing that checks if the button's been pushed
+        anib.setOnTouchListener(animationTouchListener);
         
         Button gameb = (Button)findViewById(R.id.game_button); //declaring the button
         gameb.setOnClickListener(gameListener); //making the thing that checks if the button's been pushed
@@ -73,6 +76,17 @@ public class MainMenuActivity extends Activity {
         Button settingsb = (Button)findViewById(R.id.settings_button); 
         settingsb.setOnClickListener(settingsListener);
     }
+    
+    
+    public OnTouchListener animationTouchListener = new OnTouchListener() { //sets what happens when the button is pushed
+        public boolean onTouch(View v, MotionEvent event) { 
+            v.clearAnimation();
+            v.setPressed(true);
+            startActivity(new Intent(context, GameActivity.class));
+            return true;
+        }
+       };
+
     
     private OnClickListener settingsListener = new OnClickListener() { //sets what happens when the button is pushed
     	public void onClick(View v) { 
