@@ -20,20 +20,33 @@
     case this exponent is small enough (we only nest one layer deep) for this effect to
     be negligable. 
      -->
+    <!--the play button-->
+     <FrameLayout
+        android:layout_weight="2.5"
+   		android:layout_width="0dp"
+    	android:layout_height="match_parent"
+    	android:id="@+id/foreground_gameb"
+    	android:layout_margin="5dp">
     <Button
         android:id="@+id/game_button"
-        android:layout_height="fill_parent"
-        android:layout_width="0dp"
-        android:layout_weight="2.5"
-        android:layout_marginTop="10dp"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
         android:text="PLAY!"
-        android:layout_margin="5dp"
-             	   android:paddingTop="5dp"
+             	   android:paddingTop="35dp"
                    android:paddingBottom="5dp"
                    android:textColor="@drawable/game_button_txt"
                    style="@style/BigShadowTextStyle"
                    android:background="@drawable/game_button_bg"
-                   android:gravity="center|right" />
+                   android:gravity="top|center" />
+    <ImageView 
+	    android:id="@+id/vichar_robot"
+	    android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:layout_gravity="center"
+        android:src="@drawable/robot_icon_large_mdpi"
+	  />
+    
+    </FrameLayout>
 
     <LinearLayout 
          android:layout_width="0dp"
