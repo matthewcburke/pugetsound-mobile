@@ -1357,11 +1357,11 @@ public class ARGameActivity extends WifiRequiredActivity
            mIsStonesAndChipsDataSetActive = !mIsStonesAndChipsDataSetActive;
            if (mIsStonesAndChipsDataSetActive)
            {
-               item.setTitle("Switch to FlakesBox dataset");
+               item.setTitle("Switch to Asteroid dataset");
            }
            else
            {
-               item.setTitle("Switch to Vichar dataset");
+               item.setTitle("Switch to Star Field dataset");
            }
             
         }
