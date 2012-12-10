@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONArray;
 
 /**
  * Parses the engine state of the JSONObject and loads the information into a float array. 
@@ -66,6 +67,36 @@ public class GameParser {
 		{
 			// TODO do something with the platforms
 			// like delete them from board.
+			JSONArray missing = platforms.optJSONArray("deletedTiles");
+			if(missing != null)
+			{
+				int numTiles = missing.length();
+				if(numTiles>0)
+				{
+					for(int i = 0; i < xTiles; i++)
+					{
+						for(int j = 0; j < yTiles; j++)
+						{
+							board[i][j] = true;
+						}
+					}
+				}
+				
+				int i = 0;
+				while(i<numTiles)
+				{
+					try{
+						JSONArray coords = missing.getJSONArray(i);
+						board[coords.getInt(0)][coords.getInt(1)] = false;
+					}catch(JSONException e)
+					{
+						e.printStackTrace();
+					}
+					i++;
+				}
+				freshBoard = false;
+			}
+			
 		}
 
 		if(freshBoard)
@@ -75,7 +106,7 @@ public class GameParser {
 		else
 		{
 			count = 0;
-			poseData = new float[(xTiles * yTiles + 0)* OBJ_SIZE]; // ZERO IS IN THERE FOR TESTING.
+			poseData = new float[(xTiles * yTiles + 10)* OBJ_SIZE]; // ZERO IS IN THERE FOR TESTING.
 			loadBoard(board);
 		}
 
@@ -205,7 +236,7 @@ public class GameParser {
 	private static void parsePosition(JSONObject xyz) throws JSONException
 	{
 		poseData[count++] = Float.parseFloat(xyz.getString("x"));
-		poseData[count++] = -Float.parseFloat(xyz.getString("z"));
+		poseData[count++] = Float.parseFloat(xyz.getString("z"));
 		poseData[count++] = Float.parseFloat(xyz.getString("y"));
 	}
 
@@ -218,8 +249,8 @@ public class GameParser {
 	private static void parseRotaion(JSONObject xyz) throws JSONException
 	{
 		poseData[count++] = Float.parseFloat(xyz.getString("x"));
-		poseData[count++] = -Float.parseFloat(xyz.getString("z"));
-		poseData[count++] = Float.parseFloat(xyz.getString("y"));
+		poseData[count++] = Float.parseFloat(xyz.getString("z"));
+		poseData[count++] = -Float.parseFloat(xyz.getString("y"));
 	}
 
 	/**
@@ -250,10 +281,10 @@ public class GameParser {
 	private static void loadBoard(boolean[][] currentBoard) 
 	{
 
-		float tilesX = THEIR_BOARD_DIMENSIONS[0]/xTiles;
-		float tilesY = THEIR_BOARD_DIMENSIONS[1]/yTiles;
-		float xPos = (THEIR_BOARD_DIMENSIONS[0]/2) - tilesX / 2;
-		float yPos = (THEIR_BOARD_DIMENSIONS[1]/2) - tilesY / 2;
+		float tilesX = THEIR_BOARD_DIMENSIONS[0]/xTiles; //space alloted for each tile
+		float tilesY = THEIR_BOARD_DIMENSIONS[1]/yTiles; 
+		float xPos = -(THEIR_BOARD_DIMENSIONS[0]/2);// - tilesX / 2; //
+		float yPos = -(THEIR_BOARD_DIMENSIONS[1]/2);// - tilesY / 2;
 		float tempY = yPos;
 
 		if(count + (xTiles*yTiles*OBJ_SIZE) >= poseData.length)
@@ -270,7 +301,7 @@ public class GameParser {
 					poseData[count++] = 8.0f; //TODO use enums or change the hard coded id's
 					poseData[count++] = xPos;
 					poseData[count++] = tempY;
-					tempY -= tilesY;
+					tempY += tilesY;
 					poseData[count++] = -100.0f; // z position
 					poseData[count++] = 0.0f; // x rotation
 					poseData[count++] = 0.0f; // y rotation. the 90 is to compensate for discrepancies when exporting the models from blender.
@@ -278,10 +309,10 @@ public class GameParser {
 				}
 				else
 				{
-					tempY -= tilesY;
+					tempY += tilesY;
 				}
 			}
-			xPos -= tilesX;
+			xPos += tilesX;
 			tempY = yPos;
 		}
 	}
@@ -291,7 +322,7 @@ public class GameParser {
 	 * Then calls loadBoard() so that a board will be displayed on a target regardless of the network connection.
 	 */
 	static void generateBoard() {
-		poseData = new float[(xTiles * yTiles + 1)* OBJ_SIZE]; // the hard coded digit is space for game objects.
+		poseData = new float[(xTiles * yTiles + 10)* OBJ_SIZE]; // the hard coded digit is space for game objects.
 		for(int i = 0; i < xTiles; i++)
 		{
 			for(int j = 0; j < yTiles; j++)
