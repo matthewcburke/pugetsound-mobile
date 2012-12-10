@@ -39,11 +39,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.format.Time;
 import android.util.DisplayMetrics;
+import android.util.FloatMath;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
@@ -51,6 +53,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -59,6 +62,7 @@ import android.graphics.drawable.ClipDrawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
@@ -80,7 +84,7 @@ import edu.pugetsound.vichar.*;
 
 
 /** The main activity for the ARGameActivity. */
-public class ARGameActivity extends WifiRequiredActivity
+public class ARGameActivity extends WifiRequiredActivity implements SensorEventListener
 {
     // Application status constants:
     private static final int APPSTATUS_UNINITED         = -1;
@@ -150,8 +154,9 @@ public class ARGameActivity extends WifiRequiredActivity
     private static final String WEB_NAMESPACE = "web";
     private String deviceUUID; // Device namespace
     
-
-    private static final String STATIC_ENGINE_STATE = "{gameRunning:false,player:{energy:100,position:{x:0.0,y:0.0,z:0.0},rotation:{x:0.0,y:90.0,z:0.0}},minions:{MattsMinion:{position:{x:10.0,y:10.0,z:0.0},rotation:{x:0.0,y:0.0,z:0.0}}}}"; // for use when not connected to the network
+    private static boolean test = false;
+    private static final String STATIC_ENGINE_STATE = 
+    		"{gameRunning:false,turrets:{},turretBullets:{},fireballs:{},batteries:{},player:{energy:0,position:{x:0,y:0,z:0}},eyeballs:{},platforms:{rows:0,columns:0,deletedTiles:[[0,0],[7,7],[2,2],[1,1],[3,3],[4,4],[5,5],[6,6] ]}}"; // for use when not connected to the network
 
 	// Service Stuff
     private Messenger networkingServiceMessenger = null;
@@ -170,6 +175,23 @@ public class ARGameActivity extends WifiRequiredActivity
     private View gui;
     
     private static final double MAX_EYELID_TO_SCREEN_RATIO = .25;
+    private static final double MAX_BUTTON_TO_SCREEN_RATIO = .33;
+    
+    private TextView warn;
+    private TextView cortex;
+    private TextView robot;
+    private ImageView crosshair;
+    private ImageView minion;
+    private ImageView minionDisabled;
+    private boolean isMinion;
+    private boolean buttonTimer;
+    private boolean distance;
+    
+    private SensorManager mSensorManager;
+    private Sensor mAccelerometer;
+    private final float NOISE = (float) 20.0;
+    private float mLastX, mLastY, mLastZ;
+    private boolean mInitialized;
     
     private Button fireb;
     private int energy = 500; //the robot's energy level (health)
@@ -397,6 +419,17 @@ public class ARGameActivity extends WifiRequiredActivity
     	}
     }
 
+    private void resizeButton() {
+    	fireb = (Button)findViewById(R.id.fireball_button);
+    	ViewGroup.LayoutParams params = fireb.getLayoutParams();
+    	double ratio = params.height / params.width;
+    	double width = MAX_BUTTON_TO_SCREEN_RATIO * mScreenHeight;
+    	double height = width * ratio;
+        params.width = (int) width;
+        params.height = (int) height;
+        fireb.setLayoutParams(params);
+    }
+    
     
     /** Called when the activity first starts or the user navigates back
      * to an activity. 
@@ -444,46 +477,151 @@ public class ARGameActivity extends WifiRequiredActivity
 		}
        };
        
-    private OnClickListener fireListener = new OnClickListener() { 
-   		public void onClick(View v) { 
-   			JSONObject req = new JSONObject();
-   			JSONObject id = new JSONObject();
-   			JSONObject fire = new JSONObject();
-   			JSONObject stuff = new JSONObject();
-          	long time = System.currentTimeMillis();
-          	float[] cameraLoc = getCameraLocation();
-          	//UUID uuid = UUID.randomUUID();
-          	//String nuuid = uuid.toString();
-          	try {
-          	stuff.put("timeCreated", time);
-      		stuff.put("position", makePositionJSON(cameraLoc[0], cameraLoc[1], cameraLoc[2]));
-      		stuff.put("rotation", makeRotationJSON(cameraLoc[3], cameraLoc[4], cameraLoc[5]));
-      		id.put("" + time, stuff);
-      		fire.put("fireballs", id);
-      		req.put("requests", fire);
-          	} catch (JSONException e1) {
-          	// TODO Auto-generated catch block
-          		e1.printStackTrace();
-          	}
-          	pushDeviceState(req);
-  	        fireb.setEnabled(false);
-          	//ImageView imageview = (ImageView) findViewById(R.id.fill);
-          	//ClipDrawable drawable = (ClipDrawable) imageview.getDrawable();
-          	//drawable.scheduleDrawable(drawable, , );
-  	        final Handler handler = new Handler();
-  	        Timer timer = new Timer();
-          	TimerTask task = new TimerTask() {
-          		public void run() {
-          			handler.post(new Runnable() {
-          				public void run() {
-          					fireb.setEnabled(true);
-          					}
-          				});
-          			}
-          		};
-          		timer.schedule(task, 5000);
-          		}
-   		};
+       private void makeWarningVis() {
+       	warn = (TextView)findViewById(R.id.textView1);
+       	warn.setVisibility(View.VISIBLE);
+       	cortex = (TextView)findViewById(R.id.textView2);
+       	cortex.setVisibility(View.VISIBLE);
+       	robot = (TextView)findViewById(R.id.textView3);
+       	robot.setVisibility(View.VISIBLE);
+       	crosshair = (ImageView)findViewById(R.id.crosshair);
+       	crosshair.setVisibility(View.INVISIBLE);
+       }
+       
+       private void makeWarningInvis() {
+       	warn = (TextView)findViewById(R.id.textView1);
+       	warn.setVisibility(View.INVISIBLE);
+       	cortex = (TextView)findViewById(R.id.textView2);
+       	cortex.setVisibility(View.INVISIBLE);
+    	robot = (TextView)findViewById(R.id.textView3);
+    	robot.setVisibility(View.INVISIBLE);
+    	crosshair = (ImageView)findViewById(R.id.crosshair);
+    	crosshair.setVisibility(View.VISIBLE);
+    }
+       
+       public void onAccuracyChanged(Sensor sensor, int accuracy) {
+			// TODO Auto-generated method stub		
+	}
+       
+       
+       
+       private OnClickListener fireListener = new OnClickListener() { 
+      		public void onClick(View v) { 
+      			JSONObject req = new JSONObject();
+      			JSONObject id = new JSONObject();
+      			JSONObject fire = new JSONObject();
+      			JSONObject stuff = new JSONObject();
+             	long time = System.currentTimeMillis();
+             	float[] cameraLoc = getCameraLocation();
+             	//UUID uuid = UUID.randomUUID();
+             	//String nuuid = uuid.toString();
+             	try {
+             	stuff.put("timeCreated", time);
+         		stuff.put("position", makePositionJSON(cameraLoc[1], cameraLoc[2], cameraLoc[3]));
+         		stuff.put("rotation", makeRotationJSON(cameraLoc[4], cameraLoc[5], cameraLoc[6]));
+         		id.put("" + time, stuff);
+         		fire.put("fireballs", id);
+         		req.put("requests", fire);
+             	} catch (JSONException e1) {
+             	// TODO Auto-generated catch block
+             		e1.printStackTrace();
+             	}
+             	pushDeviceState(req);
+     	        fireb.setEnabled(false);
+     	        buttonTimer = true;
+             	//ImageView imageview = (ImageView) findViewById(R.id.fill);
+             	//ClipDrawable drawable = (ClipDrawable) imageview.getDrawable();
+             	//drawable.scheduleDrawable(drawable, , );
+     	        final Handler handler = new Handler();
+     	        Timer timer = new Timer();
+             	TimerTask task = new TimerTask() {
+             		public void run() {
+             			handler.post(new Runnable() {
+             				public void run() {
+             					fireb.setEnabled(true);
+             					buttonTimer = false;
+             					}
+             				});
+             			}
+             		};
+             		timer.schedule(task, 5000);
+             		}
+      		};
+      		
+      public void onSensorChanged(SensorEvent event) {
+       			motionDetect(event);
+       		}
+        
+        public void motionDetect(SensorEvent event) {
+        	if(isMinion == false) {
+        		float x = event.values[0];
+        		float y = event.values[1];
+        		float z = event.values[2];
+        		while (!mInitialized) {
+        			mLastX = x;
+        			mLastY = y;
+        			mLastZ = z;
+        			mInitialized = true;
+    				} 
+    				float deltaX = Math.abs(mLastX - x);
+    				float deltaY = Math.abs(mLastY - y);
+    				float deltaZ = Math.abs(mLastZ - z);
+    				if (deltaX < NOISE) deltaX = (float)0.0;
+    				if (deltaY < NOISE) deltaY = (float)0.0;
+    				if (deltaZ < NOISE) deltaZ = (float)0.0;
+    				mLastX = x;
+    				mLastY = y;
+    				mLastZ = z;
+    				if (deltaX > deltaY) {
+    					minion.setVisibility(View.INVISIBLE);
+    					minionDisabled.setVisibility(View.VISIBLE);
+    					isMinion = true;
+    					JSONObject req = new JSONObject();
+    					JSONObject id = new JSONObject();
+    					JSONObject min = new JSONObject();
+    					JSONObject stuff = new JSONObject();
+    					long time = System.currentTimeMillis();
+    					float[] cameraLoc = getCameraLocation();
+    					try {
+    						stuff.put("timeCreated", time);
+    	          			stuff.put("position", makePositionJSON(cameraLoc[1], cameraLoc[2], cameraLoc[3]));
+    	          			stuff.put("rotation", makeRotationJSON(cameraLoc[4], cameraLoc[5], cameraLoc[6]));
+    	          			id.put("" + time, stuff);
+    	          			min.put("minions", id);
+    	          			req.put("requests", min);
+    	          		} catch (JSONException e1) {
+    	          			// TODO Auto-generated catch block
+    	          			e1.printStackTrace();
+    	          		}
+    					pushDeviceState(req);
+    				} 
+//    				else if (deltaY > deltaX) {
+//    					minion.setVisibility(View.INVISIBLE);
+//    					minionDisabled.setVisibility(View.VISIBLE);
+//    					JSONObject req = new JSONObject();
+//    	   				JSONObject id = new JSONObject();
+//    	   				JSONObject min = new JSONObject();
+//    	   				JSONObject stuff = new JSONObject();
+//    	          		long time = System.currentTimeMillis();
+//    	          		float[] cameraLoc = getCameraLocation();
+//    	          		try {
+//    	          			stuff.put("timeCreated", time);
+//    	      				stuff.put("position", makePositionJSON(cameraLoc[0], cameraLoc[1], cameraLoc[2]));
+//    	      				stuff.put("rotation", makeRotationJSON(cameraLoc[3], cameraLoc[4], cameraLoc[5]));
+//    	      				id.put("" + time, stuff);
+//    	      				min.put("minions", id);
+//    	      				req.put("requests", min);
+//    	          		} catch (JSONException e1) {
+//    	          			// TODO Auto-generated catch block
+//    	          			e1.printStackTrace();
+//    	          		}
+//    	          	pushDeviceState(req);
+//    			}
+    				else {
+    					//do nothing
+    				}	
+    		}
+        }
     
     private boolean tweetContainerTouch(View v, MotionEvent me)  {
     	View tweetContainer = (View) findViewById(edu.pugetsound.vichar.R.id.tweet_container);
@@ -737,6 +875,13 @@ public class ARGameActivity extends WifiRequiredActivity
         DebugLog.LOGD("ARGameActivity::onResume");
         super.onResume();
         
+        try {
+        	mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL); 
+        }
+        catch(NullPointerException e) {
+        	//do nothing just wait
+        }
+        
         // QCAR-specific resume operation
         QCAR.onResume();
         
@@ -782,7 +927,7 @@ public class ARGameActivity extends WifiRequiredActivity
      */
     private void onGameStateChange(String stateStr) {
     	
-    	pushDeviceState(obtainDeviceState());
+    	
     	//DebugLog.LOGI("onGameStateChange:" + stateStr);
     	
     	System.out.println(stateStr);
@@ -792,6 +937,12 @@ public class ARGameActivity extends WifiRequiredActivity
 
     		//Pull out official namespaces
     		JSONObject engineState = (JSONObject) gameState.get(GAME_ENGINE_NAMESPACE);
+    		
+    		// Give the server/game our last received timeElapsed or zero if there is none
+    		JSONObject newDeviceState = obtainDeviceState();
+    		newDeviceState.put("lastTimeElapsed", engineState.optLong("timeElapsed", -1));
+    		pushDeviceState(newDeviceState);
+    		
     		if(!GameParser.updated)
     		{
     			GameParser.parseEngineState(engineState, deviceUUID);
@@ -800,10 +951,57 @@ public class ARGameActivity extends WifiRequiredActivity
 
     		updateTwitterState(webState);    		
     		updateHealthBar(engineState);
+    		updateMinionStatus(engineState);
+    		updateDistanceCheck(engineState);
+//    		if(distance = true) {
+//    			makeWarningVis();
+//    			fireb.setEnabled(false);
+//    		}
+//    		else {
+//    			makeWarningInvis();
+//    			if(buttonTimer = true) {
+//    				//do nothing
+//    			}
+//    			else {
+//    				fireb.setEnabled(true);
+//    			}
+//    		}
 
     	} catch(JSONException e) {
     		//shit!
     		e.printStackTrace();
+    	}
+    }
+    
+    public void updateMinionStatus(JSONObject engineState) {
+    	
+    }
+    
+    public void updateDistanceCheck(JSONObject engineState) throws JSONException {
+    	JSONObject player = engineState.optJSONObject("player");
+    	float[] cameraLoc = getCameraLocation();
+    	if(cameraLoc[0] == 1.0) {
+    		if(player != null) {
+        		JSONObject playerPosition = new JSONObject();
+        		playerPosition = player.getJSONObject("position");
+        		String xString = playerPosition.getString("x");
+        		float px = Float.parseFloat(xString);
+        		String yString = playerPosition.getString("y");
+        		float py = Float.parseFloat(yString);
+        		String zString = playerPosition.getString("z");
+        		float pz = Float.parseFloat(zString);
+        		float mx = cameraLoc[1];
+        		float my = cameraLoc[2];
+        		float mz = cameraLoc[3];
+        		float x = px - mx;
+        		float y = py - my;
+        		float z = pz - mz;
+        		Float dist = FloatMath.sqrt((x * x) + (y * y) + (z * z));
+        		float minDist = 100000000;
+        		if(dist < minDist) {
+        			distance = true;
+        		}
+    		}
     	}
     }
     
@@ -829,6 +1027,13 @@ public class ARGameActivity extends WifiRequiredActivity
     {
         DebugLog.LOGD("ARGameActivity::onPause");
         super.onPause();
+        
+        try {
+        	mSensorManager.unregisterListener(this);
+        }
+        catch(NullPointerException e) {
+        	//do nothing just wait
+        }
         
         if (mGlView != null)
         {
@@ -1046,9 +1251,28 @@ public class ARGameActivity extends WifiRequiredActivity
                     	    }                    	    
                     	  
                             makeFireballButton();
-                            resizeEyelids();       
+                            resizeEyelids();  
+                            resizeButton();
+                            isMinion = false;
+                            distance = false;
+                            makeWarningInvis();
+                            minion = (ImageView)findViewById(R.id.minionIcon);
+                            minionDisabled = (ImageView)findViewById(R.id.minionIconDisabled);
+                            minion.setVisibility(View.VISIBLE);
+                            minionDisabled.setVisibility(View.INVISIBLE);
                         }
                 };
+                
+              //set sensor managers
+                try {
+                	mInitialized = false;
+                	mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+                	mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+                	mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+                }
+                catch (NullPointerException e) {
+                	//do nothing just wait 
+                }
 
                 mSplashScreenHandler.postDelayed(mSplashScreenRunnable,
                                                     newSplashScreenTime);
@@ -1420,9 +1644,9 @@ public class ARGameActivity extends WifiRequiredActivity
     {	
     	JSONObject position = new JSONObject();
     	
-    	position.put("x", "" + x);
-    	position.put("y", "" + z);
-    	position.put("z", "" + (-y));
+    	position.put("x", "" + x * 10);
+    	position.put("y", "" + (z - 20) * 10); //20 is the kObject Scale in ImageTargets.cpp.
+    	position.put("z", "" + y * 10);
     	
     	return position; 	
     }
