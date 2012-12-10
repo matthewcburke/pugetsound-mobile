@@ -18,15 +18,32 @@ import org.json.JSONArray;
 public class GameParser {
 
 	private static final String TURRET_NAMESPACE = "turrets";
-	private static final String TURRETBULLET_NAMESPACE = "turretsBullets";
+	private static final float[] TURRET_TRANSFORM = {0.0f,60.0f,290.0f,0.0f,0.0f, 90.0f}; 
+	private static final float[] TOWER_TRANSFORM = {0.0f,0.0f,74.0f,0.0f,0.0f,0.0f}; 
+	
+	private static final String TURRETBULLET_NAMESPACE = "turretBullets";
+	private static final float[] BULLET_TRANSFORM = {0.0f,0.0f,0.0f,0.0f,0.0f,0.0f}; 
+	
 	private static final String FIREBALL_NAMESPACE = "fireballs";
+	private static final float[] FIREBALL_TRANSFORM = {0.0f,0.0f,0.0f,0.0f,0.0f,0.0f}; 
+	
 	private static final String MINION_NAMESPACE = "minions";
+	private static final float[] MINION_TRANSFORM = {0.0f,0.0f,0.0f,0.0f,0.0f,0.0f}; 
+	
 	private static final String BATTERY_NAMESPACE = "batteries";
+	private static final float[] BATTERY_TRANSFORM = {0.0f,0.0f,0.0f,90.0f,0.0f,0.0f}; 
+	
 	private static final String PLAYER_NAMESPACE = "player";
+	private static final float[] PLAYER_TRANSFORM = {0.0f,0.0f,0.0f,0.0f,0.0f,0.0f}; 
+	
 	private static final String EYEBALL_NAMESPACE = "eyeballs";
+	private static final float[] EYEBALL_TRANSFORM = {0.0f,0.0f,0.0f,0.0f,0.0f,0.0f}; 
+	
 	private static final String PLATFORM_NAMESPACE = "platforms";
 	private static final String POSITION_NAMESPACE = "position";
 	private static final String ROTATION_NAMESPACE = "rotation";
+	
+	private static final String ZERO_ROTATION = "{rotation:{x:0.0,y:0.0,z:0.0}}";
 
 	//JSON parsing
 	//The array in which we store data about game objects.
@@ -114,27 +131,28 @@ public class GameParser {
 		{
 			JSONObject turrets = engineState.optJSONObject(TURRET_NAMESPACE);
 			if(turrets != null){
-				loadObject(turrets, 1.0f, deviceUUID, false);
+				loadObject(turrets, 1.0f, deviceUUID, false, TURRET_TRANSFORM);
+				loadObject(turrets, 9.0f, deviceUUID, false, TOWER_TRANSFORM);				
 			}
 			// TODO change type indices
 			JSONObject turretBullets = engineState.optJSONObject(TURRETBULLET_NAMESPACE);
 			if(turretBullets != null){
-				loadObject(turretBullets, 2.0f, deviceUUID, false);
+				loadObject(turretBullets, 2.0f, deviceUUID, false, BULLET_TRANSFORM);
 			}
 
 			JSONObject fireballs = engineState.optJSONObject(FIREBALL_NAMESPACE);
 			if(fireballs != null){
-				loadObject(fireballs, 3.0f, deviceUUID, false);
+				loadObject(fireballs, 3.0f, deviceUUID, false, FIREBALL_TRANSFORM);
 			}
 
 			JSONObject minions = engineState.optJSONObject(MINION_NAMESPACE);
 			if(minions != null){
-				loadObject(minions, 4.0f, deviceUUID, false);
+				loadObject(minions, 4.0f, deviceUUID, false, MINION_TRANSFORM);
 			}
 
 			JSONObject batteries = engineState.optJSONObject(BATTERY_NAMESPACE);
 			if(batteries != null){
-				loadObject(batteries, 5.0f, deviceUUID, false);
+				loadObject(batteries, 5.0f, deviceUUID, false, BATTERY_TRANSFORM);
 			}
 
 			JSONObject player = engineState.optJSONObject(PLAYER_NAMESPACE);
@@ -147,23 +165,26 @@ public class GameParser {
 					resizeArray(newLen);
 				}
 				poseData[count++] = 6.0f; // TODO use enums to represent the types of gameobjects.
-				parsePosition(player.getJSONObject(POSITION_NAMESPACE));
+				parsePosition(player.getJSONObject(POSITION_NAMESPACE), PLAYER_TRANSFORM[0], PLAYER_TRANSFORM[1], PLAYER_TRANSFORM[2]);
 				try{
-					parseRotaion(player.getJSONObject(ROTATION_NAMESPACE));
+					parseRotaion(player.getJSONObject(ROTATION_NAMESPACE), PLAYER_TRANSFORM[3], PLAYER_TRANSFORM[4], PLAYER_TRANSFORM[5]);
 				}
 				catch(JSONException e)
 				{
+					JSONObject temp = new JSONObject(ZERO_ROTATION);
 //					DebugLog.LOGI("Object has no rotation. setting to 0,0,0.");
-					poseData[count++] = 0.0f;
-					poseData[count++] = 0.0f;
-					poseData[count ++] = 0.0f;    		}
+					parseRotaion(temp.getJSONObject(ROTATION_NAMESPACE), PLAYER_TRANSFORM[3], PLAYER_TRANSFORM[4], PLAYER_TRANSFORM[5]);
+//					poseData[count++] = 0.0f;
+//					poseData[count++] = 0.0f;
+//					poseData[count ++] = 0.0f;  
+				}
 			}
 			else DebugLog.LOGW("No Player");
 
 			JSONObject eyeballs = engineState.optJSONObject(EYEBALL_NAMESPACE);
 			if(eyeballs != null)
 			{
-				loadObject(eyeballs, 7.0f, deviceUUID, true);
+				loadObject(eyeballs, 7.0f, deviceUUID, true, EYEBALL_TRANSFORM);
 			}
 		}catch(JSONException e)
 		{
@@ -182,7 +203,7 @@ public class GameParser {
 	 * @return
 	 * @throws JSONException
 	 */
-	private static void loadObject(JSONObject type, float typeIndex, String deviceUUID, boolean isEye) throws JSONException
+	private static void loadObject(JSONObject type, float typeIndex, String deviceUUID, boolean isEye, float[] transform) throws JSONException
 	{
 		Iterator<String> objItr = type.keys();
 
@@ -211,17 +232,19 @@ public class GameParser {
 			else
 			{
 				poseData[count++] = typeIndex; // TODO use enums to represent the types of gameobjects.
-				parsePosition(obj.getJSONObject(POSITION_NAMESPACE));
+				parsePosition(obj.getJSONObject(POSITION_NAMESPACE), transform[0], transform[1], transform[2]);
 				try
 				{
-					parseRotaion(obj.getJSONObject(ROTATION_NAMESPACE));
+					parseRotaion(obj.getJSONObject(ROTATION_NAMESPACE), transform[3], transform[4], transform[5]);
 				}
 				catch(JSONException e)
 				{
-					DebugLog.LOGW("Object has no rotation. setting to 0,0,0.");
-					poseData[count++] = 0.0f;
-					poseData[count++] = 0.0f;
-					poseData[count++] = 0.0f;
+					JSONObject temp = new JSONObject(ZERO_ROTATION);
+//					DebugLog.LOGI("Object has no rotation. setting to 0,0,0.");
+					parseRotaion(temp.getJSONObject(ROTATION_NAMESPACE), transform[3], transform[4], transform[5]);
+//					poseData[count++] = 0.0f;
+//					poseData[count++] = 0.0f;
+//					poseData[count++] = 0.0f;
 				}
 			}
 		}
@@ -233,11 +256,11 @@ public class GameParser {
 	 * @param i
 	 * @throws JSONException
 	 */
-	private static void parsePosition(JSONObject xyz) throws JSONException
+	private static void parsePosition(JSONObject xyz, float dx, float dy, float dz) throws JSONException
 	{
-		poseData[count++] = Float.parseFloat(xyz.getString("x"));
-		poseData[count++] = Float.parseFloat(xyz.getString("z"));
-		poseData[count++] = Float.parseFloat(xyz.getString("y"));
+		poseData[count++] = Float.parseFloat(xyz.getString("x")) + dx;
+		poseData[count++] = Float.parseFloat(xyz.getString("z")) + dy;
+		poseData[count++] = Float.parseFloat(xyz.getString("y")) + dz;
 	}
 
 	/**
@@ -246,11 +269,11 @@ public class GameParser {
 	 * @param i
 	 * @throws JSONException
 	 */
-	private static void parseRotaion(JSONObject xyz) throws JSONException
+	private static void parseRotaion(JSONObject xyz, float dx, float dy, float dz) throws JSONException
 	{
-		poseData[count++] = Float.parseFloat(xyz.getString("x"));
-		poseData[count++] = Float.parseFloat(xyz.getString("z"));
-		poseData[count++] = -Float.parseFloat(xyz.getString("y"));
+		poseData[count++] = Float.parseFloat(xyz.getString("x")) + dx;
+		poseData[count++] = Float.parseFloat(xyz.getString("z")) + dy;
+		poseData[count++] = -Float.parseFloat(xyz.getString("y")) + dz;
 	}
 
 	/**
@@ -302,7 +325,7 @@ public class GameParser {
 					poseData[count++] = xPos;
 					poseData[count++] = tempY;
 					tempY += tilesY;
-					poseData[count++] = -100.0f; // z position
+					poseData[count++] = -150.0f; // z position
 					poseData[count++] = 0.0f; // x rotation
 					poseData[count++] = 0.0f; // y rotation. the 90 is to compensate for discrepancies when exporting the models from blender.
 					poseData[count++] = 0.0f; // z rotation

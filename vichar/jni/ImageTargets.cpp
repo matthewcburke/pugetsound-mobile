@@ -68,6 +68,8 @@
 #include "CharTry1.h"
 #include "EyeBall1.h"
 #include "battery.h"
+#include "tower.h"
+#include "fireball.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -96,6 +98,7 @@ float turAng = 0.0;  //UNUSED
 // An array used to pass camera pose information. The first entry is used as a flag to indicate whether or not a target is in sight.
 // the next three are x, y, and z locations respectively, and the last three are degrees of rotation around the x, y, and z axis respectively.
 float phoneLoc[7] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+float phoneZero[7] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
 int drawCount = 0.0;
 
@@ -123,7 +126,7 @@ static const int turretId = 1;
 float turretScale[3] = {20.0, 20.0, 20.0};
 
 static const int turretBulletId = 2;
-float turretBulletScale[3] = {15.0, 15.0, 15.0};
+float turretBulletScale[3] = {5.0, 5.0, 5.0};
 
 //Turrent Base unimplemented thus far
 //static const int turretBaseId=*****;
@@ -133,7 +136,7 @@ static const int fireballId = 3;
 float fireballScale[3] = {20.0, 20.0, 20.0};   //These values assigned before fireball model created -- could need adjustment
 
 static const int minionId = 4;
-float minionScale[3] = {kObjectScale, kObjectScale, kObjectScale};
+float minionScale[3] = {15.0, 15.0, 15.0};
 
 static const int batteryId = 5;
 float batteryScale[3] = {10.0, 10.0, 10.0};
@@ -146,6 +149,8 @@ float eyeScale[3] = {kObjectScale, kObjectScale, kObjectScale};
 
 static const int platformId = 8;
 float platformScale[3] = {23.0f, 23.0f, 10.0f};
+
+float towerScale[3] = {20.0f, 20.0f, 40.0f};
 
 typedef struct _Model {
 	int id;
@@ -447,16 +452,16 @@ for(int i = 0; i<interpLength; i++)
 	            break;
 
 	        case 3:  //Fireball
-	        	current->vertPointer=&tower_shellVerts[0];
-	        	current->normPointer=&tower_shellNormals[0];
-	        	current->texPointer=&tower_shellTexCoords[0];
-	        	current->numVerts=tower_shellNumVerts;
+	        	current->vertPointer=&fireballVerts[0];
+	        	current->normPointer=&fireballNormals[0];
+	        	current->texPointer=&fireballTexCoords[0];
+	        	current->numVerts=fireballNumVerts;
 
 				scale[0]=fireballScale[0];
 				scale[1]=fireballScale[1];
 				scale[2]=fireballScale[2];
 
-	        	current->modelTex=textures[2];
+	        	current->modelTex=textures[3];
 
 	            break;
 
@@ -523,6 +528,19 @@ for(int i = 0; i<interpLength; i++)
 				scale[2]=platformScale[2];
 
 	        	current->modelTex=textures[8];
+	        	break;
+
+	        case 9:		//Platform
+	        	current->vertPointer=&towerVerts[0];
+	        	current->normPointer=&towerNormals[0];
+	        	current->texPointer=&towerTexCoords[0];
+	        	current->numVerts=towerNumVerts;
+
+	        	scale[0]=towerScale[0];
+	        	scale[1]=towerScale[1];
+	        	scale[2]=towerScale[2];
+
+	        	current->modelTex=textures[9];
 	        	break;
 
 	        default:
@@ -651,8 +669,8 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 		phoneLoc[5] = euler.data[1];
 	    phoneLoc[6] = euler.data[2];
 	    //print phone pose data
-	    //LOG("x: %f, y: %f, z: %f, xRot: %f, yRot: %f, zRot: %f",
-	    //		phoneLoc[1],phoneLoc[2],phoneLoc[3],phoneLoc[4],phoneLoc[5],phoneLoc[6]);
+//	    LOG("x: %f, y: %f, z: %f, xRot: %f, yRot: %f, zRot: %f",
+//	    		phoneLoc[1],phoneLoc[2],phoneLoc[3],phoneLoc[4],phoneLoc[5],phoneLoc[6]);
 //End============================================================================================
 
         // Assign Textures according in the texture indices defined at the beginning of the file, and based
@@ -803,7 +821,7 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_getCameraLocation(JNIEnv * env, job
 	cameraLocation = env->NewFloatArray(7);
 	// phone location and rotation.
 	env->SetFloatArrayRegion(cameraLocation, 0, 7, phoneLoc);
-	phoneLoc[0] = 0.0f; // reset flag to no target in sight ?? Bad idea?
+	phoneLoc[0] = phoneZero[0]; // reset flag to no target in sight ?? Bad idea?
 	return cameraLocation;
 }
 
