@@ -183,7 +183,6 @@ public class ARGameActivity extends WifiRequiredActivity
     private ImageView crosshair;
     private boolean buttonTimer1;
     private boolean buttonTimer2;
-    private boolean tooCloseToPlayer;
     private boolean noTarget;
     private boolean deviceMinionInGame;
     
@@ -927,12 +926,12 @@ public class ARGameActivity extends WifiRequiredActivity
 
     		updateTwitterState(webState);    		
     		updateHealthBar(engineState);
-    		updateDistanceCheck(engineState);
-    		if(tooCloseToPlayer && uiInflated) {
+    		//updateDistanceCheck(engineState);
+    		if(isTooCloseToPlayer(engineState) && uiInflated) {
     			DebugLog.LOGD("tooClose");
     			makeWarningVis();
     			fireb.setEnabled(false);
-    		} else if (noTarget && uiInflated) {
+    		} else if (!hasTarget() && uiInflated) {
     			DebugLog.LOGD("NoTarget");
     			makeWarningInvis();
     			fireb.setEnabled(false);
@@ -957,10 +956,17 @@ public class ARGameActivity extends WifiRequiredActivity
     }
     
     
-    public void updateDistanceCheck(JSONObject engineState) throws JSONException {
+    private boolean hasTarget() {
+    	float[] cameraLoc = getCameraLocation();
+    	return (cameraLoc[0] == 1.0f);
+    }
+    
+    private boolean isTooCloseToPlayer(JSONObject engineState) throws JSONException {
+    	boolean tooCloseToPlayer = false;
+    	
     	JSONObject player = engineState.optJSONObject("player");
     	float[] cameraLoc = getCameraLocation();
-    	if(cameraLoc[0] == 1.0) {
+    	if(cameraLoc[0] == 1.0f) {
     		if(player != null) {
         		JSONObject playerPosition = new JSONObject();
         		playerPosition = player.getJSONObject("position");
@@ -995,8 +1001,10 @@ public class ARGameActivity extends WifiRequiredActivity
     	}
     	else {
     		DebugLog.LOGD("NoTarget!");
-    		noTarget = true;
+    		tooCloseToPlayer = false;
     	}
+    	
+    	return tooCloseToPlayer;
     }
     
     /**
@@ -1240,7 +1248,6 @@ public class ARGameActivity extends WifiRequiredActivity
                             makeGameButtons();
                             resizeEyelids();  
                             resizeButtons();
-                            tooCloseToPlayer = false;
                             deviceMinionInGame = false;
                             makeWarningInvis();
                         }
