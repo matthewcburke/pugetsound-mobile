@@ -461,7 +461,7 @@ for(int i = 0; i<interpLength; i++)
 
 				drawCount=drawCount+1;
 				drawListPos=drawListPos+1;
-				float turretBaseScale[3]={20,20,40};
+
 				//TB Scale here
 				
 				scaleTB[0]=turretBaseScale[0];
