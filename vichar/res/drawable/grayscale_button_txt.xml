@@ -8,6 +8,6 @@
   <item android:state_focused="true" android:color="#fdf6e3" />
  
   <!-- default -->
-  <item android:color="#fff" />    
+  <item android:color="#fdf6e3" />    
 
 </selector>

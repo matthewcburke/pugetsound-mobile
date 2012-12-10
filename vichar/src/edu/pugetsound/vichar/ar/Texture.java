@@ -44,7 +44,14 @@ public class Texture
             inputStream = assets.open(fileName, AssetManager.ACCESS_BUFFER);
              
             BufferedInputStream bufferedStream = new BufferedInputStream(inputStream);
-            Bitmap bitMap = BitmapFactory.decodeStream(bufferedStream);
+           
+            // Set up BitmapFactory options for memory alloc
+            BitmapFactory.Options options = new BitmapFactory.Options(); 
+            options.inSampleSize = 8;
+            options.inPurgeable = true;
+            options.inInputShareable = true;
+            
+            Bitmap bitMap = BitmapFactory.decodeStream(bufferedStream, null, options);
             
             int[] data = new int[bitMap.getWidth() * bitMap.getHeight()];
             bitMap.getPixels(data, 0, bitMap.getWidth(), 0, 0,
@@ -67,6 +74,9 @@ public class Texture
             texture.mHeight     = bitMap.getHeight();
             texture.mChannels   = 4;
             texture.mData       = dataBytes;
+            
+            bitMap.recycle();
+            bitMap = null;
             
             return texture;
         }
