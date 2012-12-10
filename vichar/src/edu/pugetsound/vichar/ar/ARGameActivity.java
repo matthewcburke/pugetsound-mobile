@@ -907,7 +907,7 @@ public class ARGameActivity extends WifiRequiredActivity
     		
     		JSONObject minions = engineState.optJSONObject("minions");
     		if(minions != null) {
-    			deviceMinionInGame = (minions.optJSONObject("minion"+ deviceUUID) == null);
+    			deviceMinionInGame = (minions.optJSONObject("minion"+ deviceUUID) != null);
     			if(uiInflated) {
     				minionb.setEnabled(!deviceMinionInGame);
     			}
