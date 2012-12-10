@@ -651,8 +651,8 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 		phoneLoc[5] = euler.data[1];
 	    phoneLoc[6] = euler.data[2];
 	    //print phone pose data
-	    LOG("x: %f, y: %f, z: %f, xRot: %f, yRot: %f, zRot: %f",
-	    		phoneLoc[1],phoneLoc[2],phoneLoc[3],phoneLoc[4],phoneLoc[5],phoneLoc[6]);
+	    //LOG("x: %f, y: %f, z: %f, xRot: %f, yRot: %f, zRot: %f",
+	    //		phoneLoc[1],phoneLoc[2],phoneLoc[3],phoneLoc[4],phoneLoc[5],phoneLoc[6]);
 //End============================================================================================
 
         // Assign Textures according in the texture indices defined at the beginning of the file, and based

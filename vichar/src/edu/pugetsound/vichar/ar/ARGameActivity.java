@@ -183,8 +183,9 @@ public class ARGameActivity extends WifiRequiredActivity
     private ImageView crosshair;
     private boolean buttonTimer1;
     private boolean buttonTimer2;
-    private boolean distance;
-    private boolean isMinion;
+    private boolean tooCloseToPlayer;
+    private boolean noTarget;
+    private boolean deviceMinionInGame;
     
     private Button fireb;
     private Button minionb;
@@ -551,8 +552,8 @@ public class ARGameActivity extends WifiRequiredActivity
       		
             private OnClickListener minionListener = new OnClickListener() { 
           		public void onClick(View v) { 
-          			if(isMinion = false) {
-	          			isMinion = true;
+          			if(!deviceMinionInGame) {
+	          			deviceMinionInGame = true;
 	          			JSONObject req = new JSONObject();
 						JSONObject id = new JSONObject();
 						JSONObject min = new JSONObject();
@@ -563,7 +564,7 @@ public class ARGameActivity extends WifiRequiredActivity
 							stuff.put("timeCreated", time);
 		          			stuff.put("position", makePositionJSON(cameraLoc[1], cameraLoc[2], cameraLoc[3]));
 		          			stuff.put("rotation", makeRotationJSON(cameraLoc[4], cameraLoc[5], cameraLoc[6]));
-		          			id.put("" + time, stuff);
+		          			id.put("minion"+ deviceUUID, stuff);
 		          			min.put("minions", id);
 		          			req.put("requests", min);
 		          		} catch (JSONException e1) {
@@ -571,11 +572,22 @@ public class ARGameActivity extends WifiRequiredActivity
 		          			e1.printStackTrace();
 		          		}
 						pushDeviceState(req);
+						
+						// Disable the button on a timeout to allow the game server time to process our request
 	         	        minionb.setEnabled(false);
-	                 	//ImageView imageview = (ImageView) findViewById(R.id.fill);
-	                 	//ClipDrawable drawable = (ClipDrawable) imageview.getDrawable();
-	                 	//drawable.scheduleDrawable(drawable, , );
-                 	}
+	        	        final Handler handler = new Handler();
+	        	        Timer timer = new Timer();
+	                	TimerTask task = new TimerTask() {
+	                		public void run() {
+	                			handler.post(new Runnable() {
+		                				public void run() {
+		                					minionb.setEnabled(true);
+		                				}
+	                			});
+	                		}
+	                	};
+	                	timer.schedule(task, 2000);
+          			}
           		}
           	};
       		
@@ -880,7 +892,7 @@ public class ARGameActivity extends WifiRequiredActivity
     	
     	//DebugLog.LOGI("onGameStateChange:" + stateStr);
     	
-    	System.out.println(stateStr);
+    	//System.out.println(stateStr);
     	
     	try {
     		JSONObject gameState = new JSONObject(stateStr);
@@ -893,6 +905,19 @@ public class ARGameActivity extends WifiRequiredActivity
     		newDeviceState.put("lastTimeElapsed", engineState.optLong("timeElapsed", -1));
     		pushDeviceState(newDeviceState);
     		
+    		JSONObject minions = engineState.optJSONObject("minions");
+    		if(minions != null) {
+    			deviceMinionInGame = (minions.optJSONObject("minion"+ deviceUUID) == null);
+    			if(uiInflated) {
+    				minionb.setEnabled(!deviceMinionInGame);
+    			}
+    		} else {
+    			deviceMinionInGame = false;
+    			if(uiInflated) {
+    				minionb.setEnabled(!deviceMinionInGame);
+    			}
+    		}
+    		
     		if(!GameParser.updated)
     		{
     			GameParser.parseEngineState(engineState, deviceUUID);
@@ -902,18 +927,26 @@ public class ARGameActivity extends WifiRequiredActivity
     		updateTwitterState(webState);    		
     		updateHealthBar(engineState);
     		updateDistanceCheck(engineState);
-    		if(distance == true && uiInflated) {
+    		if(tooCloseToPlayer && uiInflated) {
+    			DebugLog.LOGD("tooClose");
     			makeWarningVis();
+    			fireb.setEnabled(false);
+    		} else if (noTarget && uiInflated) {
+    			DebugLog.LOGD("NoTarget");
+    			makeWarningInvis();
     			fireb.setEnabled(false);
     		}
     		else if(uiInflated) {
+    			DebugLog.LOGD("should be good");
     			makeWarningInvis();
-    			if(buttonTimer1 == true) {
+    			if(buttonTimer1) {
     				//do nothing
     			}
     			else {
     				fireb.setEnabled(true);
     			}
+    		} else {
+    			DebugLog.LOGD("ui not inflated");
     		}
 
     	} catch(JSONException e) {
@@ -942,21 +975,26 @@ public class ARGameActivity extends WifiRequiredActivity
         		float x = px - mx;
         		float y = py - my;
         		float z = pz - mz;
-        		Float dist = FloatMath.sqrt((x * x) + (y * y) + (z * z));
-        		float minDist = 1000;
+        		float dist = FloatMath.sqrt((x * x) + (y * y) + (z * z));
+        		DebugLog.LOGD("dist: " + dist);
+        		float minDist = 100f;
+        		DebugLog.LOGD("tooClose?: " + (dist < minDist));
+        		
         		if(dist < minDist) {
-        			distance = true;
+        			tooCloseToPlayer = true;
         		}
         		else {
-        			distance = false;
+        			tooCloseToPlayer = false;
         		}
     		}
     		else {
-    			distance = false;
+    			DebugLog.LOGD("NoPlayer?!");
+    			tooCloseToPlayer = false;
     		}
     	}
     	else {
-    		distance = true;
+    		DebugLog.LOGD("NoTarget!");
+    		noTarget = true;
     	}
     }
     
@@ -1201,8 +1239,8 @@ public class ARGameActivity extends WifiRequiredActivity
                             makeGameButtons();
                             resizeEyelids();  
                             resizeButtons();
-                            distance = false;
-                            isMinion = false;
+                            tooCloseToPlayer = false;
+                            deviceMinionInGame = false;
                             makeWarningInvis();
                         }
                 };
