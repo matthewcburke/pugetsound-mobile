@@ -65,7 +65,7 @@ public class MainMenuActivity extends WifiRequiredActivity {
     private void createButtons() {
     	Button anib = (Button)findViewById(R.id.button_animation); //declaring the button
         anib.setOnClickListener(animationListener); //making the thing that checks if the button's been pushed
-        anib.setOnTouchListener(animationTouchListener);
+        //anib.setOnTouchListener(animationTouchListener);
         
         Button gameb = (Button)findViewById(R.id.game_button); //declaring the button
         gameb.setOnClickListener(gameListener); //making the thing that checks if the button's been pushed
@@ -95,14 +95,14 @@ public class MainMenuActivity extends WifiRequiredActivity {
     }
     
     
-    public OnTouchListener animationTouchListener = new OnTouchListener() { //sets what happens when the button is pushed
-        public boolean onTouch(View v, MotionEvent event) { 
-            v.clearAnimation();
-            v.setPressed(true);
-            startActivity(new Intent(context, ARGameActivity.class));
-            return true;
-        }
-       };
+//    public OnTouchListener animationTouchListener = new OnTouchListener() { //sets what happens when the button is pushed
+//        public boolean onTouch(View v, MotionEvent event) { 
+//            v.clearAnimation();
+//            v.setPressed(true);
+//            startActivity(new Intent(context, ARGameActivity.class));
+//            return true;
+//        }
+//       };
 
     
    	private OnClickListener settingsListener = new OnClickListener() { //sets what happens when the button is pushed
