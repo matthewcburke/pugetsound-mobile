@@ -156,7 +156,7 @@ public class ARGameActivity extends WifiRequiredActivity
     
     private static boolean test = false;
     private static final String STATIC_ENGINE_STATE = 
-    		"{gameRunning:false,turrets:{},turretBullets:{},fireballs:{},batteries:{},player:{energy:0,position:{x:0,y:0,z:0}},eyeballs:{},platforms:{rows:0,columns:0,deletedTiles:[[0,0],[7,7],[2,2],[1,1],[3,3],[4,4],[5,5],[6,6] ]}}"; // for use when not connected to the network
+    		"{gameRunning:false,turrets:{MattsTurret:{position:{x:-125,y:0,z:0}}},turretBullets:{MattsBullet:{position:{x:-250,y:0,z:50}}},fireballs:{MattsFireball:{position:{x:250,y:0,z:0}}},minions:{MattsMinion:{position:{x:125,y:0,z:0}}},batteries:{MattsBattey:{position:{x:500,y:0,z:0}}},player:{energy:0,position:{x:0,y:0,z:0}},eyeballs:{MattsEyeball:{position:{x:500,y:500,z:0}}},platforms:{rows:0,columns:0,deletedTiles:[[0,0]]}}"; // for use when not connected to the network
 
 	// Service Stuff
     private Messenger networkingServiceMessenger = null;
@@ -755,9 +755,9 @@ public class ARGameActivity extends WifiRequiredActivity
     	mTextures.add(Texture.loadTextureFromApk("projtexture.png", getAssets()));//turretbullet
     	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));	//fireball
     	mTextures.add(Texture.loadTextureFromApk("minion_skin.png", getAssets()));	//minion
-    	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));	//battery
-    	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));	//player
-    	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));	//eyeball
+    	mTextures.add(Texture.loadTextureFromApk("battery.png", getAssets()));	//battery
+    	mTextures.add(Texture.loadTextureFromApk("CharTry1.png", getAssets()));	//player
+    	mTextures.add(Texture.loadTextureFromApk("eyeball.png", getAssets()));	//eyeball
     	mTextures.add(Texture.loadTextureFromApk("tiletexture.png", getAssets()));	//tile/platform
 
     }
@@ -1220,7 +1220,14 @@ public class ARGameActivity extends WifiRequiredActivity
                 
             case APPSTATUS_CAMERA_RUNNING:
             	GameParser.generateBoard(); //generate the gameboard
-                // Call the native function to start the camera
+            	try{
+                    GameParser.parseEngineState(new JSONObject(STATIC_ENGINE_STATE), deviceUUID);
+
+            	}catch(JSONException e)
+            	{
+            		e.printStackTrace();
+            	}
+            	// Call the native function to start the camera
                 startCamera();
                 setProjectionMatrix();
                 break;
@@ -1638,7 +1645,7 @@ public class ARGameActivity extends WifiRequiredActivity
 	            	}
 	            	catch(JSONException e)
 	            	{
-	            		System.out.print(e);
+	            		e.printStackTrace();
 	            	}
 	            	
 	            	break;

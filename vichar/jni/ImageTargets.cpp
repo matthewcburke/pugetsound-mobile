@@ -65,6 +65,9 @@
 #include "minion.h"
 #include "proj.h"
 #include "tile.h"
+#include "CharTry1.h"
+#include "EyeBall1.h"
+#include "battery.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -120,7 +123,7 @@ static const int turretId = 1;
 float turretScale[3] = {20.0, 20.0, 20.0};
 
 static const int turretBulletId = 2;
-float turretBulletScale[3] = {5.0, 5.0, 5.0};
+float turretBulletScale[3] = {15.0, 15.0, 15.0};
 
 //Turrent Base unimplemented thus far
 //static const int turretBaseId=*****;
@@ -133,10 +136,10 @@ static const int minionId = 4;
 float minionScale[3] = {kObjectScale, kObjectScale, kObjectScale};
 
 static const int batteryId = 5;
-float batteryScale[3] = {15.0, 15.0, 15.0};
+float batteryScale[3] = {10.0, 10.0, 10.0};
 
 static const int playerId = 6;
-float playerScale[3] = {20.0, 20.0, 20.0};
+float playerScale[3] = {25.0, 25.0, 25.0};
 
 static const int eyeballId = 7;
 float eyeScale[3] = {kObjectScale, kObjectScale, kObjectScale};
@@ -471,10 +474,10 @@ for(int i = 0; i<interpLength; i++)
 	        	break;
 
 	        case 5:		//Battery
-	        	current->vertPointer=&tower_shellVerts[0];
-	        	current->normPointer=&tower_shellNormals[0];
-	        	current->texPointer=&tower_shellTexCoords[0];
-	        	current->numVerts=tower_shellNumVerts;
+	        	current->vertPointer=&batteryVerts[0];
+	        	current->normPointer=&batteryNormals[0];
+	        	current->texPointer=&batteryTexCoords[0];
+	        	current->numVerts=batteryNumVerts;
 
 				scale[0]=batteryScale[0];
 				scale[1]=batteryScale[1];
@@ -484,23 +487,23 @@ for(int i = 0; i<interpLength; i++)
 	        	break;
 
 	        case 6:		//Player
-	        	current->vertPointer=&minionVerts[0];
-	        	current->normPointer=&minionNormals[0];
-	        	current->texPointer=&minionTexCoords[0];
-	        	current->numVerts=minionNumVerts;
+	        	current->vertPointer=&CharTry1Verts[0];
+	        	current->normPointer=&CharTry1Normals[0];
+	        	current->texPointer=&CharTry1TexCoords[0];
+	        	current->numVerts=CharTry1NumVerts;
 
 				scale[0]=playerScale[0];
 				scale[1]=playerScale[1];
 				scale[2]=playerScale[2];
 
-	        	current->modelTex= textures[1];
+	        	current->modelTex= textures[6];
 	        	break;
 
 	        case 7:		//Eyeball
-	        	current->vertPointer=&tower_topVerts[0];
-	        	current->normPointer=&tower_topNormals[0];
-	        	current->texPointer=&tower_topTexCoords[0];
-	        	current->numVerts=tower_topNumVerts;
+	        	current->vertPointer=&EyeBall1Verts[0];
+	        	current->normPointer=&EyeBall1Normals[0];
+	        	current->texPointer=&EyeBall1TexCoords[0];
+	        	current->numVerts=EyeBall1NumVerts;
 
 				scale[0]=eyeScale[0];
 				scale[1]=eyeScale[1];
