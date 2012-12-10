@@ -934,7 +934,7 @@ public class ARGameActivity extends WifiRequiredActivity
     			//DebugLog.LOGD("tooClose");
     			makeWarningVis();
     			fireb.setEnabled(false);
-    		} else if (!hasTarget() && uiInflated) {
+    		} else if (false && uiInflated) {
     			//DebugLog.LOGD("NoTarget");
     			makeWarningInvis();
     			fireb.setEnabled(false);
