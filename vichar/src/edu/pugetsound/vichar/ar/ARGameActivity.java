@@ -930,17 +930,17 @@ public class ARGameActivity extends WifiRequiredActivity
     		updateTwitterState(webState);    		
     		updateHealthBar(engineState);
     		//updateDistanceCheck(engineState);
-    		if(isTooCloseToPlayer(engineState) && uiInflated) {
-    			DebugLog.LOGD("tooClose");
+    		if(false && uiInflated) {
+    			//DebugLog.LOGD("tooClose");
     			makeWarningVis();
     			fireb.setEnabled(false);
     		} else if (!hasTarget() && uiInflated) {
-    			DebugLog.LOGD("NoTarget");
+    			//DebugLog.LOGD("NoTarget");
     			makeWarningInvis();
     			fireb.setEnabled(false);
     		}
     		else if(uiInflated) {
-    			DebugLog.LOGD("should be good");
+    			//DebugLog.LOGD("should be good");
     			makeWarningInvis();
     			if(buttonTimer1) {
     				//do nothing
@@ -949,7 +949,7 @@ public class ARGameActivity extends WifiRequiredActivity
     				fireb.setEnabled(true);
     			}
     		} else {
-    			DebugLog.LOGD("ui not inflated");
+    			//DebugLog.LOGD("ui not inflated");
     		}
 
     	} catch(JSONException e) {
@@ -996,9 +996,9 @@ public class ARGameActivity extends WifiRequiredActivity
         		float y = py - my;
         		float z = pz - mz;
         		float dist = FloatMath.sqrt((x * x) + (y * y) + (z * z));
-        		DebugLog.LOGD("dist: " + dist);
+        		//DebugLog.LOGD("dist: " + dist);
         		float minDist = 100f;
-        		DebugLog.LOGD("tooClose?: " + (dist < minDist));
+        		//DebugLog.LOGD("tooClose?: " + (dist < minDist));
         		
         		if(dist < minDist) {
         			tooCloseToPlayer = true;
@@ -1008,12 +1008,12 @@ public class ARGameActivity extends WifiRequiredActivity
         		}
     		}
     		else {
-    			DebugLog.LOGD("NoPlayer?!");
+    			//DebugLog.LOGD("NoPlayer?!");
     			tooCloseToPlayer = false;
     		}
     	}
     	else {
-    		DebugLog.LOGD("NoTarget!");
+    		//DebugLog.LOGD("NoTarget!");
     		tooCloseToPlayer = false;
     	}
     	
