@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/epic_portrait"
+    android:background="@drawable/epic"
     android:orientation="horizontal" 
     android:weightSum="8">
     
@@ -20,20 +20,46 @@
     case this exponent is small enough (we only nest one layer deep) for this effect to
     be negligable. 
      -->
+    <!--the play button-->
+     <FrameLayout
+        android:layout_weight="2.5"
+   		android:layout_width="0dp"
+    	android:layout_height="match_parent"
+    	android:id="@+id/foreground_gameb"
+    	android:layout_margin="5dp">
     <Button
         android:id="@+id/game_button"
-        android:layout_height="fill_parent"
-        android:layout_width="0dp"
-        android:layout_weight="2.5"
-        android:layout_marginTop="10dp"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
         android:text="PLAY!"
-        android:layout_margin="5dp"
-             	   android:paddingTop="5dp"
+             	   android:paddingTop="35dp"
                    android:paddingBottom="5dp"
                    android:textColor="@drawable/game_button_txt"
                    style="@style/BigShadowTextStyle"
                    android:background="@drawable/game_button_bg"
-                   android:gravity="center|right" />
+                   android:gravity="top|center" />
+    <Button
+        android:id="@+id/button_animation"
+	    android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:background="@drawable/game_button_ani_bg"
+        android:text="PLAY!"
+             	   android:paddingTop="5dp"
+                   android:paddingBottom="5dp"
+                   android:textColor="@drawable/game_button_txt"
+                   style="@style/BigShadowTextStyle"
+                   android:gravity="top|center"
+      />
+        <ImageView 
+	    android:id="@+id/vichar_robot"
+	    android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:layout_gravity="center"
+        android:src="@drawable/robot_icon_large_mdpi"
+	  />
+ 
+    </FrameLayout>
 
     <LinearLayout 
          android:layout_width="0dp"
@@ -95,7 +121,7 @@
 	        android:layout_margin="5dp"
 	        android:layout_weight="1"
 	        android:background="@drawable/settings_button_bg"
-	        android:drawableRight="@drawable/wrench"
+	        android:drawableRight="@drawable/user"
 	        android:gravity="left|center"
 	        android:paddingBottom="5dp"
 	        android:paddingTop="5dp"

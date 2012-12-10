@@ -1,11 +1,13 @@
 package edu.pugetsound.vichar;
 
+import java.net.URL;
 import java.util.ArrayList;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
 import android.os.Bundle;
 import android.view.Gravity; 
+import android.webkit.WebView;
 import android.widget.TextView;
 import android.app.Activity;
 import android.content.Context;
@@ -19,6 +21,7 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
+import android.graphics.PixelFormat;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 
@@ -29,47 +32,77 @@ import android.graphics.drawable.Drawable;
  * @author Davis Shurbert
  * @version 10/23/12
  */
-public class LeaderboardActivity extends WifiRequiredActivity {
+
+public class LeaderboardActivity extends WifiRequiredActivity implements GetJSONArrayTask.JSONArrayReceiver {
 	
-    public static JSONObject myJson = new JSONObject(); //JSON Object to be parsed
+    
+    final Context context = this;
+    public JSONArray myJson; //JSON Array to be parsed
+    public static JSONObject tableJson;
     public static ArrayList<String[]> names = new ArrayList<String[]>(); //ArrayList of String[]s 
     //from our JSONObject with keys at [0] and values at [1]
     
-	@Override
+    
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        //help with banding on gradients
+        getWindow().setFormat(PixelFormat.RGBA_8888);
+        
         setContentView(R.layout.activity_leaderboard);
         getJson();
-        names = getJSONStrings(myJson);
-        names = sortScores(names);
-        createTable();
+       
+        
     }
     
-	
-	public void getJson() {
-	    //gets Json from webserver using the HttpService and sets myJson 
-	    //equal to the return value.
-	    //will replace createJson.
-	    createJson();
-	}
-    public void createJson() {
-        try{           
-        myJson.put("Davis", "9000000");
-        myJson.put("Nathan", "5");
-        myJson.put("Micheal", "2456");
-        myJson.put("Troll", "Not a score!?");
-        myJson.put("Kirah", "5462");
-        myJson.put("Not Top Five", "1");
-        myJson.put("Robert", "4652");
-        myJson.put("Shakira", "4692");
-        myJson.put("VinDeasel", "432");
-        
-        
+    
+    public void getJson() {
+        //gets Json from webserver using the HttpService and sets myJson 
+        //equal to the return value.
+        try {
+        URL url = new URL("http://puppetmaster.pugetsound.edu:1730/leaderboard.json");
+        new GetJSONArrayTask(this).execute(url);
         }
-        catch(JSONException ex){
-        System.out.print("createJson failed");
+        catch(Exception E) {
+            System.out.println("exception caught @getJson");
+        }
+    }
+    
+    
+    public void onReceiveJSONArray(String jstring) {
+        try {
+            myJson = new JSONArray(jstring);
+            System.out.println(myJson.toString() + "@onReceiveJSONArray");
+            tableJson = parseJSONArray(myJson);
+            names = getJSONStrings(tableJson);
+            names = sortScores(names);
+            createButtons();
+            createTable();
+
+        }
+        catch(Exception e) {
+            
+        }
+    }
+    
+    public JSONObject parseJSONArray(JSONArray array) {
+        JSONObject retval = new JSONObject();
+        int leng = array.length();
+        for (int i = 0; i<leng; i++) {
+            try {
+            JSONObject temp = array.getJSONObject(i);
+            String namestr = temp.getString("name");
+            String scorestr = temp.getString("score");
+            retval.put(namestr, scorestr);
+            }
+            catch(Exception e) {
+                
+            }
+            
         }
         
+        return retval;
     }
     
     /**
@@ -141,14 +174,27 @@ public class LeaderboardActivity extends WifiRequiredActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         //handles item selection in menu
-    	switch (item.getItemId()) {
+        switch (item.getItemId()) {
             case R.id.enter_main_menu:
-            	startActivity(new Intent(this, MainMenuActivity.class));
+                startActivity(new Intent(this, MainMenuActivity.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
-    	}
+        }
     }
+    
+    private void createButtons() {
+        Button backb = (Button)findViewById(R.id.main_menu_button); 
+        backb.setOnClickListener(backListener);
+    }
+
+    private OnClickListener backListener = new OnClickListener() { //sets what happens when the button is pushed
+        public void onClick(View v) { 
+            
+            startActivity(new Intent(context, MainMenuActivity.class));
+        }
+       };
+    
     /**
      * Creates and displays a table of names and scores from our static 
      * "names" ArrayList
@@ -177,7 +223,7 @@ public class LeaderboardActivity extends WifiRequiredActivity {
         TextView title = new TextView(this);  
         title.setText("Scores");  
         title.setTextSize(16, 18);
-        title.setTextColor(getResources().getColor(R.color.game_blue));
+        title.setTextColor(getResources().getColor(R.color.leaderboard_color));
         title.setGravity(Gravity.CENTER); //centers text in parent View
         title.setTypeface(Typeface.SERIF, Typeface.BOLD);  //sets font
         row0.addView(title); //adds the TextView to the title (first) row
@@ -186,9 +232,9 @@ public class LeaderboardActivity extends WifiRequiredActivity {
           //creates row #1
             TextView name1 = new TextView(this);  
             name1.setText(names.get(0)[0]); //sets name to corresponding key from ArrayList  
-            name1.setTextColor(getResources().getColor(R.color.game_blue));
+            name1.setTextColor(getResources().getColor(R.color.leaderboard_color));
             TextView score1 = new TextView(this);  
-            score1.setTextColor(getResources().getColor(R.color.game_blue));
+            score1.setTextColor(getResources().getColor(R.color.leaderboard_color));
             score1.setText(names.get(0)[1]); //sets score to corresponding value
                 //Each TextView can only have one parent, so we need to
                 //create a new instance of a blank TextView every time we want
@@ -203,10 +249,10 @@ public class LeaderboardActivity extends WifiRequiredActivity {
           //creates row #2
             TextView name2 = new TextView(this);  
             name2.setText(names.get(1)[0]);   
-            name2.setTextColor(getResources().getColor(R.color.game_blue));
+            name2.setTextColor(getResources().getColor(R.color.leaderboard_color));
             TextView score2 = new TextView(this);  
             score2.setText(names.get(1)[1]); 
-            score2.setTextColor(getResources().getColor(R.color.game_blue));
+            score2.setTextColor(getResources().getColor(R.color.leaderboard_color));
             row2.addView(new TextView(this));
             row2.addView(name2);
             row2.addView(new TextView(this));
@@ -217,10 +263,10 @@ public class LeaderboardActivity extends WifiRequiredActivity {
           //creates row #3
             TextView name3 = new TextView(this);  
             name3.setText(names.get(2)[0]);   
-            name3.setTextColor(getResources().getColor(R.color.game_blue));
+            name3.setTextColor(getResources().getColor(R.color.leaderboard_color));
             TextView score3 = new TextView(this);  
             score3.setText(names.get(2)[1]); 
-            score3.setTextColor(getResources().getColor(R.color.game_blue));
+            score3.setTextColor(getResources().getColor(R.color.leaderboard_color));
             row3.addView(new TextView(this));
             row3.addView(name3);
             row3.addView(new TextView(this));
@@ -230,10 +276,10 @@ public class LeaderboardActivity extends WifiRequiredActivity {
           //creates row #4
             TextView name4 = new TextView(this);  
             name4.setText(names.get(3)[0]);   
-            name4.setTextColor(getResources().getColor(R.color.game_blue));
+            name4.setTextColor(getResources().getColor(R.color.leaderboard_color));
             TextView score4 = new TextView(this);  
             score4.setText(names.get(3)[1]);
-            score4.setTextColor(getResources().getColor(R.color.game_blue));
+            score4.setTextColor(getResources().getColor(R.color.leaderboard_color));
             row4.addView(new TextView(this));
             row4.addView(name4);
             row4.addView(new TextView(this));
@@ -243,10 +289,10 @@ public class LeaderboardActivity extends WifiRequiredActivity {
           //creates row #5
             TextView name5 = new TextView(this);  
             name5.setText(names.get(4)[0]);   
-            name5.setTextColor(getResources().getColor(R.color.game_blue));
+            name5.setTextColor(getResources().getColor(R.color.leaderboard_color));
             TextView score5 = new TextView(this);  
             score5.setText(names.get(4)[1]); 
-            score5.setTextColor(getResources().getColor(R.color.game_blue));
+            score5.setTextColor(getResources().getColor(R.color.leaderboard_color));
             row5.addView(new TextView(this));
             row5.addView(name5);
             row5.addView(new TextView(this));
@@ -256,10 +302,10 @@ public class LeaderboardActivity extends WifiRequiredActivity {
             //creates row #6
               TextView name6 = new TextView(this);  
               name6.setText(names.get(5)[0]);   
-              name6.setTextColor(getResources().getColor(R.color.game_blue));
+              name6.setTextColor(getResources().getColor(R.color.leaderboard_color));
               TextView score6 = new TextView(this);  
               score6.setText(names.get(5)[1]); 
-              score6.setTextColor(getResources().getColor(R.color.game_blue));
+              score6.setTextColor(getResources().getColor(R.color.leaderboard_color));
               row6.addView(new TextView(this));
               row6.addView(name6);
               row6.addView(new TextView(this));
@@ -269,10 +315,10 @@ public class LeaderboardActivity extends WifiRequiredActivity {
             //creates row #7
               TextView name7 = new TextView(this);  
               name7.setText(names.get(6)[0]);   
-              name7.setTextColor(getResources().getColor(R.color.game_blue));
+              name7.setTextColor(getResources().getColor(R.color.leaderboard_color));
               TextView score7 = new TextView(this);  
               score7.setText(names.get(6)[1]); 
-              score7.setTextColor(getResources().getColor(R.color.game_blue));
+              score7.setTextColor(getResources().getColor(R.color.leaderboard_color));
               row7.addView(new TextView(this));
               row7.addView(name7);
               row7.addView(new TextView(this));
@@ -282,10 +328,10 @@ public class LeaderboardActivity extends WifiRequiredActivity {
             //creates row #8
               TextView name8 = new TextView(this);  
               name8.setText(names.get(7)[0]);   
-              name8.setTextColor(getResources().getColor(R.color.game_blue));
+              name8.setTextColor(getResources().getColor(R.color.leaderboard_color));
               TextView score8 = new TextView(this);  
               score8.setText(names.get(7)[1]); 
-              score8.setTextColor(getResources().getColor(R.color.game_blue));
+              score8.setTextColor(getResources().getColor(R.color.leaderboard_color));
               row8.addView(new TextView(this));
               row8.addView(name8);
               row8.addView(new TextView(this));
@@ -295,10 +341,10 @@ public class LeaderboardActivity extends WifiRequiredActivity {
             //creates row #9
               TextView name9 = new TextView(this);  
               name9.setText(names.get(8)[0]);   
-              name9.setTextColor(getResources().getColor(R.color.game_blue));
+              name9.setTextColor(getResources().getColor(R.color.leaderboard_color));
               TextView score9 = new TextView(this);  
               score9.setText(names.get(8)[1]); 
-              score9.setTextColor(getResources().getColor(R.color.game_blue));
+              score9.setTextColor(getResources().getColor(R.color.leaderboard_color));
               row9.addView(new TextView(this));
               row9.addView(name9);
               row9.addView(new TextView(this));
@@ -308,10 +354,10 @@ public class LeaderboardActivity extends WifiRequiredActivity {
             //creates row #10
               TextView name10 = new TextView(this);  
               name10.setText(names.get(9)[0]);   
-              name10.setTextColor(getResources().getColor(R.color.game_blue));
+              name10.setTextColor(getResources().getColor(R.color.leaderboard_color));
               TextView score10 = new TextView(this);  
               score10.setText(names.get(9)[1]); 
-              score10.setTextColor(getResources().getColor(R.color.game_blue));
+              score10.setTextColor(getResources().getColor(R.color.leaderboard_color));
               row10.addView(new TextView(this));
               row10.addView(name10);
               row10.addView(new TextView(this));
@@ -330,6 +376,25 @@ public class LeaderboardActivity extends WifiRequiredActivity {
         table.addView(row9);
         table.addView(row10);
         
-        addContentView(table, new LayoutParams( LayoutParams.MATCH_PARENT , LayoutParams.MATCH_PARENT ) ); //puts the table on the screen
+        //puts the table on the screen
+        addContentView(table, new LayoutParams( LayoutParams.MATCH_PARENT , LayoutParams.MATCH_PARENT ) );
         }
+
+
+//    /**
+//     * @return the myJson
+//     */
+//    public static JSONArray getMyJson() {
+//        return myJson;
+//    }
+//
+//
+//    /**
+//     * @param myJson the myJson to set
+//     */
+//    public static void setMyJson(JSONArray myJson) {
+//        LeaderboardActivity.myJson = myJson;
+//    }
+
+
 }

@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.WifiManager;
 import android.graphics.PixelFormat;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ScaleDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -15,6 +17,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 /**
  * Main activity, this is the first screen users will see
@@ -30,11 +34,18 @@ public class MainActivity extends WifiRequiredActivity
         super.onCreate(savedInstanceState);
         //no title
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        
+        setContentView(R.layout.activity_main);
         //dithering
         getWindow().setFormat(PixelFormat.RGBA_8888);
         
-        setContentView(R.layout.activity_main);
+//        ScaleDrawable scaleDraw = (ScaleDrawable)getResources().getDrawable(R.drawable.robot_icon);
+//        scaleDraw.setLevel(1);
+//        ImageView robot = (ImageView)findViewById(R.id.vichar_robot);
+//        
+//        robot.setImageDrawable(scaleDraw);
+        
+        
+
         PreferenceUtility prefs = new PreferenceUtility();
         Boolean twLoggedIn = prefs.returnBoolean(getString(R.string.tw_login_key), false, this);
         if(twLoggedIn == true) {
