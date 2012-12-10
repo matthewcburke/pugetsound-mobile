@@ -156,7 +156,7 @@ public class ARGameActivity extends WifiRequiredActivity
     
     private static boolean test = false;
     private static final String STATIC_ENGINE_STATE = 
-    		"{gameRunning:false,turrets:{MattsTurret:{position:{x:-125,y:0,z:0}}},turretBullets:{MattsBullet:{position:{x:0,y:500,z:0}}},fireballs:{MattsFireball:{position:{x:250,y:0,z:0}}},minions:{MattsMinion:{position:{x:125,y:0,z:0}}},batteries:{MattsBattey:{position:{x:500,y:0,z:0}}},player:{energy:0,position:{x:0,y:0,z:0}},eyeballs:{MattsEyeball:{position:{x:500,y:500,z:0}}},platforms:{rows:0,columns:0,deletedTiles:[[0,0]]}}"; // for use when not connected to the network
+    		"{gameRunning:false,turrets:{MattsTurret:{position:{x:-125,y:0,z:0}}},turretBullets:{MattsBullet:{position:{x:0,y:500,z:0}}},fireballs:{MattsFireball:{position:{x:250,y:0,z:0}}},minions:{MattsMinion:{position:{x:125,y:0,z:0}}},batteries:{MattsBattey:{position:{x:500,y:0,z:0}}},player:{energy:0,position:{x:0,y:0,z:0}},eyeballs:{MattsEyeball:{position:{x:500,y:500,z:0}}},platforms:{rows:0,columns:0,deletedTiles:[]}}"; // for use when not connected to the network
 
 	// Service Stuff
     private Messenger networkingServiceMessenger = null;
