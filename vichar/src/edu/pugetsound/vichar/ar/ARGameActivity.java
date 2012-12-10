@@ -180,12 +180,15 @@ public class ARGameActivity extends WifiRequiredActivity
     private TextView warn;
     private TextView cortex;
     private TextView robot;
+    private TextView fireballTutorial;
+    private TextView minionTutorial;
     private ImageView crosshair;
     private boolean buttonTimer1;
     private boolean buttonTimer2;
     private boolean tooCloseToPlayer;
     private boolean noTarget;
     private boolean deviceMinionInGame;
+    private boolean firstRun;
     
     private Button fireb;
     private Button minionb;
@@ -472,6 +475,13 @@ public class ARGameActivity extends WifiRequiredActivity
         minionb.setOnClickListener(minionListener);
     }
     
+    private void showTutorials() {
+    	fireballTutorial = (TextView)findViewById(R.id.textView4);
+    	minionTutorial = (TextView)findViewById(R.id.textView5);
+    	fireballTutorial.setVisibility(View.VISIBLE);
+    	minionTutorial.setVisibility(View.VISIBLE);
+    }
+    
     private OnTouchListener tweetHandleListener = new OnTouchListener() {
 		public boolean onTouch(View v, MotionEvent me) { 
 			if(activeTwitter) {
@@ -509,6 +519,7 @@ public class ARGameActivity extends WifiRequiredActivity
        
        private OnClickListener fireListener = new OnClickListener() { 
       		public void onClick(View v) { 
+      			fireballTutorial.setVisibility(View.INVISIBLE);
       			JSONObject req = new JSONObject();
       			JSONObject id = new JSONObject();
       			JSONObject fire = new JSONObject();
@@ -531,9 +542,13 @@ public class ARGameActivity extends WifiRequiredActivity
              	pushDeviceState(req);
      	        fireb.setEnabled(false);
      	        buttonTimer1 = true;
-             	//ImageView imageview = (ImageView) findViewById(R.id.fill);
-             	//ClipDrawable drawable = (ClipDrawable) imageview.getDrawable();
-             	//drawable.scheduleDrawable(drawable, , );
+//     	      	new Runnable() {
+//                   public void run()
+//                   {
+//                	   ImageView fireballFillAnimation = (ImageView) findViewById(R.id.fireball_fill);
+//                	   ClipDrawable drawable = (ClipDrawable) fireballFillAnimation.getDrawable();
+//                	   drawable.scheduleDrawable(drawable, this, 5000); }
+//     	      	};
      	        final Handler handler = new Handler();
      	        Timer timer = new Timer();
              	TimerTask task = new TimerTask() {
@@ -554,6 +569,7 @@ public class ARGameActivity extends WifiRequiredActivity
           		public void onClick(View v) { 
           			if(!deviceMinionInGame) {
 	          			deviceMinionInGame = true;
+	          			minionTutorial.setVisibility(View.INVISIBLE);
 	          			JSONObject req = new JSONObject();
 						JSONObject id = new JSONObject();
 						JSONObject min = new JSONObject();
@@ -572,9 +588,9 @@ public class ARGameActivity extends WifiRequiredActivity
 		          			e1.printStackTrace();
 		          		}
 						pushDeviceState(req);
-						
 						// Disable the button on a timeout to allow the game server time to process our request
 	         	        minionb.setEnabled(false);
+	         	        buttonTimer2 = true;
 	        	        final Handler handler = new Handler();
 	        	        Timer timer = new Timer();
 	                	TimerTask task = new TimerTask() {
@@ -582,6 +598,7 @@ public class ARGameActivity extends WifiRequiredActivity
 	                			handler.post(new Runnable() {
 		                				public void run() {
 		                					minionb.setEnabled(true);
+		                					buttonTimer2 = false;
 		                				}
 	                			});
 	                		}
@@ -905,16 +922,28 @@ public class ARGameActivity extends WifiRequiredActivity
     		newDeviceState.put("lastTimeElapsed", engineState.optLong("timeElapsed", -1));
     		pushDeviceState(newDeviceState);
     		
+    		
     		JSONObject minions = engineState.optJSONObject("minions");
     		if(minions != null) {
-    			deviceMinionInGame = (minions.optJSONObject("minion"+ deviceUUID) == null);
+    			deviceMinionInGame = (minions.optJSONObject("minion"+ deviceUUID) != null);
     			if(uiInflated) {
-    				minionb.setEnabled(!deviceMinionInGame);
+    					if(buttonTimer2) {
+    						//do nothing
+    					}
+    					else{
+    						minionb.setEnabled(!deviceMinionInGame);
+    					}
     			}
-    		} else {
+    		} 
+    		else {
     			deviceMinionInGame = false;
     			if(uiInflated) {
-    				minionb.setEnabled(!deviceMinionInGame);
+    				if(buttonTimer2) {
+						//do nothing
+					}
+					else{
+						minionb.setEnabled(!deviceMinionInGame);
+					}
     			}
     		}
     		
@@ -996,6 +1025,21 @@ public class ARGameActivity extends WifiRequiredActivity
     		DebugLog.LOGD("NoTarget!");
     		noTarget = true;
     	}
+    }
+    
+    private boolean checkFirstLaunch()  {
+    	boolean firstTime = false;
+    	PreferenceUtility preference = new PreferenceUtility();
+		String firstLaunch = preference.returnSavedString(getString(R.string.first_launch_flag), getString(R.string.prefs_error), this);
+		if(firstLaunch=="true")  {
+			firstTime = true;
+			firstRun = true;
+		}
+		if(firstLaunch == "false") {
+			firstTime = false;
+			firstRun = false;
+		}
+    	return firstTime;
     }
     
     /**
@@ -1242,6 +1286,7 @@ public class ARGameActivity extends WifiRequiredActivity
                             tooCloseToPlayer = false;
                             deviceMinionInGame = false;
                             makeWarningInvis();
+                            showTutorials();
                         }
                 };
                 
