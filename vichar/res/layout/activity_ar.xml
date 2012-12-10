@@ -23,7 +23,11 @@
     
     To overcome this problem, we just construct the views dynamically upon
     calling onResume to guarantee the correct order and therefore leave the 
-    layout empty now.
+    layout empty now.
+
+
+
+
 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
@@ -65,6 +69,7 @@
 
     <ImageView
         xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/crosshair"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal|center_vertical"
@@ -75,7 +80,8 @@
     android:drawable="@drawable/eyelid_top_right"
     android:scaleGravity="top|right"
     android:scaleHeight="100%"
-    android:scaleWidth="100%" />
+    android:scaleWidth="100%" />
+
     -->
 
     <ProgressBar
@@ -116,6 +122,50 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
             android:background="@drawable/fireball_button" />
+        
+        <TextView
+          android:id="@+id/textView1"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_centerHorizontal="true"
+          android:layout_centerVertical="true"
+          android:text="WARNING" />
+
+      <TextView
+          android:id="@+id/textView3"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_above="@+id/fireball_button"
+          android:layout_centerHorizontal="true"
+          android:layout_marginBottom="29dp"
+          android:text="BACK AWAY FROM ROBOT" />
+
+      <TextView
+          android:id="@+id/textView2"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_above="@+id/textView3"
+          android:layout_centerHorizontal="true"
+          android:layout_marginBottom="14dp"
+          android:text="CORTEX OVERLOAD" />
+
+      <ImageView
+          xmlns:android="http://schemas.android.com/apk/res/android"
+          android:id="@+id/minionIcon"
+          android:layout_width="30dp"
+          android:layout_height="30dp"
+          android:layout_alignParentRight="true"
+          android:layout_alignParentTop="true"
+          android:src="@drawable/minion_icon" />
+
+      <ImageView
+          xmlns:android="http://schemas.android.com/apk/res/android"
+          android:id="@+id/minionIconDisabled"
+          android:layout_width="30dp"
+          android:layout_height="30dp"
+          android:layout_alignParentRight="true"
+          android:layout_alignParentTop="true"
+          android:src="@drawable/minion_icon_disabled" />
     </RelativeLayout>
 
     <LinearLayout
