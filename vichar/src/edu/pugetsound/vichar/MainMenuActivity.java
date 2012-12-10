@@ -44,17 +44,20 @@ public class MainMenuActivity extends Activity {
     }
     
     private void createButtons() {
-    	Button gameb = (Button)findViewById(R.id.game_button); //declaring the button
+    	Button anib = (Button)findViewById(R.id.button_animation); //declaring the button
+        anib.setOnClickListener(animationListener); //making the thing that checks if the button's been pushed
+        
+        Button gameb = (Button)findViewById(R.id.game_button); //declaring the button
         gameb.setOnClickListener(gameListener); //making the thing that checks if the button's been pushed
         
+        
             //animation on play button
-            final AlphaAnimation animation = new AlphaAnimation(0, (float) 1); // Change alpha from fully visible to invisible
+            final AlphaAnimation animation = new AlphaAnimation(1, (float) .2); // Change alpha from fully visible to invisible
             animation.setDuration(1000); // duration - half a second
             animation.setInterpolator(new LinearInterpolator()); // do not alter animation rate
             animation.setRepeatCount(Animation.INFINITE); // Repeat animation infinitely
             animation.setRepeatMode(Animation.REVERSE); // Reverse animation at the end so the button will fade back in
-            final Button btn = (Button) findViewById(R.id.button_animation);
-            btn.startAnimation(animation);
+            anib.startAnimation(animation);
             
 
         
@@ -92,13 +95,18 @@ public class MainMenuActivity extends Activity {
         }
        };
        
-    private OnClickListener gameListener = new OnClickListener() { //sets what happens when the button is pushed
+    private OnClickListener animationListener = new OnClickListener() { //sets what happens when the button is pushed
     	public void onClick(View v) { 
-        	v.clearAnimation();
+    	    v.clearAnimation();
     		startActivity(new Intent(context, GameActivity.class));
         }
        };
        
+       private OnClickListener gameListener = new OnClickListener() { //sets what happens when the button is pushed
+           public void onClick(View v) { 
+               startActivity(new Intent(context, GameActivity.class));
+           }
+          };
     private OnClickListener aboutListener = new OnClickListener() { //sets what happens when the button is pushed
     	public void onClick(View v) { 
         	

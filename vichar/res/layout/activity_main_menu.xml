@@ -44,7 +44,7 @@
 	    android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:background="@drawable/game_button_ani"
+        android:background="@drawable/game_button_ani_bg"
         android:text="PLAY!"
              	   android:paddingTop="5dp"
                    android:paddingBottom="5dp"

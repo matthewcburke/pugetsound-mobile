@@ -35,7 +35,7 @@ import android.graphics.drawable.Drawable;
 public class LeaderboardActivity extends Activity implements GetJSONArrayTask.JSONArrayReceiver {
     
     final Context context = this;
-    public static JSONArray myJson; //JSON Array to be parsed
+    public JSONArray myJson; //JSON Array to be parsed
     public static JSONObject tableJson;
     public static ArrayList<String[]> names = new ArrayList<String[]>(); //ArrayList of String[]s 
     //from our JSONObject with keys at [0] and values at [1]
@@ -44,16 +44,13 @@ public class LeaderboardActivity extends Activity implements GetJSONArrayTask.JS
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_leaderboard);
-        getJson();
-        tableJson = parseJSONArray(myJson);
-        names = getJSONStrings(tableJson);
-        names = sortScores(names);
-        createButtons();
-        createTable();
         
         //help with banding on gradients
         getWindow().setFormat(PixelFormat.RGBA_8888);
+        
+        setContentView(R.layout.activity_leaderboard);
+        getJson();
+       
         
     }
     
@@ -66,7 +63,7 @@ public class LeaderboardActivity extends Activity implements GetJSONArrayTask.JS
         new GetJSONArrayTask(this).execute(url);
         }
         catch(Exception E) {
-            System.out.println("exception caught");
+            System.out.println("exception caught @getJson");
         }
     }
     
@@ -74,7 +71,13 @@ public class LeaderboardActivity extends Activity implements GetJSONArrayTask.JS
     public void onReceiveJSONArray(String jstring) {
         try {
             myJson = new JSONArray(jstring);
-            System.out.println(jstring);
+            System.out.println(myJson.toString() + "@onReceiveJSONArray");
+            tableJson = parseJSONArray(myJson);
+            names = getJSONStrings(tableJson);
+            names = sortScores(names);
+            createButtons();
+            createTable();
+
         }
         catch(Exception e) {
             
@@ -87,8 +90,8 @@ public class LeaderboardActivity extends Activity implements GetJSONArrayTask.JS
         for (int i = 0; i<leng; i++) {
             try {
             JSONObject temp = array.getJSONObject(i);
-            String namestr = temp.getString("names");
-            String scorestr = temp.getString("scores");
+            String namestr = temp.getString("name");
+            String scorestr = temp.getString("score");
             retval.put(namestr, scorestr);
             }
             catch(Exception e) {
@@ -374,6 +377,22 @@ public class LeaderboardActivity extends Activity implements GetJSONArrayTask.JS
         //puts the table on the screen
         addContentView(table, new LayoutParams( LayoutParams.MATCH_PARENT , LayoutParams.MATCH_PARENT ) );
         }
+
+
+//    /**
+//     * @return the myJson
+//     */
+//    public static JSONArray getMyJson() {
+//        return myJson;
+//    }
+//
+//
+//    /**
+//     * @param myJson the myJson to set
+//     */
+//    public static void setMyJson(JSONArray myJson) {
+//        LeaderboardActivity.myJson = myJson;
+//    }
 
 
 }

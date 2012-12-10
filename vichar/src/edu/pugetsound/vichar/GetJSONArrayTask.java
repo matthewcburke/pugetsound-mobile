@@ -36,7 +36,7 @@ public class GetJSONArrayTask extends AsyncTask<URL, Void, String> {
     @Override
     protected String doInBackground(URL... urls) {
         // Initialize return object
-        JSONArray json = null;
+        JSONObject json = null;
         
         // Sorry, but we're only going to support one URL
         URL url = urls[0];
@@ -63,7 +63,7 @@ public class GetJSONArrayTask extends AsyncTask<URL, Void, String> {
             
             // Close connection
             conn.disconnect();
-            json = new JSONArray(body);
+            json = new JSONObject(body);
         } catch(JSONException e){
             Log.i(this.toString(), "getJSON(): JSONException");
         } catch(IOException e) {
@@ -72,7 +72,7 @@ public class GetJSONArrayTask extends AsyncTask<URL, Void, String> {
         
         //TODO check for failure and retry a few times?
         
-        // return the resulting JSONArray
+        // return the resulting JSONArray in strings
         return body;
     }
 
