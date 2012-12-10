@@ -84,7 +84,7 @@ import edu.pugetsound.vichar.*;
 
 
 /** The main activity for the ARGameActivity. */
-public class ARGameActivity extends WifiRequiredActivity implements SensorEventListener
+public class ARGameActivity extends WifiRequiredActivity
 {
     // Application status constants:
     private static final int APPSTATUS_UNINITED         = -1;
@@ -180,19 +180,13 @@ public class ARGameActivity extends WifiRequiredActivity implements SensorEventL
     private TextView cortex;
     private TextView robot;
     private ImageView crosshair;
-    private ImageView minion;
-    private ImageView minionDisabled;
-    private boolean isMinion;
-    private boolean buttonTimer;
+    private boolean buttonTimer1;
+    private boolean buttonTimer2;
     private boolean distance;
-    
-    private SensorManager mSensorManager;
-    private Sensor mAccelerometer;
-    private final float NOISE = (float) 20.0;
-    private float mLastX, mLastY, mLastZ;
-    private boolean mInitialized;
+    private boolean isMinion;
     
     private Button fireb;
+    private Button minionb;
     private int energy = 500; //the robot's energy level (health)
     
     /** Static initializer block to load native libraries on start-up. */
@@ -418,15 +412,23 @@ public class ARGameActivity extends WifiRequiredActivity implements SensorEventL
     	}
     }
 
-    private void resizeButton() {
+    private void resizeButtons() {
     	fireb = (Button)findViewById(R.id.fireball_button);
-    	ViewGroup.LayoutParams params = fireb.getLayoutParams();
-    	double ratio = params.height / params.width;
-    	double width = MAX_BUTTON_TO_SCREEN_RATIO * mScreenHeight;
-    	double height = width * ratio;
-        params.width = (int) width;
-        params.height = (int) height;
-        fireb.setLayoutParams(params);
+    	ViewGroup.LayoutParams fparams = fireb.getLayoutParams();
+    	double fratio = fparams.height / fparams.width;
+    	double fwidth = MAX_BUTTON_TO_SCREEN_RATIO * mScreenHeight;
+    	double fheight = fwidth * fratio;
+        fparams.width = (int) fwidth;
+        fparams.height = (int) fheight;
+        fireb.setLayoutParams(fparams);
+        minionb = (Button)findViewById(R.id.minion_button);
+    	ViewGroup.LayoutParams mparams = fireb.getLayoutParams();
+    	double mratio = mparams.height / mparams.width;
+    	double mwidth = MAX_BUTTON_TO_SCREEN_RATIO * mScreenHeight;
+    	double mheight = mwidth * mratio;
+        mparams.width = (int) mwidth;
+        mparams.height = (int) mheight;
+        fireb.setLayoutParams(mparams);
     }
     
     
@@ -461,9 +463,11 @@ public class ARGameActivity extends WifiRequiredActivity implements SensorEventL
     	updateApplicationStatus(APPSTATUS_INIT_APP);    	
     }
     
-    private void makeFireballButton() {
+    private void makeGameButtons() {
     	fireb = (Button)findViewById(R.id.fireball_button); //declaring the button
         fireb.setOnClickListener(fireListener);
+        minionb = (Button)findViewById(R.id.minion_button); //declaring the button
+        minionb.setOnClickListener(minionListener);
     }
     
     private OnTouchListener tweetHandleListener = new OnTouchListener() {
@@ -497,10 +501,7 @@ public class ARGameActivity extends WifiRequiredActivity implements SensorEventL
     	crosshair = (ImageView)findViewById(R.id.crosshair);
     	crosshair.setVisibility(View.VISIBLE);
     }
-       
-       public void onAccuracyChanged(Sensor sensor, int accuracy) {
-			// TODO Auto-generated method stub		
-	}
+
        
        
        
@@ -527,7 +528,7 @@ public class ARGameActivity extends WifiRequiredActivity implements SensorEventL
              	}
              	pushDeviceState(req);
      	        fireb.setEnabled(false);
-     	        buttonTimer = true;
+     	        buttonTimer1 = true;
              	//ImageView imageview = (ImageView) findViewById(R.id.fill);
              	//ClipDrawable drawable = (ClipDrawable) imageview.getDrawable();
              	//drawable.scheduleDrawable(drawable, , );
@@ -538,7 +539,7 @@ public class ARGameActivity extends WifiRequiredActivity implements SensorEventL
              			handler.post(new Runnable() {
              				public void run() {
              					fireb.setEnabled(true);
-             					buttonTimer = false;
+             					buttonTimer1 = false;
              					}
              				});
              			}
@@ -547,81 +548,37 @@ public class ARGameActivity extends WifiRequiredActivity implements SensorEventL
              		}
       		};
       		
-      public void onSensorChanged(SensorEvent event) {
-       			motionDetect(event);
-       		}
+            private OnClickListener minionListener = new OnClickListener() { 
+          		public void onClick(View v) { 
+          			if(isMinion = false) {
+          			isMinion = true;
+          			JSONObject req = new JSONObject();
+					JSONObject id = new JSONObject();
+					JSONObject min = new JSONObject();
+					JSONObject stuff = new JSONObject();
+					long time = System.currentTimeMillis();
+					float[] cameraLoc = getCameraLocation();
+					try {
+						stuff.put("timeCreated", time);
+	          			stuff.put("position", makePositionJSON(cameraLoc[1], cameraLoc[2], cameraLoc[3]));
+	          			stuff.put("rotation", makeRotationJSON(cameraLoc[4], cameraLoc[5], cameraLoc[6]));
+	          			id.put("" + time, stuff);
+	          			min.put("minions", id);
+	          			req.put("requests", min);
+	          		} catch (JSONException e1) {
+	          			// TODO Auto-generated catch block
+	          			e1.printStackTrace();
+	          		}
+					pushDeviceState(req);
+         	        minionb.setEnabled(false);
+                 	//ImageView imageview = (ImageView) findViewById(R.id.fill);
+                 	//ClipDrawable drawable = (ClipDrawable) imageview.getDrawable();
+                 	//drawable.scheduleDrawable(drawable, , );
+                 	}
+          		}
+          	};
+      		
         
-        public void motionDetect(SensorEvent event) {
-        	if(isMinion == false) {
-        		float x = event.values[0];
-        		float y = event.values[1];
-        		float z = event.values[2];
-        		while (!mInitialized) {
-        			mLastX = x;
-        			mLastY = y;
-        			mLastZ = z;
-        			mInitialized = true;
-    				} 
-    				float deltaX = Math.abs(mLastX - x);
-    				float deltaY = Math.abs(mLastY - y);
-    				float deltaZ = Math.abs(mLastZ - z);
-    				if (deltaX < NOISE) deltaX = (float)0.0;
-    				if (deltaY < NOISE) deltaY = (float)0.0;
-    				if (deltaZ < NOISE) deltaZ = (float)0.0;
-    				mLastX = x;
-    				mLastY = y;
-    				mLastZ = z;
-    				if (deltaX > deltaY) {
-    					minion.setVisibility(View.INVISIBLE);
-    					minionDisabled.setVisibility(View.VISIBLE);
-    					isMinion = true;
-    					JSONObject req = new JSONObject();
-    					JSONObject id = new JSONObject();
-    					JSONObject min = new JSONObject();
-    					JSONObject stuff = new JSONObject();
-    					long time = System.currentTimeMillis();
-    					float[] cameraLoc = getCameraLocation();
-    					try {
-    						stuff.put("timeCreated", time);
-    	          			stuff.put("position", makePositionJSON(cameraLoc[1], cameraLoc[2], cameraLoc[3]));
-    	          			stuff.put("rotation", makeRotationJSON(cameraLoc[4], cameraLoc[5], cameraLoc[6]));
-    	          			id.put("" + time, stuff);
-    	          			min.put("minions", id);
-    	          			req.put("requests", min);
-    	          		} catch (JSONException e1) {
-    	          			// TODO Auto-generated catch block
-    	          			e1.printStackTrace();
-    	          		}
-    					pushDeviceState(req);
-    				} 
-//    				else if (deltaY > deltaX) {
-//    					minion.setVisibility(View.INVISIBLE);
-//    					minionDisabled.setVisibility(View.VISIBLE);
-//    					JSONObject req = new JSONObject();
-//    	   				JSONObject id = new JSONObject();
-//    	   				JSONObject min = new JSONObject();
-//    	   				JSONObject stuff = new JSONObject();
-//    	          		long time = System.currentTimeMillis();
-//    	          		float[] cameraLoc = getCameraLocation();
-//    	          		try {
-//    	          			stuff.put("timeCreated", time);
-//    	      				stuff.put("position", makePositionJSON(cameraLoc[0], cameraLoc[1], cameraLoc[2]));
-//    	      				stuff.put("rotation", makeRotationJSON(cameraLoc[3], cameraLoc[4], cameraLoc[5]));
-//    	      				id.put("" + time, stuff);
-//    	      				min.put("minions", id);
-//    	      				req.put("requests", min);
-//    	          		} catch (JSONException e1) {
-//    	          			// TODO Auto-generated catch block
-//    	          			e1.printStackTrace();
-//    	          		}
-//    	          	pushDeviceState(req);
-//    			}
-    				else {
-    					//do nothing
-    				}	
-    		}
-        }
-    
     private boolean tweetContainerTouch(View v, MotionEvent me)  {
     	View tweetContainer = (View) findViewById(edu.pugetsound.vichar.R.id.tweet_container);
     	//check type of touch action
@@ -874,13 +831,6 @@ public class ARGameActivity extends WifiRequiredActivity implements SensorEventL
         DebugLog.LOGD("ARGameActivity::onResume");
         super.onResume();
         
-        try {
-        	mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL); 
-        }
-        catch(NullPointerException e) {
-        	//do nothing just wait
-        }
-        
         // QCAR-specific resume operation
         QCAR.onResume();
         
@@ -950,21 +900,20 @@ public class ARGameActivity extends WifiRequiredActivity implements SensorEventL
 
     		updateTwitterState(webState);    		
     		updateHealthBar(engineState);
-    		updateMinionStatus(engineState);
     		updateDistanceCheck(engineState);
-//    		if(distance = true) {
-//    			makeWarningVis();
-//    			fireb.setEnabled(false);
-//    		}
-//    		else {
-//    			makeWarningInvis();
-//    			if(buttonTimer = true) {
-//    				//do nothing
-//    			}
-//    			else {
-//    				fireb.setEnabled(true);
-//    			}
-//    		}
+    		if(distance = true) {
+    			makeWarningVis();
+    			fireb.setEnabled(false);
+    		}
+    		else {
+    			makeWarningInvis();
+    			if(buttonTimer1 = true) {
+    				//do nothing
+    			}
+    			else {
+    				fireb.setEnabled(true);
+    			}
+    		}
 
     	} catch(JSONException e) {
     		//shit!
@@ -972,9 +921,6 @@ public class ARGameActivity extends WifiRequiredActivity implements SensorEventL
     	}
     }
     
-    public void updateMinionStatus(JSONObject engineState) {
-    	
-    }
     
     public void updateDistanceCheck(JSONObject engineState) throws JSONException {
     	JSONObject player = engineState.optJSONObject("player");
@@ -1000,7 +946,16 @@ public class ARGameActivity extends WifiRequiredActivity implements SensorEventL
         		if(dist < minDist) {
         			distance = true;
         		}
+        		else {
+        			distance = false;
+        		}
     		}
+    		else {
+    			distance = false;
+    		}
+    	}
+    	else {
+    		distance = true;
     	}
     }
     
@@ -1026,13 +981,6 @@ public class ARGameActivity extends WifiRequiredActivity implements SensorEventL
     {
         DebugLog.LOGD("ARGameActivity::onPause");
         super.onPause();
-        
-        try {
-        	mSensorManager.unregisterListener(this);
-        }
-        catch(NullPointerException e) {
-        	//do nothing just wait
-        }
         
         if (mGlView != null)
         {
@@ -1248,29 +1196,15 @@ public class ARGameActivity extends WifiRequiredActivity implements SensorEventL
                     	    	twContainer.setVisibility(View.GONE);
                     	    }                    	    
                     	  
-                            makeFireballButton();
+                            makeGameButtons();
                             resizeEyelids();  
-                            resizeButton();
-                            isMinion = false;
+                            resizeButtons();
                             distance = false;
+                            isMinion = false;
                             makeWarningInvis();
-                            minion = (ImageView)findViewById(R.id.minionIcon);
-                            minionDisabled = (ImageView)findViewById(R.id.minionIconDisabled);
-                            minion.setVisibility(View.VISIBLE);
-                            minionDisabled.setVisibility(View.INVISIBLE);
                         }
                 };
                 
-              //set sensor managers
-                try {
-                	mInitialized = false;
-                	mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
-                	mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-                	mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-                }
-                catch (NullPointerException e) {
-                	//do nothing just wait 
-                }
 
                 mSplashScreenHandler.postDelayed(mSplashScreenRunnable,
                                                     newSplashScreenTime);
