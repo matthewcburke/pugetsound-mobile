@@ -6,6 +6,7 @@ package edu.pugetsound.vichar;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -30,6 +31,10 @@ public class LoginActivity extends Activity {
 	    setContentView(R.layout.activity_login);
 	    Button button = (Button)findViewById(R.id.button1);
 		button.setOnClickListener(startListener);
+		
+        //help with banding on gradients
+        getWindow().setFormat(PixelFormat.RGBA_8888);
+        
 	}
 	
 	private OnClickListener startListener = new OnClickListener() {

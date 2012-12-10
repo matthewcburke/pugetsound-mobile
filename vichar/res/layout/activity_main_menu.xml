@@ -20,20 +20,28 @@
     case this exponent is small enough (we only nest one layer deep) for this effect to
     be negligable. 
      -->
+     <FrameLayout
+        android:layout_weight="2.5"
+   		android:layout_height="0dp"
+    	android:layout_width="match_parent"
+    	android:id="@+id/foreground_gameb"
+    	android:layout_margin="5dp"
+    	android:foreground="@drawable/rocket"
+    	android:foregroundGravity="left|center">
     <Button
         android:id="@+id/game_button"
-        android:layout_height="0dp"
-        android:layout_width="fill_parent"
-        android:layout_weight="2.5"
-        android:layout_marginTop="10dp"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
         android:text="PLAY!"
-        android:layout_margin="5dp"
              	   android:paddingTop="5dp"
                    android:paddingBottom="5dp"
-                   android:textColor="@drawable/game_button_txt"
+                   android:textColor="@drawable/grayscale_button_txt"
                    style="@style/BigShadowTextStyle"
                    android:background="@drawable/game_button_bg"
                    android:gravity="center|right" />
+    </FrameLayout>
+    
+    
 
     <LinearLayout 
          android:baselineAligned="false"
@@ -44,6 +52,7 @@
          android:orientation="horizontal">
 
         <FrameLayout
+    	android:layout_margin="5dp"            
         android:layout_weight="1"
    		android:layout_width="0dp"
     	android:layout_height="match_parent"
@@ -54,7 +63,6 @@
         	android:layout_width="match_parent"
       		android:layout_height="match_parent"
         	android:text="@string/enter_rules" 
-        	android:layout_margin="5dp"
              	   android:paddingTop="5dp"
                    android:paddingBottom="5dp"
                    android:textColor="@drawable/grayscale_button_txt"
@@ -64,6 +72,7 @@
 		</FrameLayout>
 
         <FrameLayout
+    	android:layout_margin="5dp"
         android:layout_weight="1"
    		android:layout_width="0dp"
     	android:layout_height="match_parent"
@@ -74,7 +83,6 @@
             style="@style/ShadowTextStyle"
         	android:layout_width="match_parent"
       		android:layout_height="match_parent"
-            android:layout_margin="5dp"
             android:background="@drawable/scores_button_bg"
             android:gravity="center|top"
             android:paddingBottom="5dp"
@@ -86,6 +94,7 @@
 	</LinearLayout>
     
     <LinearLayout 
+
          android:baselineAligned="false"
          android:layout_height="0dp"
       	 android:layout_width="fill_parent"
@@ -94,6 +103,7 @@
          android:orientation="horizontal">
         
 	    <FrameLayout
+    	    android:layout_margin="5dp"	        
 	        android:layout_weight="1"
 	   		android:layout_width="0dp"
 	    	android:layout_height="match_parent"
@@ -103,7 +113,6 @@
 		        android:id="@+id/about_button"
 		        android:layout_width="match_parent"
 		      	android:layout_height="match_parent"
-		        android:layout_margin="5dp"
 		        android:text="@string/enter_about" 
 		                   android:paddingTop="5dp"
 		                   android:paddingBottom="5dp"
@@ -114,17 +123,17 @@
 		</FrameLayout>
 
 	    <FrameLayout
+    	    android:layout_margin="5dp"
 	        android:layout_weight="1"
 	   		android:layout_width="0dp"
 	    	android:layout_height="match_parent"
-	    	android:foreground="@drawable/wrench"
+	    	android:foreground="@drawable/user"
 	    	android:foregroundGravity="center">
 		    <Button
 		        android:id="@+id/settings_button"
 		        android:layout_width="match_parent"
 		      	android:layout_height="match_parent"
-		        android:text="@string/enter_settings"    
-		                   android:layout_margin="5dp"
+		        android:text="@string/logout_twitter"    
 		                   android:paddingTop="5dp"
 		                   android:paddingBottom="5dp"
 		                   android:textColor="@drawable/grayscale_button_txt"
