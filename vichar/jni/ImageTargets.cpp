@@ -123,8 +123,8 @@ static const int turretBulletId = 2;
 float turretBulletScale[3] = {5.0, 5.0, 5.0};
 
 //Turrent Base unimplemented thus far
-//static const int turretBaseId=*****;
-//float turretBaseScale[3]={20,20,40};
+//static const int turretBaseId=*****; We dont need this
+float turretBaseScale[3]={20,20,40};
 
 static const int fireballId = 3;
 float fireballScale[3] = {20.0, 20.0, 20.0};   //These values assigned before fireball model created -- could need adjustment
@@ -398,10 +398,12 @@ updateDrawList()
 
 //this method pulls substantially from updateDominoTransform in Dominoes.cpp
 
+int drawListPos=0;
+
 for(int i = 0; i<interpLength; i++)
 {
 	 
-	Model* current= &drawList[i];
+	Model* current= &drawList[drawListPos];
 
 	float* position = &current->pos[0];
 	float* angle = &current->ang[0];
@@ -409,6 +411,16 @@ for(int i = 0; i<interpLength; i++)
 
 	current->id= (int) interpList[i][0];
 	int id = (int) interpList[i][0];
+
+	//float position[3];
+	position[0]=interpList[i][1];
+	position[1]=interpList[i][2];
+	position[2]=interpList[i][3];
+
+	//float angle[3];
+	angle[0]=interpList[i][4];
+	angle[1]=interpList[i][5];
+	angle[2]=interpList[i][6];
 
 	switch (id)
 	    {
@@ -418,16 +430,45 @@ for(int i = 0; i<interpLength; i++)
 	        	current->texPointer=&towertopTexCoords[0];
 	        	current->numVerts=towertopNumVerts;
 
-	        	/*
-	        	 * Maybe put the tower bottom in here?
-	        	 *
-	        	 * */
-
 				scale[0]=turretScale[0];
 				scale[1]=turretScale[1];
 				scale[2]=turretScale[2];
 
 	        	current->modelTex= textures[1];
+
+	        	/* ***Maybe put the tower bottom in here?
+
+	        	Model* turBase= &drawList[i+1];
+				float* positionTB = &turBase->pos[0];
+				float* angleTB = &turBase->ang[0];
+				float* scaleTB = &turBase->scale[0];
+
+				turBase->vertPointer=&towerbotVerts[0];
+	        	turBase->normPointer=&towerbotNormals[0];
+	        	turBase->texPointer=&towerbotTexCoords[0];
+	        	turBase->numVerts=towerbotNumVerts;
+
+				//float position[3];
+				positionTB[0]=interpList[i][1];
+				positionTB[1]=interpList[i][2];
+				// Z needs to be lowered by some degree
+				positionTB[2]=interpList[i][3] - 2.0;
+
+				//float angle[3];
+				angleTB[0]=0.0;
+				angleTB[1]=0.0;
+				angleTB[2]=0.0;
+
+				drawCount=drawCount+1;
+				drawListPos=drawListPos+1;
+				float turretBaseScale[3]={20,20,40};
+				//TB Scale here
+				
+				scaleTB[0]=turretBaseScale[0];
+				scaleTB[1]=turretBaseScale[1];
+				scaleTB[2]=turretBasecale[2];
+	        	 * */
+
 	        	break;
 
 	        case 2: //Turrent Shell
@@ -525,17 +566,7 @@ for(int i = 0; i<interpLength; i++)
 	        default:
 	        	return;
 	    }
-
-	//float position[3];
-	position[0]=interpList[i][1];
-	position[1]=interpList[i][2];
-	position[2]=interpList[i][3];
-
-	//float angle[3];
-	angle[0]=interpList[i][4];
-	angle[1]=interpList[i][5];
-	angle[2]=interpList[i][6];
-
+	drawListPos=drawListPos+1;
 	drawCount=drawCount+1;
 	}
 }
