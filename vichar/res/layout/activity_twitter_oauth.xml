@@ -14,7 +14,8 @@
         android:id="@+id/pin_inputs"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom" >
+        android:layout_gravity="bottom"
+        android:background="#000000" >
 
         <EditText
             android:id="@+id/twitter_auth_pin"
@@ -23,7 +24,8 @@
             android:layout_weight=".3"
             android:ems="10"
             android:hint="@string/enter_pin"
-            android:inputType="number" />
+            android:inputType="number"
+            android:textColor="#FFFFFF" />
 
         <Button
             android:id="@+id/ok_button"

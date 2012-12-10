@@ -3,7 +3,6 @@ package edu.pugetsound.vichar;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.User;
-import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
 import android.os.AsyncTask;
 

@@ -3,8 +3,7 @@ package edu.pugetsound.vichar;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.res.ColorStateList;
-import android.content.res.XmlResourceParser;
+import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -23,18 +22,22 @@ import android.widget.EditText;
  * @version 12/9/12
  */
 
-public class LoginActivity extends Activity {
+public class LoginActivity extends Activity {	
 	
 	EditText snEntry;
 	Boolean validSn; //is current screen name of valid length?
 
 	/** Called when the activity is first created. */
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(Bundle savedInstanceState) {		
+		super.onCreate(savedInstanceState);		
+		//minimize button pixelation
+		getWindow().setFormat(PixelFormat.RGBA_8888);
+		
 		validSn = false;
-	    super.onCreate(savedInstanceState);
+	   
 	    setContentView(R.layout.activity_login);
-	    Button button = (Button)findViewById(R.id.enter_guest);
+	    Button button = (Button) findViewById(R.id.enter_guest);
 		button.setOnClickListener(startListener);
 		setButtonInactive();
 		

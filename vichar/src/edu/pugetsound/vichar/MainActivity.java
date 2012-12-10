@@ -28,8 +28,8 @@ public class MainActivity extends WifiRequiredActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         PreferenceUtility prefs = new PreferenceUtility();
-        String loginInfo = prefs.returnSavedString(getString(R.string.access_token_key), getString(R.string.prefs_error), this);
-        if(loginInfo != getString(R.string.prefs_error)) {
+        Boolean twLoggedIn = prefs.returnBoolean(getString(R.string.tw_login_key), false, this);
+        if(twLoggedIn == true) {
         	prefs.saveBoolean(getString(R.string.tw_login_key), true, this);
         	Button button = (Button)findViewById(R.id.login_with_twitter);
         	button.setText("Continue with Twitter");
