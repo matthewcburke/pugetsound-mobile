@@ -926,7 +926,7 @@ public class ARGameActivity extends WifiRequiredActivity implements SensorEventL
      */
     private void onGameStateChange(String stateStr) {
     	
-    	pushDeviceState(obtainDeviceState());
+    	
     	//DebugLog.LOGI("onGameStateChange:" + stateStr);
     	
     	System.out.println(stateStr);
@@ -936,6 +936,12 @@ public class ARGameActivity extends WifiRequiredActivity implements SensorEventL
 
     		//Pull out official namespaces
     		JSONObject engineState = (JSONObject) gameState.get(GAME_ENGINE_NAMESPACE);
+    		
+    		// Give the server/game our last received timeElapsed or zero if there is none
+    		JSONObject newDeviceState = obtainDeviceState();
+    		newDeviceState.put("lastTimeElapsed", engineState.optLong("timeElapsed", -1));
+    		pushDeviceState(newDeviceState);
+    		
     		if(!GameParser.updated)
     		{
     			GameParser.parseEngineState(engineState, deviceUUID);
