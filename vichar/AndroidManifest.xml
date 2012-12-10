@@ -53,7 +53,8 @@
 	        android:name="edu.pugetsound.vichar.ar.ARGameActivity"
 	        android:label="@string/ar_name"
 	        android:configChanges="screenSize|orientation|keyboardHidden"
-	        android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+	        android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+	        android:noHistory="true">
 		</activity>
         <activity
             android:name=".LoginActivity"
