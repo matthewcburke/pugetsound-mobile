@@ -724,7 +724,9 @@ public class ARGameActivity extends WifiRequiredActivity
         Button tweetHandle = (Button)findViewById(edu.pugetsound.vichar.R.id.tweet_frag_button);    
         AlphaAnimation alpha = new AlphaAnimation(0.50f, 1f);
         alpha.setFillAfter(true);
-        tweetHandle.startAnimation(alpha);        
+        tweetHandle.startAnimation(alpha);  
+        
+        snapTwitterOff();
     }
     
     /**

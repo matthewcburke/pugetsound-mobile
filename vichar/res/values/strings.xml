@@ -27,7 +27,7 @@
     <string name="rules_overload">But if you get too close to the robot, your cortex overloads!</string>
     <string name="rules_minions">Or, you can drop minions to do the work for you</string>
     <string name="rules_energy">Track the robot\'s health with the energy bar</string>
-    <string name="rules_twitter">If you have a Twitter account, tweet words of encouragement for your team to gain bonuses</string>
+    <string name="rules_twitter">If logged in, tweet words of encouragement \n for your team to gain bonuses</string>
     <string name="rules_tw_enable">A solid twitter button indicates an opportunity to do so</string>
     <string name="rules_good_luck">Good luck eyes!</string>
 
@@ -70,7 +70,7 @@
 
     <string name="corner_radious">8dp</string>
 
-	 <string name="title_activity_test">TestActivity</string>
+	<string name="title_activity_test">TestActivity</string>
     <string name="title_activity_leaderboard">Leaderboard</string>
     <string name="title_activity_main_menu">ViChar Menu</string>
     <string name="title_activity_rules">How To</string>
