@@ -39,7 +39,20 @@
                    style="@style/BigShadowTextStyle"
                    android:background="@drawable/game_button_bg"
                    android:gravity="right|center" />
-    <ImageView 
+    <Button
+        android:id="@+id/button_animation"
+	    android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:background="@drawable/game_button_ani"
+        android:text="PLAY!"
+             	   android:paddingTop="5dp"
+                   android:paddingBottom="5dp"
+                   android:textColor="@drawable/game_button_txt"
+                   style="@style/BigShadowTextStyle"
+                   android:gravity="right|center"
+      />
+        <ImageView 
 	    android:id="@+id/vichar_robot"
 	    android:layout_width="75dp"
         android:layout_height="75dp"

@@ -45,7 +45,14 @@
         android:layout_gravity="center"
         android:src="@drawable/robot_icon_large_mdpi"
 	  />
-    
+    <Button
+        android:id="@+id/button_animation"
+	    android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:background="@drawable/game_button_ani"
+      />
+ 
     </FrameLayout>
 
     <LinearLayout 
