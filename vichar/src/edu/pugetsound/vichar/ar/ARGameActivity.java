@@ -660,9 +660,9 @@ public class ARGameActivity extends WifiRequiredActivity
     	mTextures.add(Texture.loadTextureFromApk("projtexture.png", getAssets()));//turretbullet
     	mTextures.add(Texture.loadTextureFromApk("fireball180.png", getAssets()));	//fireball
     	mTextures.add(Texture.loadTextureFromApk("minion_skin.png", getAssets()));	//minion
-    	mTextures.add(Texture.loadTextureFromApk("battery.png", getAssets()));	//battery
-    	mTextures.add(Texture.loadTextureFromApk("CharTry1.png", getAssets()));	//player
-    	mTextures.add(Texture.loadTextureFromApk("EyeBall1.png", getAssets()));	//eyeball
+    	mTextures.add(Texture.loadTextureFromApk("battery180.png", getAssets()));	//battery
+    	mTextures.add(Texture.loadTextureFromApk("CharTry180.png", getAssets()));	//player
+    	mTextures.add(Texture.loadTextureFromApk("EyeBall180.png", getAssets()));	//eyeball
     	mTextures.add(Texture.loadTextureFromApk("tiletexture.png", getAssets()));	//tile/platform
 
     }
