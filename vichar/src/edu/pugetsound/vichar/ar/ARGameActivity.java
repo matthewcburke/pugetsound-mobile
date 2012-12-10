@@ -942,7 +942,7 @@ public class ARGameActivity extends WifiRequiredActivity
         		float y = py - my;
         		float z = pz - mz;
         		Float dist = FloatMath.sqrt((x * x) + (y * y) + (z * z));
-        		float minDist = 100000000;
+        		float minDist = 1000;
         		if(dist < minDist) {
         			distance = true;
         		}
