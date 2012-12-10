@@ -423,13 +423,13 @@ public class ARGameActivity extends WifiRequiredActivity
         fparams.height = (int) fheight;
         fireb.setLayoutParams(fparams);
         minionb = (Button)findViewById(R.id.minion_button);
-    	ViewGroup.LayoutParams mparams = fireb.getLayoutParams();
+    	ViewGroup.LayoutParams mparams = minionb.getLayoutParams();
     	double mratio = mparams.height / mparams.width;
     	double mwidth = MAX_BUTTON_TO_SCREEN_RATIO * mScreenHeight;
     	double mheight = mwidth * mratio;
         mparams.width = (int) mwidth;
         mparams.height = (int) mheight;
-        fireb.setLayoutParams(mparams);
+        minionb.setLayoutParams(mparams);
     }
     
     
@@ -552,29 +552,29 @@ public class ARGameActivity extends WifiRequiredActivity
             private OnClickListener minionListener = new OnClickListener() { 
           		public void onClick(View v) { 
           			if(isMinion = false) {
-          			isMinion = true;
-          			JSONObject req = new JSONObject();
-					JSONObject id = new JSONObject();
-					JSONObject min = new JSONObject();
-					JSONObject stuff = new JSONObject();
-					long time = System.currentTimeMillis();
-					float[] cameraLoc = getCameraLocation();
-					try {
-						stuff.put("timeCreated", time);
-	          			stuff.put("position", makePositionJSON(cameraLoc[1], cameraLoc[2], cameraLoc[3]));
-	          			stuff.put("rotation", makeRotationJSON(cameraLoc[4], cameraLoc[5], cameraLoc[6]));
-	          			id.put("" + time, stuff);
-	          			min.put("minions", id);
-	          			req.put("requests", min);
-	          		} catch (JSONException e1) {
-	          			// TODO Auto-generated catch block
-	          			e1.printStackTrace();
-	          		}
-					pushDeviceState(req);
-         	        minionb.setEnabled(false);
-                 	//ImageView imageview = (ImageView) findViewById(R.id.fill);
-                 	//ClipDrawable drawable = (ClipDrawable) imageview.getDrawable();
-                 	//drawable.scheduleDrawable(drawable, , );
+	          			isMinion = true;
+	          			JSONObject req = new JSONObject();
+						JSONObject id = new JSONObject();
+						JSONObject min = new JSONObject();
+						JSONObject stuff = new JSONObject();
+						long time = System.currentTimeMillis();
+						float[] cameraLoc = getCameraLocation();
+						try {
+							stuff.put("timeCreated", time);
+		          			stuff.put("position", makePositionJSON(cameraLoc[1], cameraLoc[2], cameraLoc[3]));
+		          			stuff.put("rotation", makeRotationJSON(cameraLoc[4], cameraLoc[5], cameraLoc[6]));
+		          			id.put("" + time, stuff);
+		          			min.put("minions", id);
+		          			req.put("requests", min);
+		          		} catch (JSONException e1) {
+		          			// TODO Auto-generated catch block
+		          			e1.printStackTrace();
+		          		}
+						pushDeviceState(req);
+	         	        minionb.setEnabled(false);
+	                 	//ImageView imageview = (ImageView) findViewById(R.id.fill);
+	                 	//ClipDrawable drawable = (ClipDrawable) imageview.getDrawable();
+	                 	//drawable.scheduleDrawable(drawable, , );
                  	}
           		}
           	};
@@ -902,11 +902,11 @@ public class ARGameActivity extends WifiRequiredActivity
     		updateTwitterState(webState);    		
     		updateHealthBar(engineState);
     		updateDistanceCheck(engineState);
-    		if(distance = true) {
+    		if(distance = true && uiInflated) {
     			makeWarningVis();
     			fireb.setEnabled(false);
     		}
-    		else {
+    		else if(uiInflated) {
     			makeWarningInvis();
     			if(buttonTimer1 = true) {
     				//do nothing
