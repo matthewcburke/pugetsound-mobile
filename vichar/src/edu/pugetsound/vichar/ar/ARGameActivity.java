@@ -150,9 +150,8 @@ public class ARGameActivity extends WifiRequiredActivity
     private static final String WEB_NAMESPACE = "web";
     private String deviceUUID; // Device namespace
     
-    private static boolean test = false;
-    private static final String STATIC_ENGINE_STATE = 
-    		"{gameRunning:false,turrets:{},turretBullets:{},fireballs:{},batteries:{},player:{energy:0,position:{x:0,y:0,z:0}},eyeballs:{},platforms:{rows:0,columns:0,deletedTiles:[[0,0],[7,7],[2,2],[1,1],[3,3],[4,4],[5,5],[6,6] ]}}"; // for use when not connected to the network
+
+    private static final String STATIC_ENGINE_STATE = "{gameRunning:false,player:{energy:100,position:{x:0.0,y:0.0,z:0.0},rotation:{x:0.0,y:90.0,z:0.0}},minions:{MattsMinion:{position:{x:10.0,y:10.0,z:0.0},rotation:{x:0.0,y:0.0,z:0.0}},fireballs:{SparkyBoomMan:{position:{x:20.0,y:20.0,z:5.0},rotation:{x:0.0,y:0.0,z:0.0}}},batteries:{Energizer:{position:{x:-15.0,y:0.0.z:0.0}}},eyeballs:{Peeper:{position:{x:30.0,y:30.0,z:20.0}}}}"; // for use when not connected to the network
 
 	// Service Stuff
     private Messenger networkingServiceMessenger = null;
@@ -662,7 +661,7 @@ public class ARGameActivity extends WifiRequiredActivity
     	mTextures.add(Texture.loadTextureFromApk("fireball180.png", getAssets()));	//fireball
     	mTextures.add(Texture.loadTextureFromApk("minion_skin.png", getAssets()));	//minion
     	mTextures.add(Texture.loadTextureFromApk("battery180.png", getAssets()));	//battery
-    	mTextures.add(Texture.loadTextureFromApk("CharTry180.png", getAssets()));	//player
+    	mTextures.add(Texture.loadTextureFromApk("CharTry2.png", getAssets()));	//player
     	mTextures.add(Texture.loadTextureFromApk("EyeBall180.png", getAssets()));	//eyeball
     	mTextures.add(Texture.loadTextureFromApk("tiletexture.png", getAssets()));	//tile/platform
 
@@ -783,7 +782,7 @@ public class ARGameActivity extends WifiRequiredActivity
      */
     private void onGameStateChange(String stateStr) {
     	
-    	
+    	pushDeviceState(obtainDeviceState());
     	//DebugLog.LOGI("onGameStateChange:" + stateStr);
     	
     	System.out.println(stateStr);
@@ -793,12 +792,6 @@ public class ARGameActivity extends WifiRequiredActivity
 
     		//Pull out official namespaces
     		JSONObject engineState = (JSONObject) gameState.get(GAME_ENGINE_NAMESPACE);
-    		
-    		// Give the server/game our last received timeElapsed or zero if there is none
-    		JSONObject newDeviceState = obtainDeviceState();
-    		newDeviceState.put("lastTimeElapsed", engineState.optLong("timeElapsed", -1));
-    		pushDeviceState(newDeviceState);
-    		
     		if(!GameParser.updated)
     		{
     			GameParser.parseEngineState(engineState, deviceUUID);
