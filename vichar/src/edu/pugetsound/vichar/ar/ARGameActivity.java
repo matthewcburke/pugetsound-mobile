@@ -156,7 +156,7 @@ public class ARGameActivity extends WifiRequiredActivity
     
     private static boolean test = false;
     private static final String STATIC_ENGINE_STATE = 
-    		"{gameRunning:false,turrets:{MattsTurret:{position:{x:-125,y:0,z:0}}},turretBullets:{MattsBullet:{position:{x:-250,y:0,z:50}}},fireballs:{MattsFireball:{position:{x:250,y:0,z:0}}},minions:{MattsMinion:{position:{x:125,y:0,z:0}}},batteries:{MattsBattey:{position:{x:500,y:0,z:0}}},player:{energy:0,position:{x:0,y:0,z:0}},eyeballs:{MattsEyeball:{position:{x:500,y:500,z:0}}},platforms:{rows:0,columns:0,deletedTiles:[[0,0]]}}"; // for use when not connected to the network
+    		"{gameRunning:false,turrets:{MattsTurret:{position:{x:-125,y:0,z:0}}},turretBullets:{MattsBullet:{position:{x:0,y:500,z:0}}},fireballs:{MattsFireball:{position:{x:250,y:0,z:0}}},minions:{MattsMinion:{position:{x:125,y:0,z:0}}},batteries:{MattsBattey:{position:{x:500,y:0,z:0}}},player:{energy:0,position:{x:0,y:0,z:0}},eyeballs:{MattsEyeball:{position:{x:500,y:500,z:0}}},platforms:{rows:0,columns:0,deletedTiles:[]}}"; // for use when not connected to the network
 
 	// Service Stuff
     private Messenger networkingServiceMessenger = null;
@@ -185,10 +185,10 @@ public class ARGameActivity extends WifiRequiredActivity
     private ImageView crosshair;
     private boolean buttonTimer1;
     private boolean buttonTimer2;
-    private boolean tooCloseToPlayer;
     private boolean noTarget;
     private boolean deviceMinionInGame;
     private boolean firstRun;
+    private boolean isGameRunning = false;
     
     private Button fireb;
     private Button minionb;
@@ -741,7 +741,9 @@ public class ARGameActivity extends WifiRequiredActivity
         Button tweetHandle = (Button)findViewById(edu.pugetsound.vichar.R.id.tweet_frag_button);    
         AlphaAnimation alpha = new AlphaAnimation(0.50f, 1f);
         alpha.setFillAfter(true);
-        tweetHandle.startAnimation(alpha);        
+        tweetHandle.startAnimation(alpha);  
+        
+        snapTwitterOff();
     }
     
     /**
@@ -782,12 +784,13 @@ public class ARGameActivity extends WifiRequiredActivity
     	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));
     	mTextures.add(Texture.loadTextureFromApk("towertoptexture.png", getAssets())); // turret
     	mTextures.add(Texture.loadTextureFromApk("projtexture.png", getAssets()));//turretbullet
-    	mTextures.add(Texture.loadTextureFromApk("platform.png", getAssets()));	//fireball
+    	mTextures.add(Texture.loadTextureFromApk("fireball.png", getAssets()));	//fireball
     	mTextures.add(Texture.loadTextureFromApk("minion_skin.png", getAssets()));	//minion
     	mTextures.add(Texture.loadTextureFromApk("battery.png", getAssets()));	//battery
     	mTextures.add(Texture.loadTextureFromApk("CharTry1.png", getAssets()));	//player
     	mTextures.add(Texture.loadTextureFromApk("eyeball.png", getAssets()));	//eyeball
     	mTextures.add(Texture.loadTextureFromApk("tiletexture.png", getAssets()));	//tile/platform
+    	mTextures.add(Texture.loadTextureFromApk("towerbottomtexture.png", getAssets()));
 
     }
     
@@ -917,6 +920,8 @@ public class ARGameActivity extends WifiRequiredActivity
     		//Pull out official namespaces
     		JSONObject engineState = (JSONObject) gameState.get(GAME_ENGINE_NAMESPACE);
     		
+    		checkGameOver(engineState);
+    		
     		// Give the server/game our last received timeElapsed or zero if there is none
     		JSONObject newDeviceState = obtainDeviceState();
     		newDeviceState.put("lastTimeElapsed", engineState.optLong("timeElapsed", -1));
@@ -955,18 +960,18 @@ public class ARGameActivity extends WifiRequiredActivity
 
     		updateTwitterState(webState);    		
     		updateHealthBar(engineState);
-    		updateDistanceCheck(engineState);
-    		if(tooCloseToPlayer && uiInflated) {
-    			DebugLog.LOGD("tooClose");
+    		//updateDistanceCheck(engineState);
+    		if(false && uiInflated) {
+    			//DebugLog.LOGD("tooClose");
     			makeWarningVis();
     			fireb.setEnabled(false);
-    		} else if (noTarget && uiInflated) {
-    			DebugLog.LOGD("NoTarget");
+    		} else if (false && uiInflated) {
+    			//DebugLog.LOGD("NoTarget");
     			makeWarningInvis();
     			fireb.setEnabled(false);
     		}
     		else if(uiInflated) {
-    			DebugLog.LOGD("should be good");
+    			//DebugLog.LOGD("should be good");
     			makeWarningInvis();
     			if(buttonTimer1) {
     				//do nothing
@@ -975,7 +980,7 @@ public class ARGameActivity extends WifiRequiredActivity
     				fireb.setEnabled(true);
     			}
     		} else {
-    			DebugLog.LOGD("ui not inflated");
+    			//DebugLog.LOGD("ui not inflated");
     		}
 
     	} catch(JSONException e) {
@@ -984,11 +989,28 @@ public class ARGameActivity extends WifiRequiredActivity
     	}
     }
     
+    private void checkGameOver(JSONObject engineState) {
+    	boolean isGameNowRunning = engineState.optBoolean("gameRunning", false);
+    	// We check if isGameRunning was true last time we checked so that end game only happens after the game has run
+    	if(!isGameNowRunning && isGameRunning) {
+    		isGameRunning = false;
+    		startActivity(new Intent(getApplicationContext(), LeaderboardActivity.class));
+    	} else if(isGameNowRunning) {
+    		isGameRunning = true;
+    	}
+    }
     
-    public void updateDistanceCheck(JSONObject engineState) throws JSONException {
+    private boolean hasTarget() {
+    	float[] cameraLoc = getCameraLocation();
+    	return (cameraLoc[0] == 1.0f);
+    }
+    
+    private boolean isTooCloseToPlayer(JSONObject engineState) throws JSONException {
+    	boolean tooCloseToPlayer = false;
+    	
     	JSONObject player = engineState.optJSONObject("player");
     	float[] cameraLoc = getCameraLocation();
-    	if(cameraLoc[0] == 1.0) {
+    	if(cameraLoc[0] == 1.0f) {
     		if(player != null) {
         		JSONObject playerPosition = new JSONObject();
         		playerPosition = player.getJSONObject("position");
@@ -1005,9 +1027,9 @@ public class ARGameActivity extends WifiRequiredActivity
         		float y = py - my;
         		float z = pz - mz;
         		float dist = FloatMath.sqrt((x * x) + (y * y) + (z * z));
-        		DebugLog.LOGD("dist: " + dist);
+        		//DebugLog.LOGD("dist: " + dist);
         		float minDist = 100f;
-        		DebugLog.LOGD("tooClose?: " + (dist < minDist));
+        		//DebugLog.LOGD("tooClose?: " + (dist < minDist));
         		
         		if(dist < minDist) {
         			tooCloseToPlayer = true;
@@ -1017,14 +1039,16 @@ public class ARGameActivity extends WifiRequiredActivity
         		}
     		}
     		else {
-    			DebugLog.LOGD("NoPlayer?!");
+    			//DebugLog.LOGD("NoPlayer?!");
     			tooCloseToPlayer = false;
     		}
     	}
     	else {
-    		DebugLog.LOGD("NoTarget!");
-    		noTarget = true;
+    		//DebugLog.LOGD("NoTarget!");
+    		tooCloseToPlayer = false;
     	}
+    	
+    	return tooCloseToPlayer;
     }
     
     private boolean checkFirstLaunch()  {
@@ -1283,7 +1307,6 @@ public class ARGameActivity extends WifiRequiredActivity
                             makeGameButtons();
                             resizeEyelids();  
                             resizeButtons();
-                            tooCloseToPlayer = false;
                             deviceMinionInGame = false;
                             makeWarningInvis();
                             showTutorials();

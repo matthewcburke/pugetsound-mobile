@@ -68,6 +68,8 @@
 #include "CharTry1.h"
 #include "EyeBall1.h"
 #include "battery.h"
+#include "tower.h"
+#include "fireball.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -96,6 +98,7 @@ float turAng = 0.0;  //UNUSED
 // An array used to pass camera pose information. The first entry is used as a flag to indicate whether or not a target is in sight.
 // the next three are x, y, and z locations respectively, and the last three are degrees of rotation around the x, y, and z axis respectively.
 float phoneLoc[7] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+float phoneZero[7] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
 int drawCount = 0.0;
 
@@ -115,7 +118,7 @@ QCAR::Matrix44F projectionMatrix;
 static const float kObjectScale = 20.f; // UPDATE:: increased the scale to properly display our models. It was 3 for the teapots.
 
 QCAR::DataSet* dataSetVichar    = 0;
-QCAR::DataSet* dataSetFlakesBox = 0;
+QCAR::DataSet* dataSetVicharFinal = 0;
 
 bool switchDataSetAsap          = false;
 //Known scale values entered, unkown values remain as kObjectScale
@@ -123,7 +126,7 @@ static const int turretId = 1;
 float turretScale[3] = {20.0, 20.0, 20.0};
 
 static const int turretBulletId = 2;
-float turretBulletScale[3] = {15.0, 15.0, 15.0};
+float turretBulletScale[3] = {5.0, 5.0, 5.0};
 
 //Turrent Base unimplemented thus far
 //static const int turretBaseId=*****;
@@ -133,7 +136,7 @@ static const int fireballId = 3;
 float fireballScale[3] = {20.0, 20.0, 20.0};   //These values assigned before fireball model created -- could need adjustment
 
 static const int minionId = 4;
-float minionScale[3] = {kObjectScale, kObjectScale, kObjectScale};
+float minionScale[3] = {15.0, 15.0, 15.0};
 
 static const int batteryId = 5;
 float batteryScale[3] = {10.0, 10.0, 10.0};
@@ -146,6 +149,8 @@ float eyeScale[3] = {kObjectScale, kObjectScale, kObjectScale};
 
 static const int platformId = 8;
 float platformScale[3] = {23.0f, 23.0f, 10.0f};
+
+float towerScale[3] = {20.0f, 20.0f, 40.0f};
 
 typedef struct _Model {
 	int id;
@@ -185,7 +190,7 @@ class ImageTargets_UpdateCallback : public QCAR::UpdateCallback
             QCAR::TrackerManager& trackerManager = QCAR::TrackerManager::getInstance();
             QCAR::ImageTracker* imageTracker = static_cast<QCAR::ImageTracker*>(
                 trackerManager.getTracker(QCAR::Tracker::IMAGE_TRACKER));
-            if (imageTracker == 0 || dataSetVichar == 0 || dataSetFlakesBox == 0 ||
+            if (imageTracker == 0 || dataSetVichar == 0 || dataSetVicharFinal == 0 ||
                 imageTracker->getActiveDataSet() == 0)
             {
                 LOG("Failed to switch data set.");
@@ -195,11 +200,11 @@ class ImageTargets_UpdateCallback : public QCAR::UpdateCallback
             if (imageTracker->getActiveDataSet() == dataSetVichar)
             {
                 imageTracker->deactivateDataSet(dataSetVichar);
-                imageTracker->activateDataSet(dataSetFlakesBox);
+                imageTracker->activateDataSet(dataSetVicharFinal);
             }
             else
             {
-                imageTracker->deactivateDataSet(dataSetFlakesBox);
+                imageTracker->deactivateDataSet(dataSetVicharFinal);
                 imageTracker->activateDataSet(dataSetVichar);
             }
         }
@@ -288,8 +293,8 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_loadTrackerData(JNIEnv *, jobject)
         return 0;
     }
 
-    dataSetFlakesBox = imageTracker->createDataSet();
-    if (dataSetFlakesBox == 0)
+    dataSetVicharFinal = imageTracker->createDataSet();
+    if (dataSetVicharFinal == 0)
     {
         LOG("Failed to create a new tracking data.");
         return 0;
@@ -302,7 +307,7 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_loadTrackerData(JNIEnv *, jobject)
         return 0;
     }
 
-    if (!dataSetFlakesBox->load("FlakesBox.xml", QCAR::DataSet::STORAGE_APPRESOURCE))
+    if (!dataSetVicharFinal->load("VicharFinal.xml", QCAR::DataSet::STORAGE_APPRESOURCE))
     {
         LOG("Failed to load data set.");
         return 0;
@@ -356,24 +361,24 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_destroyTrackerData(JNIEnv *, jobjec
         dataSetVichar = 0;
     }
 
-    if (dataSetFlakesBox != 0)
+    if (dataSetVicharFinal != 0)
     {
-        if (imageTracker->getActiveDataSet() == dataSetFlakesBox &&
-            !imageTracker->deactivateDataSet(dataSetFlakesBox))
+        if (imageTracker->getActiveDataSet() == dataSetVicharFinal &&
+            !imageTracker->deactivateDataSet(dataSetVicharFinal))
         {
             LOG("Failed to destroy the tracking data set FlakesBox because the data set "
                 "could not be deactivated.");
             return 0;
         }
 
-        if (!imageTracker->destroyDataSet(dataSetFlakesBox))
+        if (!imageTracker->destroyDataSet(dataSetVicharFinal))
         {
             LOG("Failed to destroy the tracking data set FlakesBox.");
             return 0;
         }
 
         LOG("Successfully destroyed the data set FlakesBox.");
-        dataSetFlakesBox = 0;
+        dataSetVicharFinal = 0;
     }
 
     return 1;
@@ -447,16 +452,16 @@ for(int i = 0; i<interpLength; i++)
 	            break;
 
 	        case 3:  //Fireball
-	        	current->vertPointer=&tower_shellVerts[0];
-	        	current->normPointer=&tower_shellNormals[0];
-	        	current->texPointer=&tower_shellTexCoords[0];
-	        	current->numVerts=tower_shellNumVerts;
+	        	current->vertPointer=&fireballVerts[0];
+	        	current->normPointer=&fireballNormals[0];
+	        	current->texPointer=&fireballTexCoords[0];
+	        	current->numVerts=fireballNumVerts;
 
 				scale[0]=fireballScale[0];
 				scale[1]=fireballScale[1];
 				scale[2]=fireballScale[2];
 
-	        	current->modelTex=textures[2];
+	        	current->modelTex=textures[3];
 
 	            break;
 
@@ -523,6 +528,19 @@ for(int i = 0; i<interpLength; i++)
 				scale[2]=platformScale[2];
 
 	        	current->modelTex=textures[8];
+	        	break;
+
+	        case 9:		//Platform
+	        	current->vertPointer=&towerVerts[0];
+	        	current->normPointer=&towerNormals[0];
+	        	current->texPointer=&towerTexCoords[0];
+	        	current->numVerts=towerNumVerts;
+
+	        	scale[0]=towerScale[0];
+	        	scale[1]=towerScale[1];
+	        	scale[2]=towerScale[2];
+
+	        	current->modelTex=textures[9];
 	        	break;
 
 	        default:
@@ -629,6 +647,22 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 
         //Get inverse
         test = SampleMath::phoneCoorMatrix(&pos);
+        LOG("Number active trackables: %f", state.getNumActiveTrackables());
+        //Begin multiTarget=============================================================
+        if (state.getNumActiveTrackables() > 1 && tIdx == 0) {
+        	const QCAR::Trackable* trackable2 = state.getActiveTrackable(1);
+        	QCAR::Matrix34F turret1Pos = trackable2->getPose();
+
+        	//Get relative position
+        	QCAR::Matrix34F turret1PosRelative = SampleMath::calcSecondPos(&pos, &turret1Pos);
+
+        	//Get position relative to the phone
+        	QCAR::Matrix34F turret1PosToPhone = SampleMath::vectorAdd(&test, &turret1PosRelative);
+
+        	LOG("Relative position: (%f, %f, %f)", turret1PosToPhone.data[3], turret1PosToPhone.data[7],
+        			turret1PosToPhone.data[11]);
+        }
+        //End===========================================================================
 
         //Get Euler angles
         QCAR::Vec3F euler = SampleMath::getEulerAngles(&test);
@@ -643,6 +677,9 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 //        LOG("%f %f %f %f",test.data[4], test.data[5], test.data[6], test.data[7]);
 //        LOG("%f %f %f %f",test.data[8], test.data[9], test.data[10], test.data[11]);
 //        LOG("=========================");
+
+        //LOG("Before scale: %f", test.data[3]);
+        //LOG("After scale of %f: %f", 1.0f/testScale, test.data[3] * (1.0f/testScale));
         phoneLoc[0] = 1.0f;
         phoneLoc[1] = test.data[3];// * (1.0f/testScale);
         phoneLoc[2] = test.data[7];// * (1.0f/testScale);
@@ -651,8 +688,9 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 		phoneLoc[5] = euler.data[1];
 	    phoneLoc[6] = euler.data[2];
 	    //print phone pose data
-	    //LOG("x: %f, y: %f, z: %f, xRot: %f, yRot: %f, zRot: %f",
-	    //		phoneLoc[1],phoneLoc[2],phoneLoc[3],phoneLoc[4],phoneLoc[5],phoneLoc[6]);
+//	    LOG("x: %f, y: %f, z: %f, xRot: %f, yRot: %f, zRot: %f",
+//	    		phoneLoc[1],phoneLoc[2],phoneLoc[3],phoneLoc[4],phoneLoc[5],phoneLoc[6]);
+
 //End============================================================================================
 
         // Assign Textures according in the texture indices defined at the beginning of the file, and based
@@ -803,7 +841,7 @@ Java_edu_pugetsound_vichar_ar_ARGameActivity_getCameraLocation(JNIEnv * env, job
 	cameraLocation = env->NewFloatArray(7);
 	// phone location and rotation.
 	env->SetFloatArrayRegion(cameraLocation, 0, 7, phoneLoc);
-	phoneLoc[0] = 0.0f; // reset flag to no target in sight ?? Bad idea?
+	phoneLoc[0] = phoneZero[0]; // reset flag to no target in sight ?? Bad idea?
 	return cameraLocation;
 }
 
