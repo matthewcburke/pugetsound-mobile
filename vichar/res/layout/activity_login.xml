@@ -21,11 +21,11 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"    
-        android:background="@drawable/grayscale_button_bg"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"    
+        android:background="@drawable/enter_guest_bg"
         android:text="@string/choose_username"
-        android:textColor="@drawable/game_button_txt" />
+        android:textColor="@color/yellow_text" />
 
 
 </RelativeLayout>

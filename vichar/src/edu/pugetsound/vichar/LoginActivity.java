@@ -3,13 +3,15 @@ package edu.pugetsound.vichar;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Build;
+import android.content.res.ColorStateList;
+import android.content.res.XmlResourceParser;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.AlphaAnimation;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -17,8 +19,8 @@ import android.widget.EditText;
 /**
  * An activity that allows the user to log into the game through the Vi-Char
  * server instead of twitter. 
- * @author Kirah Taylor
- * @version 10/24/12
+ * @author Kirah Taylor & Nathan Pastor
+ * @version 12/9/12
  */
 
 public class LoginActivity extends Activity {
@@ -62,28 +64,46 @@ public class LoginActivity extends Activity {
 		});
 	}
 	
+	/**
+	 * Sets button state to inactive
+	 */
 	@SuppressWarnings("deprecation")
 	@SuppressLint("NewApi")
 	private void setButtonInactive() {
 		Log.d("UI", "set button inactive");
 		Button button = (Button)findViewById(R.id.enter_guest);
+		//deal with deprecated method calls, ugh. setting background selector
 		if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN) {
-			button.setBackgroundDrawable(getResources().getDrawable(R.drawable.inactive_grayscale));
+			button.setBackgroundDrawable(getResources().getDrawable(R.drawable.enter_guest_bg));
 		} else {
-			button.setBackground(getResources().getDrawable(R.drawable.inactive_grayscale));
+			button.setBackground(getResources().getDrawable(R.drawable.enter_guest_bg));
 		}
+		
+		//set opacity
+        AlphaAnimation alpha = new AlphaAnimation(1f, 0.50f);
+        alpha.setFillAfter(true);
+        button.startAnimation(alpha);
 	}
 	
+	/**
+	 * Sets button state to active
+	 */
 	@SuppressLint("NewApi")
 	@SuppressWarnings("deprecation")
 	private void setButtonActive() {
 		Log.d("UI", "set button active");
 		Button button = (Button)findViewById(R.id.enter_guest);
+		//gross deprecated method calls, setting background selector
 		if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN) {
 			button.setBackgroundDrawable(getResources().getDrawable(R.drawable.grayscale_button_bg));
 		} else {
 			button.setBackground(getResources().getDrawable(R.drawable.grayscale_button_bg));
-		}
+		}		
+		
+		//set opacity
+        AlphaAnimation alpha = new AlphaAnimation(0.50f, 1f);
+        alpha.setFillAfter(true);
+        button.startAnimation(alpha);
 	}
 	
 	private OnClickListener startListener = new OnClickListener() {

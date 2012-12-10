@@ -58,6 +58,7 @@
     <color name="game_blue">#268bd2</color>
     <color name="twitter_blue">#4099FF</color>
     <color name="twitt_blue">#4099FF</color>
+    <color name="yellow_text">#FDD017</color>
 
     <string name="corner_radious">8dp</string>
 

@@ -899,7 +899,6 @@ public class ARGameActivity extends WifiRequiredActivity
             // Deinitialize QCAR SDK
             QCAR.deinit();   
         }
-        
         System.gc();
     }
 
@@ -1008,6 +1007,8 @@ public class ARGameActivity extends WifiRequiredActivity
                         {
                             // Hide the splash screen
                             mSplashScreenView.setVisibility(View.INVISIBLE);
+//                        	View splash = (View) findViewById(R.id.game_splash_screen);
+//                        	splash.setVisibility(View.GONE);
                             
                             // Activate the renderer
                             mRenderer.mIsActive = true;
@@ -1124,6 +1125,10 @@ public class ARGameActivity extends WifiRequiredActivity
         mSplashScreenView.setImageResource(mSplashScreenImageResource);
         addContentView(mSplashScreenView, new LayoutParams(
                         LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+//        LayoutInflater inflater = getLayoutInflater();
+//        View splash = inflater.inflate(R.layout.game_splash, null); 
+//        addContentView(splash, new LayoutParams(
+//                LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         
         mSplashScreenStartTime = System.currentTimeMillis();       
         
