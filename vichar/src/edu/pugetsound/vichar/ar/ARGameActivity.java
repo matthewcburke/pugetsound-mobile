@@ -994,7 +994,7 @@ public class ARGameActivity extends WifiRequiredActivity
     	// We check if isGameRunning was true last time we checked so that end game only happens after the game has run
     	if(!isGameNowRunning && isGameRunning) {
     		isGameRunning = false;
-    		startActivity(new Intent(getApplicationContext(), LeaderboardActivity.class));
+    		//startActivity(new Intent(getApplicationContext(), LeaderboardActivity.class));
     	} else if(isGameNowRunning) {
     		isGameRunning = true;
     	}
