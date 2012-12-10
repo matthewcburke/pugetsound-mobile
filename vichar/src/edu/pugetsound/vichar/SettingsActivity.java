@@ -9,6 +9,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.view.MenuItem;
 import android.content.Context;
+import android.graphics.PixelFormat;
 
 /**
  * Activity for the "Settings" screen
@@ -28,6 +29,10 @@ public class SettingsActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
         createButtons();
+        
+        //help with banding on gradients
+        getWindow().setFormat(PixelFormat.RGBA_8888);
+        
     }
     
     /*

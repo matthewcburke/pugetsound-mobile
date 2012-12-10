@@ -82,5 +82,6 @@
 
     <string name="desc">button filling animation</string>
     <string name="guest_name">guest name</string>
+    <color name="leaderboard_color">#fdf6e3</color>
 
 </resources>

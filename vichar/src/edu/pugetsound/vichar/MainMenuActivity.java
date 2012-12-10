@@ -14,8 +14,14 @@ import android.view.Window;
 import android.graphics.PixelFormat;
 import android.graphics.Typeface;
 import android.widget.Button;
+import android.graphics.drawable.ScaleDrawable;
+import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.view.MenuItem;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
 import android.content.Context;
 
 /**
@@ -29,17 +35,43 @@ public class MainMenuActivity extends WifiRequiredActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
         //help with banding on gradients
         getWindow().setFormat(PixelFormat.RGBA_8888);
+        
         setContentView(R.layout.activity_main_menu);
-        //set title to screenname
+        
+        //set title to screenname        
         setTitle(getScreenname());
-        createButtons();
+        createButtons();            
     }
     
     private void createButtons() {
     	Button gameb = (Button)findViewById(R.id.game_button); //declaring the button
         gameb.setOnClickListener(gameListener); //making the thing that checks if the button's been pushed
+        
+            //animation on play button
+            final Animation animation = new AlphaAnimation(1, (float) 0.8); // Change alpha from fully visible to invisible
+            animation.setDuration(1000); // duration - half a second
+            animation.setInterpolator(new LinearInterpolator()); // do not alter animation rate
+            animation.setRepeatCount(Animation.INFINITE); // Repeat animation infinitely
+            animation.setRepeatMode(Animation.REVERSE); // Reverse animation at the end so the button will fade back in
+            final Button btn = (Button) findViewById(R.id.game_button);
+            btn.startAnimation(animation);
+            
+         //scaling on play button icon
+            
+            // Get the scale drawable from your resources
+            ScaleDrawable scaleDraw = (ScaleDrawable)getResources().getDrawable(R.drawable.robot_icon);
+            // set the Level to 1 (or anything higher than 0)
+            scaleDraw.setLevel(1);
+            
+            FrameLayout foreb = (FrameLayout)findViewById(R.id.foreground_gameb);
+                    
+            // Now assign the drawable where you need it
+  
+            //    foreb.setForeground(scaleDraw);
+        
         
         Button mainb = (Button)findViewById(R.id.about_button); //declaring the button
         mainb.setOnClickListener(aboutListener); //making the thing that checks if the button's been pushed
@@ -79,6 +111,7 @@ public class MainMenuActivity extends WifiRequiredActivity {
     	public void onClick(View v) { 
         	
     		startActivity(new Intent(context, ARGameActivity.class)); // MB: Start ARGameActivity
+        	v.clearAnimation();
         }
        };
        

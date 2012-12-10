@@ -1,7 +1,28 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" 
-	android:background="@drawable/leaderboard"
-    >
-</RelativeLayout>
+    android:layout_height="match_parent"
+    android:background="@drawable/leaderboard" 
+    android:weightSum="10"     
+    android:orientation="vertical" >
+    <View 
+        android:layout_weight="8"
+      	android:layout_width="0dp"
+      	android:layout_height="0dp"
+        />
+     <Button
+	        android:drawableRight="@drawable/arrow_up_left_2"
+	        android:layout_width="fill_parent"
+      		android:layout_height="0dp"
+        	android:layout_weight="2"
+        	android:layout_marginTop="1dp"
+        	android:gravity="left|top"
+	        android:id="@+id/main_menu_button"
+	        android:layout_margin="1dp"
+            android:paddingTop="1dp"
+            android:paddingBottom="1dp"
+	        android:textColor="@drawable/game_button_txt"
+	        style="@style/ShadowTextStyle"
+	        android:background="@drawable/rules_button_bg"
+	        android:text="@string/enter_main_menu" />
+</LinearLayout>
