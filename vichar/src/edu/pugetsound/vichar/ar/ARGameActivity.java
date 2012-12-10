@@ -185,6 +185,7 @@ public class ARGameActivity extends WifiRequiredActivity
     private boolean buttonTimer2;
     private boolean noTarget;
     private boolean deviceMinionInGame;
+    private boolean isGameRunning = false;
     
     private Button fireb;
     private Button minionb;
@@ -900,6 +901,8 @@ public class ARGameActivity extends WifiRequiredActivity
     		//Pull out official namespaces
     		JSONObject engineState = (JSONObject) gameState.get(GAME_ENGINE_NAMESPACE);
     		
+    		checkGameOver(engineState);
+    		
     		// Give the server/game our last received timeElapsed or zero if there is none
     		JSONObject newDeviceState = obtainDeviceState();
     		newDeviceState.put("lastTimeElapsed", engineState.optLong("timeElapsed", -1));
@@ -955,6 +958,16 @@ public class ARGameActivity extends WifiRequiredActivity
     	}
     }
     
+    private void checkGameOver(JSONObject engineState) {
+    	boolean isGameNowRunning = engineState.optBoolean("gameRunning", false);
+    	// We check if isGameRunning was true last time we checked so that end game only happens after the game has run
+    	if(!isGameNowRunning && isGameRunning) {
+    		isGameRunning = false;
+    		startActivity(new Intent(getApplicationContext(), LeaderboardActivity.class));
+    	} else if(isGameNowRunning) {
+    		isGameRunning = true;
+    	}
+    }
     
     private boolean hasTarget() {
     	float[] cameraLoc = getCameraLocation();
