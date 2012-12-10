@@ -1,55 +1,62 @@
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/settings_portrait" 
-    android:orientation="vertical" 
-    android:weightSum="6.5">
-    
-	<ImageView 
-	    android:layout_weight="3.8"
-	    android:id="@+id/vichar_robot"
-	    android:layout_width="wrap_content"
+    android:background="@drawable/settings_portrait"
+    android:orientation="vertical"
+    android:weightSum="6.5" >
+
+    <View
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@drawable/robot_icon_large_mdpi"
-	    />
-	
+        android:layout_weight=".25" />
+
+    <ImageView
+        android:id="@+id/vichar_robot"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_gravity="center"
+        android:layout_weight="3"
+        android:src="@drawable/robot_icon_large_mdpi" />
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight=".25" />
+
     <Button
         android:id="@+id/login_with_twitter"
+        style="@style/ShadowTextStyle"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:onClick="authorizeTwitter"
-        android:text="@string/login_with_twitter"
-        android:includeFontPadding="true"
-        android:textColor="@drawable/grayscale_button_txt"
-        style="@style/ShadowTextStyle"
-        android:textSize="28sp"
+        android:layout_margin="5dp"
+        android:layout_weight="1.61803398875"
         android:background="@drawable/twitter_button_bg"
         android:drawableRight="@drawable/twitter_icon_white"
-		android:layout_margin="5dp"
-		android:layout_weight="1.61803398875"
-             	   android:paddingRight="5dp"
-                   android:paddingBottom="5dp"
-                   android:gravity="center|left" />
-
+        android:gravity="center|left"
+        android:includeFontPadding="true"
+        android:onClick="authorizeTwitter"
+        android:paddingBottom="5dp"
+        android:paddingRight="5dp"
+        android:text="@string/login_with_twitter"
+        android:textColor="@drawable/grayscale_button_txt"
+        android:textSize="28sp" />
+
     <Button
-        android:drawableRight="@drawable/user"
         android:id="@+id/login_with_vichar"
+        style="@style/ShadowTextStyle"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:textColor="@drawable/grayscale_button_txt"
-        style="@style/ShadowTextStyle"
+        android:layout_margin="5dp"
+        android:layout_weight="1"
         android:background="@drawable/grayscale_button_bg"
+        android:drawableRight="@drawable/user"
+        android:gravity="center|left"
         android:onClick="authorizeLoginwithVichar"
+        android:paddingBottom="5dp"
+        android:paddingRight="5dp"
+        android:paddingTop="5dp"
         android:text="@string/play_as_guest"
-		android:layout_margin="5dp"
-             	   android:paddingTop="5dp"
-                   android:paddingBottom="5dp"
-                   android:paddingRight="5dp"
-                   android:gravity="center|left"
-                   android:layout_weight="1" />
-    
-
+        android:textColor="@drawable/grayscale_button_txt" />
 
 </LinearLayout>
