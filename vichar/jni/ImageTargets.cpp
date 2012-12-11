@@ -647,8 +647,9 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 
         //Get inverse
         test = SampleMath::phoneCoorMatrix(&pos);
-        LOG("Number active trackables: %f", state.getNumActiveTrackables());
+        //LOG("Number active trackables: %f", state.getNumActiveTrackables());
         //Begin multiTarget=============================================================
+        /*
         if (state.getNumActiveTrackables() > 1 && tIdx == 0) {
         	const QCAR::Trackable* trackable2 = state.getActiveTrackable(1);
         	QCAR::Matrix34F turret1Pos = trackable2->getPose();
@@ -659,9 +660,25 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
         	//Get position relative to the phone
         	QCAR::Matrix34F turret1PosToPhone = SampleMath::vectorAdd(&test, &turret1PosRelative);
 
-        	LOG("Relative position: (%f, %f, %f)", turret1PosToPhone.data[3], turret1PosToPhone.data[7],
-        			turret1PosToPhone.data[11]);
-        }
+        	//LOG("Relative position: (%f, %f, %f)", turret1PosToPhone.data[3], turret1PosToPhone.data[7],
+        		//	turret1PosToPhone.data[11]);
+        		 */
+
+        	// Choose the texture based on the target name:
+			if (strcmp(trackable->getName(), "Asteroid") == 0)
+			{
+				const QCAR::Trackable* trackable2 = state.getActiveTrackable(1);
+				QCAR::Matrix34F turret1Pos = trackable2->getPose();
+
+				//Get relative position
+				QCAR::Matrix34F turret1PosRelative = SampleMath::calcSecondPos(&pos, &turret1Pos);
+
+				//Get position relative to the phone
+				QCAR::Matrix34F turret1PosToPhone = SampleMath::vectorAdd(&test, &turret1PosRelative);
+				LOG("FOUND IT");
+			}
+			else {
+
         //End===========================================================================
 
         //Get Euler angles
@@ -832,6 +849,7 @@ Java_edu_pugetsound_vichar_ar_ARGameRenderer_renderFrame(JNIEnv * env, jobject o
 #endif
 	//END
     QCAR::Renderer::getInstance().end();
+}
 }
 
 JNIEXPORT jfloatArray JNICALL
