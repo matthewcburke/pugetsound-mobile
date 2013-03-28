@@ -13,12 +13,12 @@ In the Fall of 2012 a Software Engineering course at the University of Puget Sou
 
 Overall, the project was a success.
 
-The final product involoved:
+The final product involved:
 
 - A game engine built with Unity, to run the game,
 - A module interpreting inputs from the Kinect and passing them the game engine, 
 - An Android application to allow phone users to view the game play in augmented reality and participate in the game play by firing projectiles at the main character, and lastly,
-- A web server to provide a communication link between the phones and the game engine, and put a public face on the whole project. 
+- A web server to provide a communication link between the phones and the game engine and put a public face on the whole project. 
 
 This repository contains the code of the resultant Android application. Ten students working in two teams created this application.
 
@@ -39,6 +39,8 @@ The Android application is a collaboration between the Mobile team and the augme
 
 I played a prominent role throughout the project(as evidenced by the [contributors graphs](https://github.com/matthewcburke/pugetsound-mobile/contributors)), but especially in the AR team([graph](https://github.com/matthewcburke/augmented-reality/contributors)). I carried the overall vision for the AR team and in many cases implemented key features of the application. I made significant contributions to the following files:
 
-1. [GameParser.java](https://github.com/matthewcburke/pugetsound-mobile/blob/develop/vichar/src/edu/pugetsound/vichar/ar/GameParser.java)- This class parses a JSON object retieved from the server that represents the current game state (locations of all of the objects) and inputs the data into a float array to be passed through the Java Native Interface to the C++ code.
+1. [GameParser.java](https://github.com/matthewcburke/pugetsound-mobile/blob/develop/vichar/src/edu/pugetsound/vichar/ar/GameParser.java)- This class parses a JSON object retrieved from the server that represents the current game state (locations of all of the objects) and inputs the data into a float array to be passed through the Java Native Interface to the C++ code.
 2. [ARGameActivity.java](https://github.com/matthewcburke/pugetsound-mobile/blob/develop/vichar/src/edu/pugetsound/vichar/ar/ARGameActivity.java)- This is the game Activity in the Android application.
 3. [ImageTargets.cpp](https://github.com/matthewcburke/pugetsound-mobile/blob/develop/vichar/jni/ImageTargets.cpp)- This is where the magic happens. Large portions of this file are from a [Vuforia](https://developer.vuforia.com/) sample application. We have made significant modifications to it so that it will draw multiple different objects where we want them.
+
+In addition to contributing code, I spent a lot of time and energy fitting the whole system together. This included creating, modifying or converting assets like image targets and Blender models so that they would work with our application, fine tuning our interfaces with the other teams on the project, and frequently debugging and integrating other team members' contributions.
