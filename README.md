@@ -1,50 +1,44 @@
-git-flow
-========
-This project uses [git-flow](https://github.com/nvie/gitflow/).
+# Vi-Char Android App
+This is one piece of the University of Puget Sound Fall 2012 Software Engineering course project.
 
-Here are the [installation instructions](https://github.com/nvie/gitflow/wiki/Installation).
+## Overview
 
-Here are [usage instruction](http://jeffkreeftmeijer.com/2010/why-arent-you-using-git-flow/).
+In the Fall of 2012 a Software Engineering course at the University of Puget Sound set out to develop a medium-sized software system as a group project involving all twenty-five students. Our intrepid professor, Joel Ross, wanted game in which a main character was controlled by a group of puppeteers whose actions were captured by a Microsoft Kinect. Furthermore, we needed to create a way for additional players to view and interact with the game using Android phones and augmented-reality technology. 
 
-Here's an explanation of the [branching model](http://nvie.com/posts/a-successful-git-branching-model/) git-flow uses.
+### More info 
+- View the [course syllabus](http://cs.pugetsound.edu/~jross/courses/archive/f12/csci240/)
+- View a static version of the [project website](http://cs.pugetsound.edu/~jross/courses/archive/f12/csci240/vichar).
 
-Also, it's best to to use `git pull --rebase` when pulling the develop branch so as to keep commit history clean.
+## Outcomes
 
-Style Conventions
-=================
+Overall, the project was a success.
 
-All mobile Android code should follow the official Android style guide: http://source.android.com/source/code-style.html
+The final product involoved:
 
-Installation
-===========
+- A game engine built with Unity, to run the game,
+- A module interpreting inputs from the Kinect and passing them the game engine, 
+- An Android application to allow phone users to view the game play in augmented reality and participate in the game play by firing projectiles at the main character, and lastly,
+- A web server to provide a communication link between the phones and the game engine, and put a public face on the whole project. 
 
-Note that the AR activity will not run on the emulator, only on a phone with a camera. It has only been tested on the school's Dell Venue running Android 2.2. Since integrating the AR activity into this app, some additional steps are required to get the app to build and run from Eclipse.
+This repository contains the code of the resultant Android application. Ten students working in two teams created this application.
 
-1. You will need to install the [Android NDK](http://developer.android.com/tools/sdk/ndk/index.html). It is required to build the application. More on building in step 5.
+Unfortunately, without the game engine and web server running, there is no game to play. However, you can still download the Android application, install it on your phone, point it at one of our AR image targets, and see the game board and game objects in mind-blowing augmented reality. 
 
-2. Eclipse Settings: If you don't already have the project open in an Eclipse work space, open a new workspace, and import the project as existing android code. 
+### Install the app
+- Download the [Android application](http://cs.pugetsound.edu/~jross/courses/archive/f12/csci240/vichar/apk/edu.pugetsound.vichar.SplashScreen.apk) and install it on your Android device (that is, as long as you trust us student developers).
+    - If you do download the application, you should also download an [image](https://raw.github.com/matthewcburke/pugetsound-mobile/develop/vichar/media/starCloud.jpg) to use as an augmented-reality target.
+    - Once you get the application installed, launch it, start the game, and then point your devices camera at the above image target. Try to fill the screen and move in and out like you are scanning a QR code. You should see a static version of the game board and a line up of the game objects.
 
-3. You need to add a new class path variable to the Java build path. Open the Eclipse Preferences pane. Go to Java->Build Path->Classpath Variables. Create a new classpath variable named 'QCAR_SDK_ROOT' and point its path at the root of the repository (i.e. `mobile/`). The `build/` folder must be in this directory.
+### A word on stability
+The application was primarily tested on Dell Venue phones running Android 2.2, so that is where it runs most smoothly. Additionally, the application received a flurry of contributions, from diverse developers, in the days leading up to the final presentation. Needless to say this didn't help stability. So hopefully it doesn't crash on you ... if it does, it sometimes works on the second try, but honestly, I haven't checked how the current version performs without the web-server running.
 
-4. Modify the Project->Properties, Select 'Java Build Path' from the left menu. Select the 'Libraries' pane. Click 'Add External JAR …' find QCAR.jar in the repository at `mobile/build/java/QCAR/QCAR.jar`, and click open to add the library. Now click on the 'Order and Export' pane and ensure that QCAR.jar is there and checked. The order also seems to matter. I'm not sure of the details, but if you put the QCAR.jar above the project `src/` and `gen/` folders in this list, it seems to work. 
+## My Contributions
+I have the repositories posted here so that others may see my work. As such, let me give an overview of what I contributed to this somewhat large project.
 
-5. Go to the command line and navigate to the project directory (unless you renamed something it should be `.../mobile/vichar/`. Run `ndk-build` (note: you need to have added the android-ndk directory to you environment PATH variable). You can also set up eclipse to run ndk-build. To do this:
+The Android application is a collaboration between the Mobile team and the augmented-reality (AR) team. I was a member of the AR team. The two teams initially had separate repositories. The AR team migrated their work into this, the mobile, repository about half way through the project. You can view a fork of the original AR repository [here](https://github.com/matthewcburke/augmented-reality).
 
-* open the project properties and
-* select `Builders` from the left hand menu,
-* click the `New...` button to create a new builder.
-* in the next window, select `Program` and click `OK`.
-* Name the builder 'ndk-build'.
-* Click `Browse File System...` to select a location. Navigate to where you installed the Android NDK and select the `ndk-build` program (`ndk-build.cmd` on windows). On a windows machine, eclipse will get angry if there is a space in this location string. Since mine was in `Program Files (x86)` I used the DOS short name. See here (http://en.wikipedia.org/wiki/Program_Files) to figure out what it is for your configuration (32 or 64 bit).
-* Click `Browse Workspace...` or `Browse File System...` and select the root project folder `vichar` as the 'Working Directory'.
-* In the Build Options set the builder to run `During a clean`, this way you can run Project > Clean everytime you pull
-* In the "Refresh" tab, you might want to set the builder to automatically refresh all resources (just be sure to save before you pull and/or project > clean).
-* Click `OK` to finish.
+I played a prominent role throughout the project(as evidenced by the [contributors graphs](https://github.com/matthewcburke/pugetsound-mobile/contributors)), but especially in the AR team([graph](https://github.com/matthewcburke/augmented-reality/contributors)). I carried the overall vision for the AR team and in many cases implemented key features of the application. I made significant contributions to the following files:
 
-_Note:_ you only need to re-run `ndk-build` if you have made changes to the native resources in the `jni/` folder. Otherwise, I believe that you can modify java code and still run the program.
-
-6. Back in Eclipse, Clean the project. 
-
-At this point you should be able to run the application on a phone. 
-
-
+1. [GameParser.java](https://github.com/matthewcburke/pugetsound-mobile/blob/develop/vichar/src/edu/pugetsound/vichar/ar/GameParser.java)- This class parses a JSON object retieved from the server that represents the current game state (locations of all of the objects) and inputs the data into a float array to be passed through the Java Native Interface to the C++ code.
+2. [ARGameActivity.java](https://github.com/matthewcburke/pugetsound-mobile/blob/develop/vichar/src/edu/pugetsound/vichar/ar/ARGameActivity.java)- This is the game Activity in the Android application.
+3. [ImageTargets.cpp](https://github.com/matthewcburke/pugetsound-mobile/blob/develop/vichar/jni/ImageTargets.cpp)- This is where the magic happens. Large portions of this file are from a [Vuforia](https://developer.vuforia.com/) sample application. We have made significant modifications to it so that it will draw multiple different objects where we want them.
