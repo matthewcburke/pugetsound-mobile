@@ -3,7 +3,7 @@ This is one piece of the University of Puget Sound Fall 2012 Software Engineerin
 
 ## Overview
 
-In the Fall of 2012 a Software Engineering course at the University of Puget Sound set out to develop a medium-sized software system as a group project involving all twenty-five students. Our intrepid professor, Joel Ross, wanted game in which a main character was controlled by a group of puppeteers whose actions were captured by a Microsoft Kinect. Furthermore, we needed to create a way for additional players to view and interact with the game using Android phones and augmented-reality technology. 
+In the Fall of 2012 a Software Engineering course at the University of Puget Sound set out to develop a medium-sized software system as a group project involving all twenty-five students. Our intrepid professor, Joel Ross, wanted a game in which a main character was controlled by a group of puppeteers whose actions were captured by a Microsoft Kinect. Furthermore, we needed to create a way for additional players to view and interact with the game using Android phones and augmented-reality technology. 
 
 ### More info 
 - View the [course syllabus](http://cs.pugetsound.edu/~jross/courses/archive/f12/csci240/)
